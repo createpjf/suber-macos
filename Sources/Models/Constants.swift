@@ -27,58 +27,87 @@ enum AppConstants {
     ]
 }
 
-/// Adaptive theme that follows system appearance.
-/// Dark mode uses the original Chrome extension colors.
-/// Light mode uses carefully matched light equivalents.
-enum Theme {
-    // MARK: - Adaptive Colors (resolve at render time via NSColor)
+// MARK: - Font Helpers
 
+/// Custom font using Space Grotesk with system fallback.
+enum AppFont {
+    static func regular(_ size: CGFloat) -> Font {
+        .custom("SpaceGrotesk-Regular", size: size)
+    }
+
+    static func medium(_ size: CGFloat) -> Font {
+        .custom("SpaceGrotesk-Medium", size: size)
+    }
+
+    static func bold(_ size: CGFloat) -> Font {
+        .custom("SpaceGrotesk-Bold", size: size)
+    }
+
+    static func light(_ size: CGFloat) -> Font {
+        .custom("SpaceGrotesk-Light", size: size)
+    }
+}
+
+/// Adaptive theme that follows system appearance.
+/// Light mode matches the reference UI: light bg, prominent gray cells.
+/// Dark mode uses darker equivalents.
+enum Theme {
+    // MARK: - Adaptive Colors
+
+    /// Main background — light: near-white, dark: dark gray
     static let bgPrimary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.102, green: 0.102, blue: 0.102, alpha: 1) // #1a1a1a
-            : NSColor(red: 0.976, green: 0.976, blue: 0.980, alpha: 1) // #f9f9fa
+            ? NSColor(red: 0.102, green: 0.102, blue: 0.102, alpha: 1)   // #1a1a1a
+            : NSColor(red: 0.976, green: 0.976, blue: 0.980, alpha: 1)   // #f9f9fa
     })
 
+    /// Secondary background — light: white, dark: slightly lighter
     static let bgSecondary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.165, green: 0.165, blue: 0.165, alpha: 1) // #2a2a2a
-            : NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1)       // #ffffff
+            ? NSColor(red: 0.165, green: 0.165, blue: 0.165, alpha: 1)   // #2a2a2a
+            : NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1)         // #ffffff
     })
 
+    /// Cell background — light: visible gray to match reference, dark: darker gray
     static let bgCell = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.165, green: 0.165, blue: 0.165, alpha: 1) // #2a2a2a
-            : NSColor(red: 0.965, green: 0.965, blue: 0.972, alpha: 1) // #f7f7f8
+            ? NSColor(red: 0.165, green: 0.165, blue: 0.165, alpha: 1)   // #2a2a2a
+            : NSColor(red: 0.918, green: 0.922, blue: 0.933, alpha: 1)   // #eaebee
     })
 
+    /// Primary text — light: near-black, dark: white
     static let textPrimary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 1, green: 1, blue: 1, alpha: 1)              // white
-            : NSColor(red: 0.09, green: 0.09, blue: 0.11, alpha: 1)     // #17171c
+            ? NSColor(red: 1, green: 1, blue: 1, alpha: 1)
+            : NSColor(red: 0.09, green: 0.09, blue: 0.11, alpha: 1)      // #17171c
     })
 
+    /// Secondary text — light: medium gray, dark: lighter gray
     static let textSecondary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.533, green: 0.533, blue: 0.533, alpha: 1) // #888888
-            : NSColor(red: 0.40, green: 0.40, blue: 0.44, alpha: 1)    // #666670
+            ? NSColor(red: 0.533, green: 0.533, blue: 0.533, alpha: 1)   // #888888
+            : NSColor(red: 0.40, green: 0.40, blue: 0.44, alpha: 1)      // #666670
     })
 
+    /// Dim text — light: faded gray, dark: dark gray
     static let textDim = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.333, green: 0.333, blue: 0.333, alpha: 1) // #555555
-            : NSColor(red: 0.65, green: 0.65, blue: 0.68, alpha: 1)    // #a6a6ad
+            ? NSColor(red: 0.333, green: 0.333, blue: 0.333, alpha: 1)   // #555555
+            : NSColor(red: 0.60, green: 0.60, blue: 0.63, alpha: 1)      // #9999a0
     })
 
+    /// Accent color — same as textPrimary (dark buttons)
     static let accent = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             ? NSColor(red: 1, green: 1, blue: 1, alpha: 1)
-            : NSColor(red: 0.09, green: 0.09, blue: 0.11, alpha: 1)
+            : NSColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1)      // #26262e
     })
 
+    /// Border color
     static let border = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 1) // #333333
-            : NSColor(red: 0.88, green: 0.88, blue: 0.90, alpha: 1) // #e0e0e6
+            ? NSColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 1)      // #333333
+            : NSColor(red: 0.88, green: 0.88, blue: 0.90, alpha: 1)      // #e0e0e6
     })
 
     // MARK: - Status Colors (same in both modes)

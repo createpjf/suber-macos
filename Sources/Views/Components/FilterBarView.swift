@@ -10,7 +10,7 @@ struct FilterBarView: View {
             ForEach(filters, id: \.self) { filter in
                 Button(action: { selected = filter }) {
                     Text(filter.capitalized)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(AppFont.medium(10))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(selected == filter ? Theme.textPrimary : Theme.bgSecondary)

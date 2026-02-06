@@ -15,8 +15,11 @@ targets:
     platform: macOS
     sources:
       - path: Sources
-    resources:
       - path: Assets.xcassets
+        buildPhase: resources
+    resources:
+      - path: Sources/Resources/Fonts
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.subreminder.app

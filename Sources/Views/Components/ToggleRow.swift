@@ -7,7 +7,7 @@ struct ToggleRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.system(size: 13))
+                .font(AppFont.regular(13))
                 .foregroundColor(Theme.textPrimary)
             Spacer()
             Toggle("", isOn: $isOn)

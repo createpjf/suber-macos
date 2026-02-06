@@ -25,14 +25,31 @@ struct ListView: View {
 
                 HStack {
                     FilterBarView(selected: $statusFilter)
-                    Picker("", selection: $sortBy) {
+                    Menu {
                         ForEach(SortBy.allCases) { sort in
-                            Text(sort.rawValue).tag(sort)
+                            Button(action: { sortBy = sort }) {
+                                if sort == sortBy {
+                                    Label(sort.rawValue, systemImage: "checkmark")
+                                } else {
+                                    Text(sort.rawValue)
+                                }
+                            }
                         }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(sortBy.rawValue)
+                                .font(AppFont.regular(12))
+                                .foregroundColor(Theme.textPrimary)
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.system(size: 8, weight: .medium))
+                                .foregroundColor(Theme.textSecondary)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Theme.bgCell)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 110)
-                    .tint(Theme.textSecondary)
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 12)
@@ -43,13 +60,13 @@ struct ListView: View {
                 Spacer()
                 VStack(spacing: 8) {
                     Text(subscriptionStore.subscriptions.isEmpty ? "📦" : "🔍")
-                        .font(.system(size: 32))
+                        .font(AppFont.regular(32))
                     Text(subscriptionStore.subscriptions.isEmpty ? "No subscriptions yet" : "No matching subscriptions")
-                        .font(.system(size: 13))
+                        .font(AppFont.regular(13))
                         .foregroundColor(Theme.textSecondary)
                     if subscriptionStore.subscriptions.isEmpty {
                         Text("Tap + to add your first one")
-                            .font(.system(size: 11))
+                            .font(AppFont.regular(11))
                             .foregroundColor(Theme.textDim)
                     }
                 }

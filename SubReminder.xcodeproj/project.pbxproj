@@ -9,19 +9,23 @@
 /* Begin PBXBuildFile section */
 		041864F34303753DFBF34591 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5CE7AC8F6C5FDB956A3387 /* StorageService.swift */; };
 		07B55EA483C9F3DB7B50B7C0 /* CalendarDayCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFA759F29948483A1CCEC96 /* CalendarDayCellView.swift */; };
+		0E35A15E2900684F53727035 /* SpaceGrotesk-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B75CFF860A50254D4A7B7C71 /* SpaceGrotesk-Regular.ttf */; };
 		10AEBB6432045062C61E0A1F /* SubscriptionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699D95053AC239A687188226 /* SubscriptionStoreTests.swift */; };
 		2CDD27F4013AA53FE5E1B0EC /* BillingCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16054B07E064D1387F095719 /* BillingCalculatorTests.swift */; };
 		2E4EE894F3E6C77C023BBA73 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD2D6BA9377D2079A9ABDF1 /* Constants.swift */; };
 		3C833FE00B4CD9F24F0C9376 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804B8BE0D50D142408984549 /* SettingsView.swift */; };
+		3D6D08357E0037CB8DA316BB /* SpaceGrotesk-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 626AB8BBACBB3583CC0932EC /* SpaceGrotesk-Bold.ttf */; };
 		4261965257CF85C893C0B0D9 /* LogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8DEE18D147954D9611BEDA /* LogoView.swift */; };
 		473162CDB9FDBB7FD886B345 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFE5C8858659200B1A1453C /* MenuBarView.swift */; };
 		48461F97C7EC49F0BE0D6FD7 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60673D5E8B5097A44B17F8F0 /* ListView.swift */; };
 		53FAD9FC9D5605582BA76573 /* SubscriptionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77047722C594DC5C8C396C17 /* SubscriptionStore.swift */; };
+		595F741A127E991EFCA72981 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09625D629E7C8D47E37A984E /* ImageCache.swift */; };
 		5B7CD374696C80CB434896A3 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E022E08EB6AEE60224A65AA /* SearchBarView.swift */; };
 		6815BCA1CED36AA2C519905F /* SubscriptionFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1381F2890F7F75C41AFD29 /* SubscriptionFormView.swift */; };
 		74A2B699C24051C6A1CED892 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F04632DE3C364AD0A4DA16B /* Subscription.swift */; };
 		790DFA94A3721DA5768FC991 /* BillingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EA3955528EA303DD04639 /* BillingCalculator.swift */; };
 		7FB18C6E9A3E6B15E42B76D5 /* FilterBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E1EAE27A77E2BF09F99833 /* FilterBarView.swift */; };
+		888E9CE8D4F119F616167241 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CDD7613D86B559EE66312E6 /* Assets.xcassets */; };
 		8C7EE571D956115E23EEF64F /* DayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BBA446F7E416DE53BB56D7E /* DayDetailView.swift */; };
 		9EE8DB8CFF0CBDEC32441D9D /* SubReminderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F58563A75D7608ADBAB48A78 /* SubReminderApp.swift */; };
 		A665AF82A33167E2370DD34E /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE3946FF43C5AFBE5E4790C5 /* NotificationService.swift */; };
@@ -31,8 +35,10 @@
 		B9DD16D42ACAA91387D2CDC0 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D736969EF49F22CF2B97228 /* Settings.swift */; };
 		BA144B0750C1EE03483D175C /* ToggleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A49A49DF18BC0827CF3A28 /* ToggleRow.swift */; };
 		CBFDD2E40E91D58ED4358A72 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC1F30B59B75AFFC8048536 /* CurrencyFormatter.swift */; };
+		D25B0A7000E31D23868D421F /* SpaceGrotesk-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B7677FD4E3E66A40EFAC9A4F /* SpaceGrotesk-Medium.ttf */; };
 		DFC61CC4B3B91360D3C47F64 /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F524CA41F5A02533295D05 /* TopBarView.swift */; };
 		E993905C8A841287082FBDBD /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC6B391CF6B6D1F38E4B726 /* SettingsStore.swift */; };
+		F3FC99568D9CC5E3EBBBBC1D /* SpaceGrotesk-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DE2BCB844ACACD2B003A221E /* SpaceGrotesk-Light.ttf */; };
 		FC2D0EC56DC4FA7F0890F4AF /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3EE6B14FEE19E9568A6C23 /* DateHelpers.swift */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +54,8 @@
 
 /* Begin PBXFileReference section */
 		007FBFF7B4ECEDB85B6EF09F /* SubReminderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubReminderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		09625D629E7C8D47E37A984E /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		0CDD7613D86B559EE66312E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		16054B07E064D1387F095719 /* BillingCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingCalculatorTests.swift; sourceTree = "<group>"; };
 		1AFA759F29948483A1CCEC96 /* CalendarDayCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayCellView.swift; sourceTree = "<group>"; };
 		280C1BB81F80D79543D883C4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -62,6 +70,7 @@
 		5F3EE6B14FEE19E9568A6C23 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
 		5FFE5C8858659200B1A1453C /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		60673D5E8B5097A44B17F8F0 /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
+		626AB8BBACBB3583CC0932EC /* SpaceGrotesk-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Bold.ttf"; sourceTree = "<group>"; };
 		695374D32F3EC5C3B53DC979 /* SubReminder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubReminder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		699D95053AC239A687188226 /* SubscriptionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStoreTests.swift; sourceTree = "<group>"; };
 		6BBA446F7E416DE53BB56D7E /* DayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailView.swift; sourceTree = "<group>"; };
@@ -71,10 +80,13 @@
 		8BC1F30B59B75AFFC8048536 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		8E022E08EB6AEE60224A65AA /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		8F04632DE3C364AD0A4DA16B /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
+		B75CFF860A50254D4A7B7C71 /* SpaceGrotesk-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Regular.ttf"; sourceTree = "<group>"; };
+		B7677FD4E3E66A40EFAC9A4F /* SpaceGrotesk-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Medium.ttf"; sourceTree = "<group>"; };
 		B96EA3955528EA303DD04639 /* BillingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingCalculator.swift; sourceTree = "<group>"; };
 		B9A49A49DF18BC0827CF3A28 /* ToggleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleRow.swift; sourceTree = "<group>"; };
 		CE3946FF43C5AFBE5E4790C5 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		DCC6B391CF6B6D1F38E4B726 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		DE2BCB844ACACD2B003A221E /* SpaceGrotesk-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Light.ttf"; sourceTree = "<group>"; };
 		E6F524CA41F5A02533295D05 /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarView.swift; sourceTree = "<group>"; };
 		F58563A75D7608ADBAB48A78 /* SubReminderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubReminderApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -87,6 +99,14 @@
 				007FBFF7B4ECEDB85B6EF09F /* SubReminderTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0FD8C1EB7EA55BCFD600290F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7086685C4B39BA07166FEF94 /* Fonts */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		12642A82A6CEAFC9795EBEE9 /* Tests */ = {
@@ -103,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				B96EA3955528EA303DD04639 /* BillingCalculator.swift */,
+				09625D629E7C8D47E37A984E /* ImageCache.swift */,
 				CE3946FF43C5AFBE5E4790C5 /* NotificationService.swift */,
 				4C5CE7AC8F6C5FDB956A3387 /* StorageService.swift */,
 			);
@@ -136,6 +157,17 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		7086685C4B39BA07166FEF94 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				626AB8BBACBB3583CC0932EC /* SpaceGrotesk-Bold.ttf */,
+				DE2BCB844ACACD2B003A221E /* SpaceGrotesk-Light.ttf */,
+				B7677FD4E3E66A40EFAC9A4F /* SpaceGrotesk-Medium.ttf */,
+				B75CFF860A50254D4A7B7C71 /* SpaceGrotesk-Regular.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		7AC46EE316708ED071CEFD94 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -148,6 +180,7 @@
 		833D4D0F63E656DBFA58CD47 = {
 			isa = PBXGroup;
 			children = (
+				0CDD7613D86B559EE66312E6 /* Assets.xcassets */,
 				CD21DE80AE14E709E10B3433 /* Sources */,
 				12642A82A6CEAFC9795EBEE9 /* Tests */,
 				07EE70FEE89530C14BD38728 /* Products */,
@@ -160,6 +193,7 @@
 				280C1BB81F80D79543D883C4 /* Info.plist */,
 				F58563A75D7608ADBAB48A78 /* SubReminderApp.swift */,
 				6C210032BE660EFB7D668FDE /* Models */,
+				0FD8C1EB7EA55BCFD600290F /* Resources */,
 				1B7E2C0E114085D3446C4A5C /* Services */,
 				7AC46EE316708ED071CEFD94 /* Utilities */,
 				D6B8947898C34B4F57FCD277 /* ViewModels */,
@@ -196,6 +230,7 @@
 			buildConfigurationList = F9746D1FD763EADFAE7B9D2F /* Build configuration list for PBXNativeTarget "SubReminder" */;
 			buildPhases = (
 				94890C9A14D2962B32F52B95 /* Sources */,
+				DEA1FA6E52E275278B7A7AEA /* Resources */,
 			);
 			buildRules = (
 			);
@@ -263,6 +298,21 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		DEA1FA6E52E275278B7A7AEA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				888E9CE8D4F119F616167241 /* Assets.xcassets in Resources */,
+				3D6D08357E0037CB8DA316BB /* SpaceGrotesk-Bold.ttf in Resources */,
+				F3FC99568D9CC5E3EBBBBC1D /* SpaceGrotesk-Light.ttf in Resources */,
+				D25B0A7000E31D23868D421F /* SpaceGrotesk-Medium.ttf in Resources */,
+				0E35A15E2900684F53727035 /* SpaceGrotesk-Regular.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		0099F47AF90E1BFB31F0B252 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -286,6 +336,7 @@
 				FC2D0EC56DC4FA7F0890F4AF /* DateHelpers.swift in Sources */,
 				8C7EE571D956115E23EEF64F /* DayDetailView.swift in Sources */,
 				7FB18C6E9A3E6B15E42B76D5 /* FilterBarView.swift in Sources */,
+				595F741A127E991EFCA72981 /* ImageCache.swift in Sources */,
 				48461F97C7EC49F0BE0D6FD7 /* ListView.swift in Sources */,
 				4261965257CF85C893C0B0D9 /* LogoView.swift in Sources */,
 				473162CDB9FDBB7FD886B345 /* MenuBarView.swift in Sources */,

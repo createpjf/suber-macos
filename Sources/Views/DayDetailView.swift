@@ -11,7 +11,7 @@ struct DayDetailView: View {
             // Handle
             HStack {
                 Text(DateHelpers.formatDate(date))
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(AppFont.medium(13))
                     .foregroundColor(Theme.textPrimary)
 
                 Spacer()
@@ -41,10 +41,10 @@ struct DayDetailView: View {
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(sub.name)
-                                        .font(.system(size: 13, weight: .medium))
+                                        .font(AppFont.medium(13))
                                         .foregroundColor(Theme.textPrimary)
                                     Text(sub.category)
-                                        .font(.system(size: 10))
+                                        .font(AppFont.regular(10))
                                         .foregroundColor(Theme.textSecondary)
                                 }
 
@@ -52,10 +52,10 @@ struct DayDetailView: View {
 
                                 VStack(alignment: .trailing, spacing: 2) {
                                     Text(CurrencyFormatter.formatShort(sub.amount, currency: sub.currency))
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .font(AppFont.medium(13))
                                         .foregroundColor(Theme.textPrimary)
                                     Text(sub.cycle.shortLabel)
-                                        .font(.system(size: 10))
+                                        .font(AppFont.regular(10))
                                         .foregroundColor(Theme.textSecondary)
                                 }
                             }

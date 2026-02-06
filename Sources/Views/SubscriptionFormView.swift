@@ -32,165 +32,130 @@ struct SubscriptionFormView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text(isEdit ? "Edit Subscription" : "Add Subscription")
-                    .font(.system(size: 14, weight: .semibold))
+                Text(isEdit ? "Edit subscription" : "Add subscription")
+                    .font(AppFont.medium(16))
                     .foregroundColor(Theme.textPrimary)
                 Spacer()
                 Button(action: onCancel) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 12, weight: .bold))
                         .foregroundColor(Theme.textSecondary)
-                        .frame(width: 24, height: 24)
-                        .background(Theme.bgSecondary)
+                        .frame(width: 28, height: 28)
+                        .background(Theme.bgCell)
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-
-            Divider().background(Theme.border)
+            .padding(.horizontal, 24)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
 
             // Form
             ScrollView {
-                VStack(spacing: 12) {
-                    // Name
-                    formField("Name") {
-                        TextField("e.g. Netflix", text: $formData.name)
+                VStack(alignment: .leading, spacing: 18) {
+                    // Service
+                    field("Service") {
+                        TextField("Netflix, Spotify...", text: $formData.name)
                             .textFieldStyle(.plain)
-                            .font(.system(size: 13))
+                            .font(AppFont.regular(14))
                             .foregroundColor(Theme.textPrimary)
                     }
 
-                    // URL + Logo
-                    HStack(spacing: 10) {
-                        formField("Website URL") {
-                            TextField("https://netflix.com", text: $formData.url)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 13))
-                                .foregroundColor(Theme.textPrimary)
-                        }
-                        if !formData.url.isEmpty, let _ = URL(string: formData.url) {
-                            LogoView(subscription: previewSubscription, size: 32)
-                                .padding(.top, 14)
-                        }
+                    // Domain
+                    field("Domain") {
+                        TextField("netflix.com", text: $formData.url)
+                            .textFieldStyle(.plain)
+                            .font(AppFont.regular(14))
+                            .foregroundColor(Theme.textPrimary)
                     }
 
-                    // Amount + Currency
-                    HStack(spacing: 10) {
-                        formField("Amount") {
-                            TextField("9.99", text: $formData.amount)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 13))
-                                .foregroundColor(Theme.textPrimary)
-                        }
-                        formField("Currency") {
-                            Picker("", selection: $formData.currency) {
-                                ForEach(AppConstants.currencies, id: \.self) { c in
-                                    Text("\(c) \(AppConstants.currencySymbols[c] ?? "")").tag(c)
+                    // Price + Interval
+                    HStack(alignment: .top, spacing: 16) {
+                        field("Price") {
+                            HStack(spacing: 6) {
+                                Button(action: { adjustAmount(-1) }) {
+                                    Image(systemName: "minus")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(Color(hex: "38b2ac"))
+                                        .frame(width: 28, height: 28)
+                                        .background(Theme.bgPrimary)
+                                        .clipShape(Circle())
                                 }
-                            }
-                            .pickerStyle(.menu)
-                            .tint(Theme.textPrimary)
-                        }
-                        .frame(width: 120)
-                    }
+                                .buttonStyle(.plain)
 
-                    // Billing Cycle + Billing Day
-                    HStack(spacing: 10) {
-                        formField("Billing Cycle") {
-                            Picker("", selection: $formData.cycle) {
-                                ForEach(BillingCycle.allCases) { cycle in
-                                    Text(cycle.label).tag(cycle)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .tint(Theme.textPrimary)
-                        }
-
-                        if formData.cycle != .weekly && formData.cycle != .oneTime {
-                            formField("Billing Day") {
-                                HStack {
-                                    TextField("15", value: $formData.billingDay, format: .number)
+                                HStack(spacing: 2) {
+                                    Text(AppConstants.currencySymbols[formData.currency] ?? "$")
+                                        .font(AppFont.regular(14))
+                                        .foregroundColor(Theme.textSecondary)
+                                    TextField("0.0", text: $formData.amount)
                                         .textFieldStyle(.plain)
-                                        .font(.system(size: 13))
+                                        .font(AppFont.regular(14))
                                         .foregroundColor(Theme.textPrimary)
-                                        .frame(width: 36)
-                                    Stepper("", value: $formData.billingDay, in: 1...31)
-                                        .labelsHidden()
                                 }
-                            }
-                            .frame(width: 120)
-                        }
-                    }
 
-                    // Start Date
-                    formField("Start Date") {
-                        DatePicker("", selection: $formData.startDate, displayedComponents: .date)
-                            .datePickerStyle(.compact)
-                            .labelsHidden()
-                            .tint(Theme.textPrimary)
-                    }
-
-                    // Category + Status
-                    HStack(spacing: 10) {
-                        formField("Category") {
-                            Picker("", selection: $formData.category) {
-                                ForEach(AppConstants.categories, id: \.self) { cat in
-                                    Text(cat).tag(cat)
+                                Button(action: { adjustAmount(1) }) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(Color(hex: "38b2ac"))
+                                        .frame(width: 28, height: 28)
+                                        .background(Theme.bgPrimary)
+                                        .clipShape(Circle())
                                 }
+                                .buttonStyle(.plain)
                             }
-                            .pickerStyle(.menu)
-                            .tint(Theme.textPrimary)
                         }
 
-                        formField("Status") {
-                            Picker("", selection: $formData.status) {
-                                ForEach(SubscriptionStatus.allCases) { status in
-                                    Text(status.label).tag(status)
-                                }
+                        menuField("Interval", displayText: formData.cycle.label) {
+                            ForEach(BillingCycle.allCases) { cycle in
+                                Button(cycle.label) { formData.cycle = cycle }
                             }
-                            .pickerStyle(.menu)
-                            .tint(Theme.textPrimary)
                         }
+                        .frame(width: 150)
                     }
 
-                    // Trial End Date
-                    if formData.status == .trial {
-                        formField("Trial End Date") {
-                            DatePicker("", selection: Binding(
-                                get: { formData.trialEndDate ?? Date() },
-                                set: { formData.trialEndDate = $0 }
-                            ), displayedComponents: .date)
-                                .datePickerStyle(.compact)
-                                .labelsHidden()
-                                .tint(Theme.textPrimary)
-                        }
+                    // Start date + End date
+                    HStack(alignment: .top, spacing: 16) {
+                        dateField("Start date", selection: $formData.startDate)
+                        dateField("End date", selection: Binding(
+                            get: { formData.trialEndDate ?? Date() },
+                            set: { formData.trialEndDate = $0 }
+                        ))
                     }
 
-                    // Notes
-                    formField("Notes") {
-                        TextEditor(text: $formData.notes)
-                            .font(.system(size: 13))
-                            .foregroundColor(Theme.textPrimary)
-                            .scrollContentBackground(.hidden)
-                            .frame(height: 50)
+                    // Category + Status + Currency
+                    HStack(alignment: .top, spacing: 16) {
+                        menuField("Category", displayText: formData.category) {
+                            ForEach(AppConstants.categories, id: \.self) { cat in
+                                Button(cat) { formData.category = cat }
+                            }
+                        }
+
+                        menuField("Status", displayText: formData.status.label) {
+                            ForEach(SubscriptionStatus.allCases) { status in
+                                Button(status.label) { formData.status = status }
+                            }
+                        }
+
+                        menuField("Currency", displayText: "\(AppConstants.currencySymbols[formData.currency] ?? "") \(formData.currency)") {
+                            ForEach(AppConstants.currencies, id: \.self) { c in
+                                Button("\(AppConstants.currencySymbols[c] ?? "") \(c)") { formData.currency = c }
+                            }
+                        }
                     }
                 }
-                .padding(16)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
             }
 
-            Divider().background(Theme.border)
-
-            // Action Buttons
-            HStack(spacing: 8) {
+            // Buttons
+            HStack(spacing: 10) {
                 if isEdit {
                     Button(action: { showDeleteConfirm = true }) {
                         Text("Delete")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(AppFont.medium(14))
                             .foregroundColor(Theme.danger)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
                             .background(Theme.danger.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -201,35 +166,31 @@ struct SubscriptionFormView: View {
 
                 Button(action: onCancel) {
                     Text("Cancel")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(Theme.textSecondary)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Theme.bgSecondary)
+                        .font(AppFont.medium(14))
+                        .foregroundColor(Theme.textPrimary)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(Theme.bgCell)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Theme.border, lineWidth: 1)
-                        )
                 }
                 .buttonStyle(.plain)
 
                 Button(action: {
                     if formData.isValid { onSave(formData) }
                 }) {
-                    Text(isEdit ? "Save" : "Add")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(formData.isValid ? Theme.bgPrimary : Theme.textSecondary)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(formData.isValid ? Theme.accent : Theme.bgSecondary)
+                    Text("Save")
+                        .font(AppFont.medium(14))
+                        .foregroundColor(formData.isValid ? Theme.bgPrimary : Theme.textDim)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 10)
+                        .background(formData.isValid ? Theme.accent : Theme.bgCell)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
                 .disabled(!formData.isValid)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
         }
         .background(Theme.bgPrimary)
         .alert("Delete Subscription", isPresented: $showDeleteConfirm) {
@@ -245,6 +206,16 @@ struct SubscriptionFormView: View {
     private var isEdit: Bool {
         if case .edit = mode { return true }
         return false
+    }
+
+    private func adjustAmount(_ delta: Double) {
+        let current = Double(formData.amount) ?? 0
+        let newVal = max(0, current + delta)
+        if newVal == floor(newVal) {
+            formData.amount = String(format: "%.0f", newVal)
+        } else {
+            formData.amount = String(format: "%.2f", newVal)
+        }
     }
 
     private var previewSubscription: Subscription {
@@ -265,21 +236,87 @@ struct SubscriptionFormView: View {
         )
     }
 
+    // MARK: - Field Components
+
     @ViewBuilder
-    private func formField<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+    private func field<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
             Text(label)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(Theme.textSecondary)
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
             content()
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Theme.bgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Theme.border, lineWidth: 1)
-                )
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.bgCell)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
+    }
+
+    @ViewBuilder
+    private func dateField(_ label: String, selection: Binding<Date>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
+            ZStack {
+                // Visible layout: date text on left, chevron on right
+                HStack {
+                    Text(formatDate(selection.wrappedValue))
+                        .font(AppFont.regular(14))
+                        .foregroundColor(Theme.textPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+
+                // Hidden DatePicker overlay for interaction
+                DatePicker("", selection: selection, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .blendMode(.destinationOver)
+                    .opacity(0.015)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.bgCell)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    @ViewBuilder
+    private func menuField<MenuContent: View>(_ label: String, displayText: String, @ViewBuilder content: () -> MenuContent) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
+            Menu {
+                content()
+            } label: {
+                HStack {
+                    Text(displayText)
+                        .font(AppFont.regular(14))
+                        .foregroundColor(Theme.textPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.bgCell)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: date)
     }
 }

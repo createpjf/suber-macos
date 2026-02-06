@@ -11,7 +11,7 @@ struct SearchBarView: View {
 
             TextField("Search subscriptions...", text: $text)
                 .textFieldStyle(.plain)
-                .font(.system(size: 12))
+                .font(AppFont.regular(12))
                 .foregroundColor(Theme.textPrimary)
 
             if !text.isEmpty {

@@ -18,7 +18,7 @@ struct SettingsView: View {
                 section("CURRENCY") {
                     HStack {
                         Text("Primary Currency")
-                            .font(.system(size: 13))
+                            .font(AppFont.regular(13))
                             .foregroundColor(Theme.textPrimary)
                         Spacer()
                         Picker("", selection: Binding(
@@ -39,15 +39,15 @@ struct SettingsView: View {
 
                 // Notifications
                 section("NOTIFICATIONS") {
-                    ToggleRow(label: "Enable notifications", isOn: Binding(
+                    ToggleRow(label: "Enable Notifications", isOn: Binding(
                         get: { settingsStore.settings.enableNotifications },
                         set: { val in settingsStore.update { $0.enableNotifications = val } }
                     ))
 
                     if settingsStore.settings.enableNotifications {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Remind before")
-                                .font(.system(size: 11))
+                            Text("Remind Before")
+                                .font(AppFont.regular(11))
                                 .foregroundColor(Theme.textSecondary)
 
                             HStack(spacing: 6) {
@@ -55,7 +55,7 @@ struct SettingsView: View {
                                     let isSelected = settingsStore.settings.reminderDaysBefore.contains(day)
                                     Button(action: { settingsStore.toggleReminderDay(day) }) {
                                         Text("\(day)d")
-                                            .font(.system(size: 11, weight: .medium))
+                                            .font(AppFont.medium(11))
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 6)
                                             .background(isSelected ? Theme.textPrimary : Theme.bgSecondary)
@@ -73,7 +73,7 @@ struct SettingsView: View {
 
                 // Launch at Login
                 section("GENERAL") {
-                    ToggleRow(label: "Launch at login", isOn: Binding(
+                    ToggleRow(label: "Launch at Login", isOn: Binding(
                         get: { settingsStore.settings.launchAtLogin },
                         set: { _ in settingsStore.toggleLaunchAtLogin() }
                     ))
@@ -98,7 +98,7 @@ struct SettingsView: View {
                                 Image(systemName: "trash")
                                     .font(.system(size: 11))
                                 Text("Clear All Data")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(AppFont.medium(12))
                             }
                             .foregroundColor(Theme.danger)
                             .frame(maxWidth: .infinity)
@@ -115,15 +115,35 @@ struct SettingsView: View {
                 // About
                 section("ABOUT") {
                     HStack {
-                        Text("SubReminder")
-                            .font(.system(size: 13))
+                        Text("Suber")
+                            .font(AppFont.regular(13))
                             .foregroundColor(Theme.textPrimary)
                         Spacer()
                         Text("v1.0.0")
-                            .font(.system(size: 12))
+                            .font(AppFont.regular(12))
                             .foregroundColor(Theme.textSecondary)
                     }
                 }
+
+                divider
+
+                // Quit
+                Button(action: {
+                    NSApplication.shared.terminate(nil)
+                }) {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.system(size: 12))
+                        Text("Quit Suber")
+                            .font(AppFont.medium(13))
+                    }
+                    .foregroundColor(Theme.textSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
             }
             .padding(.bottom, 16)
         }
@@ -149,7 +169,7 @@ struct SettingsView: View {
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
-                .font(.system(size: 10, weight: .bold))
+                .font(AppFont.bold(10))
                 .foregroundColor(Theme.textSecondary)
                 .tracking(1)
 
@@ -170,7 +190,7 @@ struct SettingsView: View {
                 Image(systemName: icon)
                     .font(.system(size: 11))
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(AppFont.medium(12))
             }
             .foregroundColor(Theme.textPrimary)
             .frame(maxWidth: .infinity)
@@ -197,7 +217,7 @@ struct SettingsView: View {
         panel.allowedContentTypes = [.json]
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        panel.nameFieldStringValue = "subreminder-backup-\(formatter.string(from: Date())).json"
+        panel.nameFieldStringValue = "suber-backup-\(formatter.string(from: Date())).json"
 
         if panel.runModal() == .OK, let url = panel.url {
             try? data.write(to: url)

@@ -8,6 +8,11 @@ struct CalendarView: View {
 
     @State private var currentMonth = Date()
     @State private var selectedDate: Date?
+    @State private var slideDirection: SlideDirection = .forward
+
+    private enum SlideDirection {
+        case forward, backward
+    }
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
     private let weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
@@ -18,7 +23,10 @@ struct CalendarView: View {
                 monthHeader
                 weekdayHeader
                 calendarGrid
+                    .id(DateHelpers.formatMonthYear(currentMonth))
+                    .transition(monthTransition)
             }
+            .clipped()
 
             if let selectedDate = selectedDate,
                let subs = subscriptionsByDate[DateHelpers.formatDayKey(selectedDate)],
@@ -35,46 +43,65 @@ struct CalendarView: View {
         .animation(.easeOut(duration: 0.2), value: selectedDate)
     }
 
+    private var monthTransition: AnyTransition {
+        switch slideDirection {
+        case .forward:
+            return .asymmetric(
+                insertion: .move(edge: .bottom).combined(with: .opacity),
+                removal: .move(edge: .top).combined(with: .opacity)
+            )
+        case .backward:
+            return .asymmetric(
+                insertion: .move(edge: .top).combined(with: .opacity),
+                removal: .move(edge: .bottom).combined(with: .opacity)
+            )
+        }
+    }
+
     // MARK: - Month Header
 
     private var monthHeader: some View {
         HStack {
-            HStack(spacing: 8) {
-                Text(DateHelpers.formatMonthYear(currentMonth))
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Theme.textPrimary)
-
+            HStack(spacing: 4) {
                 VStack(spacing: 2) {
                     Button(action: prevMonth) {
                         Image(systemName: "chevron.up")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Theme.textSecondary)
+                            .frame(width: 22, height: 16)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
 
                     Button(action: nextMonth) {
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Theme.textSecondary)
+                            .frame(width: 22, height: 16)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
+
+                Text(DateHelpers.formatMonthYear(currentMonth))
+                    .font(AppFont.bold(22))
+                    .foregroundColor(Theme.textPrimary)
             }
 
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text("Monthly spend")
-                    .font(.system(size: 10))
+                    .font(AppFont.regular(10))
                     .foregroundColor(Theme.textSecondary)
                 Text(monthlySpend)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(AppFont.bold(16))
                     .foregroundColor(Theme.textPrimary)
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
+        .padding(.top, 2)
+        .padding(.bottom, 4)
     }
 
     // MARK: - Weekday Header
@@ -83,7 +110,7 @@ struct CalendarView: View {
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(weekdays, id: \.self) { day in
                 Text(day)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(AppFont.medium(10))
                     .foregroundColor(Theme.textDim)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
@@ -114,7 +141,7 @@ struct CalendarView: View {
             }
         }
         .padding(.horizontal, 12)
-        .padding(.bottom, 12)
+        .padding(.bottom, 8)
     }
 
     // MARK: - Computed
@@ -138,11 +165,17 @@ struct CalendarView: View {
 
     private func prevMonth() {
         selectedDate = nil
-        currentMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth)!
+        slideDirection = .backward
+        withAnimation(.easeInOut(duration: 0.25)) {
+            currentMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth)!
+        }
     }
 
     private func nextMonth() {
         selectedDate = nil
-        currentMonth = Calendar.current.date(byAdding: .month, value: 1, to: currentMonth)!
+        slideDirection = .forward
+        withAnimation(.easeInOut(duration: 0.25)) {
+            currentMonth = Calendar.current.date(byAdding: .month, value: 1, to: currentMonth)!
+        }
     }
 }

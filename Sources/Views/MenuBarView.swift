@@ -26,17 +26,17 @@ struct MenuBarView: View {
                 Divider()
                     .background(Theme.border)
 
-                Group {
-                    switch currentView {
-                    case .calendar:
-                        CalendarView(onEdit: { editingSubscription = $0 })
-                    case .list:
-                        ListView(onEdit: { editingSubscription = $0 })
-                    case .settings:
-                        SettingsView()
-                    }
+                switch currentView {
+                case .calendar:
+                    CalendarView(onEdit: { editingSubscription = $0 })
+                        .frame(maxWidth: .infinity)
+                case .list:
+                    ListView(onEdit: { editingSubscription = $0 })
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                case .settings:
+                    SettingsView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
             // Add form overlay (replaces .sheet to avoid closing the popover)

@@ -7,17 +7,23 @@ struct TopBarView: View {
     var body: some View {
         ZStack {
             // Centered title
-            Text("SubReminder")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(Theme.textPrimary)
-                .tracking(0.5)
+            HStack(spacing: 6) {
+                Image("MenuBarIcon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 14, height: 14)
+                    .foregroundColor(Theme.textPrimary)
+                Text("Suber")
+                    .font(AppFont.medium(14))
+                    .foregroundColor(Theme.textPrimary)
+            }
 
             // Left + Right buttons
             HStack {
                 HStack(spacing: 6) {
-                    barButton(icon: "plus", action: onAdd)
+                    barButton(icon: "plus.circle", action: onAdd)
                     barButton(
-                        icon: currentView == .list ? "calendar" : "list.bullet",
+                        icon: currentView == .list ? "calendar" : "list.bullet.clipboard",
                         action: { currentView = currentView == .list ? .calendar : .list }
                     )
                 }
@@ -32,7 +38,7 @@ struct TopBarView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.vertical, 4)
     }
 
     @ViewBuilder

@@ -14,13 +14,13 @@ struct SubCardView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(subscription.name)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(AppFont.medium(13))
                     .foregroundColor(Theme.textPrimary)
                     .lineLimit(1)
 
                 HStack(spacing: 6) {
                     Text(subscription.category)
-                        .font(.system(size: 10))
+                        .font(AppFont.regular(10))
                         .foregroundColor(Theme.textSecondary)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -29,7 +29,7 @@ struct SubCardView: View {
 
                     if let daysText = daysUntilText {
                         Text(daysText)
-                            .font(.system(size: 10))
+                            .font(AppFont.regular(10))
                             .foregroundColor(Theme.textSecondary)
                     }
                 }
@@ -39,10 +39,10 @@ struct SubCardView: View {
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text(CurrencyFormatter.formatShort(subscription.amount, currency: subscription.currency))
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(AppFont.medium(13))
                     .foregroundColor(Theme.textPrimary)
                 Text(subscription.cycle.shortLabel)
-                    .font(.system(size: 10))
+                    .font(AppFont.regular(10))
                     .foregroundColor(Theme.textSecondary)
             }
         }

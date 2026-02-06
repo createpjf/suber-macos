@@ -32,6 +32,36 @@ enum DateHelpers {
         return days
     }
 
+    /// Returns dates for a compact calendar grid (5 or 6 weeks as needed).
+    static func calendarDaysCompact(for month: Date) -> [Date] {
+        let cal = calendar
+        guard let monthInterval = cal.dateInterval(of: .month, for: month) else { return [] }
+
+        let firstDayOfMonth = monthInterval.start
+        let lastDayOfMonth = cal.date(byAdding: .day, value: -1,
+            to: cal.date(byAdding: .month, value: 1, to: firstDayOfMonth)!)!
+
+        // Find the Monday on or before the first day of the month
+        let weekday = cal.component(.weekday, from: firstDayOfMonth)
+        let mondayOffset = (weekday + 5) % 7
+        guard let gridStart = cal.date(byAdding: .day, value: -mondayOffset, to: firstDayOfMonth) else {
+            return []
+        }
+
+        // Calculate how many weeks needed: find what row the last day falls in
+        let daysFromStart = cal.dateComponents([.day], from: gridStart, to: lastDayOfMonth).day! + 1
+        let weeksNeeded = Int(ceil(Double(daysFromStart) / 7.0))
+        let totalDays = weeksNeeded * 7
+
+        var days: [Date] = []
+        for i in 0..<totalDays {
+            if let date = cal.date(byAdding: .day, value: i, to: gridStart) {
+                days.append(cal.startOfDay(for: date))
+            }
+        }
+        return days
+    }
+
     /// Builds a map of "yyyy-MM-dd" → [Subscription] for a given month.
     static func subscriptionsByDate(month: Date, subscriptions: [Subscription]) -> [String: [Subscription]] {
         let cal = calendar
