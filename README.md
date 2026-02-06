@@ -1,8 +1,17 @@
-# Suber for macOS
+<p align="center">
+  <img src="Screenshots/app-icon.png" width="128" alt="Suber App Icon">
+</p>
 
-A native macOS menu bar app for tracking and managing your subscriptions. Built with Swift + SwiftUI.
+<h1 align="center">Suber</h1>
 
-Companion to the [Suber Chrome Extension](https://github.com/createpjf/subreminder).
+<p align="center">
+  A native macOS menu bar app for tracking and managing your subscriptions.<br>
+  Built with Swift + SwiftUI.
+</p>
+
+<p align="center">
+  Companion to the <a href="https://github.com/createpjf/subreminder">Suber Chrome Extension</a>
+</p>
 
 ## Features
 
@@ -19,9 +28,13 @@ Companion to the [Suber Chrome Extension](https://github.com/createpjf/subremind
 
 ## Screenshots
 
-| Calendar | List | Add Subscription |
-|----------|------|-----------------|
-| Calendar view with billing indicators | Filterable subscription list | Add/edit subscription form |
+<p align="center">
+  <img src="Screenshots/calendar.png" width="260" alt="Calendar View">
+  &nbsp;
+  <img src="Screenshots/list.png" width="260" alt="List View">
+  &nbsp;
+  <img src="Screenshots/add.png" width="260" alt="Add Subscription">
+</p>
 
 ## Requirements
 
