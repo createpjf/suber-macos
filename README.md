@@ -10,6 +10,14 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/createpjf/suber-macos/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/createpjf"><img src="https://img.shields.io/badge/GitHub-createpjf-181717?logo=github" alt="GitHub: createpjf"></a>
+  <a href="https://twitter.com/createpjf"><img src="https://img.shields.io/badge/Twitter-@createpjf-1DA1F2?logo=twitter&logoColor=white" alt="Twitter: @createpjf"></a>
+  <img src="https://img.shields.io/badge/platform-macOS_14+-black?logo=apple&logoColor=white" alt="Platform: macOS 14+">
+  <img src="https://img.shields.io/badge/Swift-5.9-F05138?logo=swift&logoColor=white" alt="Swift 5.9">
+</p>
+
+<p align="center">
   Companion to the <a href="https://github.com/createpjf/subreminder">Suber Chrome Extension</a>
 </p>
 
@@ -53,8 +61,8 @@ Download the latest `Suber-v1.0.0.dmg` from [Releases](../../releases), open it,
 
 ```bash
 # Clone
-git clone https://github.com/createpjf/subreminder-macos.git
-cd subreminder-macos
+git clone https://github.com/createpjf/suber-macos.git
+cd suber-macos
 
 # Install xcodegen (if not installed)
 brew install xcodegen
@@ -140,6 +148,10 @@ Tests/
 └── SubscriptionStoreTests.swift
 ```
 
+## Author
+
+**createpjf** — [@createpjf](https://twitter.com/createpjf)
+
 ## License
 
-MIT
+[MIT](LICENSE) © createpjf
