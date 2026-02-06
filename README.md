@@ -26,7 +26,7 @@
 - **Data export / import** — JSON backup and restore
 - **Custom typography** — Space Grotesk font throughout the UI
 
-## Screenshots
+## Product Function
 
 <p align="center">
   <img src="Screenshots/calendar.png" width="260" alt="Calendar View">
