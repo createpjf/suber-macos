@@ -272,13 +272,14 @@ struct SubscriptionFormView: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
+                .allowsHitTesting(false)
 
-                // Hidden DatePicker overlay for interaction
+                // Hidden DatePicker overlay — fills entire area for full clickability
                 DatePicker("", selection: selection, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .labelsHidden()
-                    .colorMultiply(.clear)
-                    .allowsHitTesting(true)
+                    .opacity(0.02)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.bgCell)

@@ -112,21 +112,6 @@ struct SettingsView: View {
 
                 divider
 
-                // About
-                section("ABOUT") {
-                    HStack {
-                        Text("Suber")
-                            .font(AppFont.regular(13))
-                            .foregroundColor(Theme.textPrimary)
-                        Spacer()
-                        Text("v1.0.0")
-                            .font(AppFont.regular(12))
-                            .foregroundColor(Theme.textSecondary)
-                    }
-                }
-
-                divider
-
                 // Quit
                 Button(action: {
                     NSApplication.shared.terminate(nil)
@@ -144,6 +129,35 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
+
+                divider
+
+                // About
+                section("ABOUT") {
+                    HStack {
+                        Text("Suber")
+                            .font(AppFont.regular(13))
+                            .foregroundColor(Theme.textPrimary)
+                        Spacer()
+                        Text("v1.0.0")
+                            .font(AppFont.regular(12))
+                            .foregroundColor(Theme.textSecondary)
+                    }
+                    Button(action: {
+                        if let url = URL(string: "https://github.com/createpjf/suber-macos") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "link")
+                                .font(.system(size: 11))
+                            Text("Website")
+                                .font(AppFont.regular(13))
+                        }
+                        .foregroundColor(Theme.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
             .padding(.bottom, 16)
         }
