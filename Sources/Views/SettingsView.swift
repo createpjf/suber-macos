@@ -139,7 +139,7 @@ struct SettingsView: View {
                             .font(AppFont.regular(13))
                             .foregroundColor(Theme.textPrimary)
                         Spacer()
-                        Text("v1.0.0")
+                        Text("v1.1.0")
                             .font(AppFont.regular(12))
                             .foregroundColor(Theme.textSecondary)
                     }

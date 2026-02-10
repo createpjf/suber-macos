@@ -259,30 +259,21 @@ struct SubscriptionFormView: View {
             Text(label)
                 .font(AppFont.medium(13))
                 .foregroundColor(Theme.textPrimary)
-            ZStack(alignment: .trailing) {
-                // Native DatePicker stretched to fill, tinted clear so invisible
+            HStack {
+                Text(formatDate(selection.wrappedValue))
+                    .font(AppFont.regular(14))
+                    .foregroundColor(Theme.textPrimary)
+                Spacer()
+                // Compact DatePicker as the clickable element on the right
                 DatePicker("", selection: selection, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .labelsHidden()
-                    .scaleEffect(x: 3, y: 1, anchor: .trailing)
-                    .opacity(0.015)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                // Visible display
-                HStack {
-                    Text(formatDate(selection.wrappedValue))
-                        .font(AppFont.regular(14))
-                        .foregroundColor(Theme.textPrimary)
-                    Spacer()
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(Theme.textSecondary)
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .allowsHitTesting(false)
+                    .fixedSize()
+                    .scaleEffect(0.9)
             }
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.bgCell)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
