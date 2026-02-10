@@ -149,12 +149,12 @@ struct SettingsView: View {
                         }
                     }) {
                         HStack(spacing: 6) {
-                            Image(systemName: "link")
-                                .font(.system(size: 11))
+                            githubLogo
                             Text("Website")
                                 .font(AppFont.regular(13))
                         }
                         .foregroundColor(Theme.textSecondary)
+                        .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.plain)
                 }
@@ -256,5 +256,13 @@ struct SettingsView: View {
                 showImportError = true
             }
         }
+    }
+
+    private var githubLogo: some View {
+        Image("github-mark")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 14, height: 14)
+            .opacity(0.6)
     }
 }

@@ -259,31 +259,14 @@ struct SubscriptionFormView: View {
             Text(label)
                 .font(AppFont.medium(13))
                 .foregroundColor(Theme.textPrimary)
-            ZStack {
-                // Visible layout: date text on left, chevron on right
-                HStack {
-                    Text(formatDate(selection.wrappedValue))
-                        .font(AppFont.regular(14))
-                        .foregroundColor(Theme.textPrimary)
-                    Spacer()
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(Theme.textSecondary)
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .allowsHitTesting(false)
-
-                // Hidden DatePicker overlay — fills entire area for full clickability
-                DatePicker("", selection: selection, displayedComponents: .date)
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-                    .opacity(0.02)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.bgCell)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            DatePicker("", selection: selection, displayedComponents: .date)
+                .datePickerStyle(.compact)
+                .labelsHidden()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Theme.bgCell)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 
