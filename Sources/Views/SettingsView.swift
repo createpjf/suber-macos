@@ -8,6 +8,16 @@ struct SettingsView: View {
     @State private var showClearConfirm = false
     @State private var importError: String?
     @State private var showImportError = false
+    @State private var updateState: UpdateCheckState = .idle
+
+    enum UpdateCheckState {
+        case idle
+        case checking
+        case available(UpdateService.Release)
+        case upToDate
+        case downloading
+        case error(String)
+    }
 
     private let reminderOptions = [1, 2, 3, 5, 7]
 
@@ -112,6 +122,18 @@ struct SettingsView: View {
 
                 divider
 
+                // Update
+                section("UPDATE") {
+                    updateSectionContent
+                }
+                .onAppear {
+                    if case .idle = updateState {
+                        checkForUpdate()
+                    }
+                }
+
+                divider
+
                 // Quit
                 Button(action: {
                     NSApplication.shared.terminate(nil)
@@ -139,7 +161,7 @@ struct SettingsView: View {
                             .font(AppFont.regular(13))
                             .foregroundColor(Theme.textPrimary)
                         Spacer()
-                        Text("v1.1.0")
+                        Text("v\(UpdateService.currentVersion)")
                             .font(AppFont.regular(12))
                             .foregroundColor(Theme.textSecondary)
                     }
@@ -217,6 +239,110 @@ struct SettingsView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Update Section
+
+    @ViewBuilder
+    private var updateSectionContent: some View {
+        switch updateState {
+        case .idle:
+            actionButton("Check for Updates", icon: "arrow.clockwise") {
+                checkForUpdate()
+            }
+        case .checking:
+            HStack(spacing: 8) {
+                ProgressView()
+                    .scaleEffect(0.7)
+                Text("Checking...")
+                    .font(AppFont.regular(12))
+                    .foregroundColor(Theme.textSecondary)
+            }
+        case .available(let release):
+            VStack(spacing: 8) {
+                HStack {
+                    Text("v\(release.version) available")
+                        .font(AppFont.medium(13))
+                        .foregroundColor(Theme.textPrimary)
+                    Spacer()
+                    Text("Current: v\(UpdateService.currentVersion)")
+                        .font(AppFont.regular(11))
+                        .foregroundColor(Theme.textDim)
+                }
+                actionButton("Download Update", icon: "arrow.down.circle") {
+                    downloadUpdate(release)
+                }
+            }
+        case .upToDate:
+            HStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(Theme.success)
+                Text("You're up to date (v\(UpdateService.currentVersion))")
+                    .font(AppFont.regular(12))
+                    .foregroundColor(Theme.textSecondary)
+                Spacer()
+                Button(action: { checkForUpdate() }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 11))
+                        .foregroundColor(Theme.textDim)
+                }
+                .buttonStyle(.plain)
+            }
+        case .downloading:
+            HStack(spacing: 8) {
+                ProgressView()
+                    .scaleEffect(0.7)
+                Text("Downloading...")
+                    .font(AppFont.regular(12))
+                    .foregroundColor(Theme.textSecondary)
+            }
+        case .error(let msg):
+            VStack(spacing: 8) {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 11))
+                        .foregroundColor(Theme.warning)
+                    Text(msg)
+                        .font(AppFont.regular(12))
+                        .foregroundColor(Theme.textSecondary)
+                }
+                actionButton("Retry", icon: "arrow.clockwise") {
+                    checkForUpdate()
+                }
+            }
+        }
+    }
+
+    private func checkForUpdate() {
+        updateState = .checking
+        Task {
+            do {
+                if let release = try await UpdateService.checkForUpdate() {
+                    await MainActor.run { updateState = .available(release) }
+                } else {
+                    await MainActor.run { updateState = .upToDate }
+                }
+            } catch {
+                await MainActor.run { updateState = .error("Check failed") }
+            }
+        }
+    }
+
+    private func downloadUpdate(_ release: UpdateService.Release) {
+        guard let dmgURL = release.dmgURL else {
+            updateState = .error("No DMG available")
+            return
+        }
+        updateState = .downloading
+        Task {
+            do {
+                _ = try await UpdateService.downloadAndOpen(dmgURL, version: release.version)
+                await MainActor.run { updateState = .upToDate }
+            } catch {
+                await MainActor.run { updateState = .error("Download failed") }
+            }
+        }
     }
 
     // MARK: - Export/Import

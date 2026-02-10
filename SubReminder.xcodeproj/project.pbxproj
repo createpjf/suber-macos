@@ -40,6 +40,12 @@
 		E993905C8A841287082FBDBD /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC6B391CF6B6D1F38E4B726 /* SettingsStore.swift */; };
 		F3FC99568D9CC5E3EBBBBC1D /* SpaceGrotesk-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DE2BCB844ACACD2B003A221E /* SpaceGrotesk-Light.ttf */; };
 		FC2D0EC56DC4FA7F0890F4AF /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3EE6B14FEE19E9568A6C23 /* DateHelpers.swift */; };
+		BB1111111111111111111111 /* KnownServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1111111111111111111111 /* KnownServices.swift */; };
+		BB2222222222222222222222 /* SubscriptionTextParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222222222222222222222 /* SubscriptionTextParser.swift */; };
+		BB3333333333333333333333 /* ImageRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3333333333333333333333 /* ImageRecognitionService.swift */; };
+		BB4444444444444444444444 /* ImageDropZoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4444444444444444444444 /* ImageDropZoneView.swift */; };
+		CC2222222222222222222222 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1111111111111111111111 /* Vision.framework */; };
+		7498CD23DFF93EB8DC23F32E /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79571DF19CD91F352F3AABD9 /* UpdateService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,7 +95,24 @@
 		DE2BCB844ACACD2B003A221E /* SpaceGrotesk-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Light.ttf"; sourceTree = "<group>"; };
 		E6F524CA41F5A02533295D05 /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarView.swift; sourceTree = "<group>"; };
 		F58563A75D7608ADBAB48A78 /* SubReminderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubReminderApp.swift; sourceTree = "<group>"; };
+		AA1111111111111111111111 /* KnownServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownServices.swift; sourceTree = "<group>"; };
+		AA2222222222222222222222 /* SubscriptionTextParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionTextParser.swift; sourceTree = "<group>"; };
+		AA3333333333333333333333 /* ImageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRecognitionService.swift; sourceTree = "<group>"; };
+		AA4444444444444444444444 /* ImageDropZoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDropZoneView.swift; sourceTree = "<group>"; };
+		CC1111111111111111111111 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+		79571DF19CD91F352F3AABD9 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EE1111111111111111111111 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC2222222222222222222222 /* Vision.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		07EE70FEE89530C14BD38728 /* Products */ = {
@@ -124,8 +147,11 @@
 			children = (
 				B96EA3955528EA303DD04639 /* BillingCalculator.swift */,
 				09625D629E7C8D47E37A984E /* ImageCache.swift */,
+				AA3333333333333333333333 /* ImageRecognitionService.swift */,
 				CE3946FF43C5AFBE5E4790C5 /* NotificationService.swift */,
+				AA2222222222222222222222 /* SubscriptionTextParser.swift */,
 				4C5CE7AC8F6C5FDB956A3387 /* StorageService.swift */,
+				79571DF19CD91F352F3AABD9 /* UpdateService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -151,6 +177,7 @@
 			isa = PBXGroup;
 			children = (
 				3AD2D6BA9377D2079A9ABDF1 /* Constants.swift */,
+				AA1111111111111111111111 /* KnownServices.swift */,
 				5D736969EF49F22CF2B97228 /* Settings.swift */,
 				8F04632DE3C364AD0A4DA16B /* Subscription.swift */,
 			);
@@ -183,6 +210,7 @@
 				0CDD7613D86B559EE66312E6 /* Assets.xcassets */,
 				CD21DE80AE14E709E10B3433 /* Sources */,
 				12642A82A6CEAFC9795EBEE9 /* Tests */,
+				DD1111111111111111111111 /* Frameworks */,
 				07EE70FEE89530C14BD38728 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -215,11 +243,20 @@
 			isa = PBXGroup;
 			children = (
 				32E1EAE27A77E2BF09F99833 /* FilterBarView.swift */,
+				AA4444444444444444444444 /* ImageDropZoneView.swift */,
 				7C8DEE18D147954D9611BEDA /* LogoView.swift */,
 				8E022E08EB6AEE60224A65AA /* SearchBarView.swift */,
 				B9A49A49DF18BC0827CF3A28 /* ToggleRow.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		DD1111111111111111111111 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CC1111111111111111111111 /* Vision.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -230,6 +267,7 @@
 			buildConfigurationList = F9746D1FD763EADFAE7B9D2F /* Build configuration list for PBXNativeTarget "SubReminder" */;
 			buildPhases = (
 				94890C9A14D2962B32F52B95 /* Sources */,
+				EE1111111111111111111111 /* Frameworks */,
 				DEA1FA6E52E275278B7A7AEA /* Resources */,
 			);
 			buildRules = (
@@ -329,6 +367,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				790DFA94A3721DA5768FC991 /* BillingCalculator.swift in Sources */,
+				BB1111111111111111111111 /* KnownServices.swift in Sources */,
 				07B55EA483C9F3DB7B50B7C0 /* CalendarDayCellView.swift in Sources */,
 				AF90D80D0539494FD333FCB0 /* CalendarView.swift in Sources */,
 				2E4EE894F3E6C77C023BBA73 /* Constants.swift in Sources */,
@@ -336,7 +375,9 @@
 				FC2D0EC56DC4FA7F0890F4AF /* DateHelpers.swift in Sources */,
 				8C7EE571D956115E23EEF64F /* DayDetailView.swift in Sources */,
 				7FB18C6E9A3E6B15E42B76D5 /* FilterBarView.swift in Sources */,
+				BB4444444444444444444444 /* ImageDropZoneView.swift in Sources */,
 				595F741A127E991EFCA72981 /* ImageCache.swift in Sources */,
+				BB3333333333333333333333 /* ImageRecognitionService.swift in Sources */,
 				48461F97C7EC49F0BE0D6FD7 /* ListView.swift in Sources */,
 				4261965257CF85C893C0B0D9 /* LogoView.swift in Sources */,
 				473162CDB9FDBB7FD886B345 /* MenuBarView.swift in Sources */,
@@ -350,9 +391,11 @@
 				9EE8DB8CFF0CBDEC32441D9D /* SubReminderApp.swift in Sources */,
 				74A2B699C24051C6A1CED892 /* Subscription.swift in Sources */,
 				6815BCA1CED36AA2C519905F /* SubscriptionFormView.swift in Sources */,
+				BB2222222222222222222222 /* SubscriptionTextParser.swift in Sources */,
 				53FAD9FC9D5605582BA76573 /* SubscriptionStore.swift in Sources */,
 				BA144B0750C1EE03483D175C /* ToggleRow.swift in Sources */,
 				DFC61CC4B3B91360D3C47F64 /* TopBarView.swift in Sources */,
+				7498CD23DFF93EB8DC23F32E /* UpdateService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,7 +503,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.subreminder.app;
 				SDKROOT = macosx;
 			};
@@ -495,7 +538,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.subreminder.app;
 				SDKROOT = macosx;
 			};

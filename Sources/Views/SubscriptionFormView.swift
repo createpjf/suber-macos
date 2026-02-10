@@ -15,6 +15,7 @@ struct SubscriptionFormView: View {
     @State private var showDeleteConfirm = false
     @State private var showStartDatePicker = false
     @State private var showEndDatePicker = false
+    @State private var showImageInput = false
 
     init(mode: FormMode, onSave: @escaping (SubscriptionFormData) -> Void, onCancel: @escaping () -> Void, onDelete: (() -> Void)? = nil) {
         self.mode = mode
@@ -38,6 +39,18 @@ struct SubscriptionFormView: View {
                     .font(AppFont.medium(16))
                     .foregroundColor(Theme.textPrimary)
                 Spacer()
+                if !isEdit {
+                    Button(action: { showImageInput = true }) {
+                        Image(systemName: "doc.viewfinder")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Theme.textSecondary)
+                            .frame(width: 28, height: 28)
+                            .background(Theme.bgCell)
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Scan image to auto-fill")
+                }
                 Button(action: onCancel) {
                     Image(systemName: "xmark")
                         .font(.system(size: 12, weight: .bold))
@@ -195,11 +208,86 @@ struct SubscriptionFormView: View {
             .padding(.vertical, 14)
         }
         .background(Theme.bgPrimary)
-        .alert("Delete Subscription", isPresented: $showDeleteConfirm) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) { onDelete?() }
-        } message: {
-            Text("Are you sure you want to delete this subscription?")
+        .overlay {
+            // Delete confirmation overlay (replaces .alert to stay within menu bar popover)
+            if showDeleteConfirm {
+                ZStack {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture { showDeleteConfirm = false }
+
+                    VStack(spacing: 16) {
+                        Text("Delete Subscription")
+                            .font(AppFont.medium(15))
+                            .foregroundColor(Theme.textPrimary)
+                        Text("Are you sure you want to delete this subscription?")
+                            .font(AppFont.regular(13))
+                            .foregroundColor(Theme.textSecondary)
+                            .multilineTextAlignment(.center)
+                        HStack(spacing: 12) {
+                            Button(action: { showDeleteConfirm = false }) {
+                                Text("Cancel")
+                                    .font(AppFont.medium(13))
+                                    .foregroundColor(Theme.textPrimary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 9)
+                                    .background(Theme.bgCell)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                            Button(action: {
+                                showDeleteConfirm = false
+                                onDelete?()
+                            }) {
+                                Text("Delete")
+                                    .font(AppFont.medium(13))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 9)
+                                    .background(Theme.danger)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(20)
+                    .background(Theme.bgSecondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .shadow(color: .black.opacity(0.15), radius: 10)
+                    .padding(.horizontal, 30)
+                }
+            }
+        }
+        .overlay {
+            if showImageInput {
+                ImageDropZoneView(
+                    onResult: { parsed in
+                        applyParsedData(parsed)
+                    },
+                    onCancel: { showImageInput = false }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: showImageInput)
+    }
+
+    // MARK: - Image Scan
+
+    private func applyParsedData(_ parsed: SubscriptionTextParser.ParsedSubscription) {
+        if let name = parsed.name { formData.name = name }
+        if let url = parsed.url { formData.url = url }
+        if let amount = parsed.amount { formData.amount = amount }
+        if let currency = parsed.currency { formData.currency = currency }
+        if let cycle = parsed.cycle { formData.cycle = cycle }
+        if let startDate = parsed.startDate { formData.startDate = startDate }
+        if let trialEndDate = parsed.trialEndDate { formData.trialEndDate = trialEndDate }
+        if let category = parsed.category { formData.category = category }
+        if let status = parsed.status { formData.status = status }
+
+        // Dismiss the image input after a brief delay so user sees the success message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            showImageInput = false
         }
     }
 
