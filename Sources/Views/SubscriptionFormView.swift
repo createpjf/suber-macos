@@ -13,6 +13,8 @@ struct SubscriptionFormView: View {
 
     @State private var formData: SubscriptionFormData
     @State private var showDeleteConfirm = false
+    @State private var showStartDatePicker = false
+    @State private var showEndDatePicker = false
 
     init(mode: FormMode, onSave: @escaping (SubscriptionFormData) -> Void, onCancel: @escaping () -> Void, onDelete: (() -> Void)? = nil) {
         self.mode = mode
@@ -115,11 +117,11 @@ struct SubscriptionFormView: View {
 
                     // Start date + End date
                     HStack(alignment: .top, spacing: 16) {
-                        dateField("Start date", selection: $formData.startDate)
+                        dateField("Start date", selection: $formData.startDate, showPicker: $showStartDatePicker)
                         dateField("End date", selection: Binding(
                             get: { formData.trialEndDate ?? Date() },
                             set: { formData.trialEndDate = $0 }
-                        ))
+                        ), showPicker: $showEndDatePicker)
                     }
 
                     // Category + Status + Currency
@@ -254,28 +256,50 @@ struct SubscriptionFormView: View {
     }
 
     @ViewBuilder
-    private func dateField(_ label: String, selection: Binding<Date>) -> some View {
+    private func dateField(_ label: String, selection: Binding<Date>, showPicker: Binding<Bool>) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label)
                 .font(AppFont.medium(13))
                 .foregroundColor(Theme.textPrimary)
-            HStack {
-                Text(formatDate(selection.wrappedValue))
-                    .font(AppFont.regular(14))
-                    .foregroundColor(Theme.textPrimary)
-                Spacer()
-                // Compact DatePicker as the clickable element on the right
-                DatePicker("", selection: selection, displayedComponents: .date)
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-                    .fixedSize()
-                    .scaleEffect(0.9)
+            Button(action: { showPicker.wrappedValue.toggle() }) {
+                HStack {
+                    Text(formatDate(selection.wrappedValue))
+                        .font(AppFont.regular(14))
+                        .foregroundColor(Theme.textPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.bgCell)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 6)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.bgCell)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .buttonStyle(.plain)
+            .popover(isPresented: showPicker) {
+                VStack(spacing: 6) {
+                    DatePicker("", selection: selection, displayedComponents: .date)
+                        .datePickerStyle(.graphical)
+                        .labelsHidden()
+                        .focusable(false)
+
+                    Button(action: {
+                        selection.wrappedValue = Date()
+                    }) {
+                        Text("Today")
+                            .font(AppFont.medium(12))
+                            .foregroundColor(Theme.textPrimary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                            .background(Theme.bgCell)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(8)
+            }
         }
     }
 
@@ -310,6 +334,12 @@ struct SubscriptionFormView: View {
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: date)
+    }
+
+    private func longFormatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d, yyyy"
         return formatter.string(from: date)
     }
 }
