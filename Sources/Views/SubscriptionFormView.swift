@@ -277,8 +277,8 @@ struct SubscriptionFormView: View {
                 DatePicker("", selection: selection, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .labelsHidden()
-                    .blendMode(.destinationOver)
-                    .opacity(0.015)
+                    .colorMultiply(.clear)
+                    .allowsHitTesting(true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.bgCell)
