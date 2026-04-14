@@ -3,9 +3,9 @@ import Foundation
 final class StorageService {
     static let shared = StorageService()
 
-    private let defaults = UserDefaults(suiteName: "group.com.subreminder.app") ?? UserDefaults.standard
-    private let subscriptionsKey = "subreminder-subscriptions"
-    private let settingsKey = "subreminder-settings"
+    private let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
+    private let subscriptionsKey = "suber-subscriptions"
+    private let settingsKey = "suber-settings"
 
     private let encoder: JSONEncoder = {
         let e = JSONEncoder()

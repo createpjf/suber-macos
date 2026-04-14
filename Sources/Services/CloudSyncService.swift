@@ -5,8 +5,8 @@ final class CloudSyncService {
     static let shared = CloudSyncService()
 
     private let kvStore = NSUbiquitousKeyValueStore.default
-    private let subscriptionsKey = "subreminder-subscriptions"
-    private let settingsKey = "subreminder-settings"
+    private let subscriptionsKey = "suber-subscriptions"
+    private let settingsKey = "suber-settings"
 
     /// Called when remote data arrives. Passes (subscriptions Data?, settings Data?).
     var onRemoteChange: ((Data?, Data?) -> Void)?

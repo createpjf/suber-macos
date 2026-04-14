@@ -1,5 +1,5 @@
 import XCTest
-@testable import SubReminder
+@testable import Suber
 
 final class BillingCalculatorTests: XCTestCase {
 

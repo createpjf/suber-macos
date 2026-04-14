@@ -4,7 +4,7 @@ import WidgetKit
 // MARK: - Shared Data Reader
 
 enum WidgetData {
-    private static let defaults = UserDefaults(suiteName: "group.com.subreminder.app")
+    private static let defaults = UserDefaults(suiteName: "group.com.suber.app")
 
     private static let decoder: JSONDecoder = {
         let d = JSONDecoder()
@@ -35,17 +35,17 @@ enum WidgetData {
     }()
 
     static func loadSubscriptions() -> [Subscription] {
-        guard let data = defaults?.data(forKey: "subreminder-subscriptions") else { return [] }
+        guard let data = defaults?.data(forKey: "suber-subscriptions") else { return [] }
         return (try? decoder.decode([Subscription].self, from: data)) ?? []
     }
 
     static func loadSettings() -> AppSettings {
-        guard let data = defaults?.data(forKey: "subreminder-settings") else { return AppSettings() }
+        guard let data = defaults?.data(forKey: "suber-settings") else { return AppSettings() }
         return (try? decoder.decode(AppSettings.self, from: data)) ?? AppSettings()
     }
 
     static func loadExchangeRates() -> [String: Double] {
-        guard let data = defaults?.data(forKey: "subreminder-exchange-rates"),
+        guard let data = defaults?.data(forKey: "suber-exchange-rates"),
               let rates = try? JSONDecoder().decode([String: Double].self, from: data) else {
             // Fallback rates
             return ["USD": 1.0, "EUR": 0.92, "GBP": 0.79, "CNY": 7.24, "JPY": 154.5,

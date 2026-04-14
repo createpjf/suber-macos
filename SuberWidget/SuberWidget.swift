@@ -36,7 +36,7 @@ struct UpcomingBillingWidget: Widget {
 // MARK: - Widget Bundle
 
 @main
-struct SubReminderWidgetBundle: WidgetBundle {
+struct SuberWidgetBundle: WidgetBundle {
     var body: some Widget {
         MonthlySpendWidget()
         UpcomingBillingWidget()

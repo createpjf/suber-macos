@@ -7,9 +7,9 @@ import Foundation
 final class ExchangeRateService {
     static let shared = ExchangeRateService()
 
-    private let defaults = UserDefaults(suiteName: "group.com.subreminder.app") ?? UserDefaults.standard
-    private let ratesKey = "subreminder-exchange-rates"
-    private let updatedAtKey = "subreminder-rates-updated-at"
+    private let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
+    private let ratesKey = "suber-exchange-rates"
+    private let updatedAtKey = "suber-rates-updated-at"
     private let refreshInterval: TimeInterval = 86400 // 24 hours
 
     /// Rates relative to USD (1 USD = X units of currency)

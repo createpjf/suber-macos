@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct SubReminderApp: App {
+struct SuberApp: App {
     @StateObject private var subscriptionStore = SubscriptionStore()
     @StateObject private var settingsStore = SettingsStore()
 

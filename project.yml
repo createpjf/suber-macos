@@ -1,6 +1,6 @@
-name: SubReminder
+name: Suber
 options:
-  bundleIdPrefix: com.subreminder
+  bundleIdPrefix: com.suber
   deploymentTarget:
     macOS: "14.0"
   generateEmptyDirectories: true
@@ -10,7 +10,7 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     CODE_SIGN_STYLE: Automatic
 targets:
-  SubReminder:
+  Suber:
     type: application
     platform: macOS
     sources:
@@ -22,21 +22,21 @@ targets:
         buildPhase: resources
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.subreminder.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.suber.app
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         INFOPLIST_FILE: Sources/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: false
-        CODE_SIGN_ENTITLEMENTS: Sources/SubReminder.entitlements
+        CODE_SIGN_ENTITLEMENTS: Sources/Suber.entitlements
     dependencies:
-      - target: SubReminderWidget
+      - target: SuberWidget
         embed: true
-  SubReminderWidget:
+  SuberWidget:
     type: app-extension
     platform: macOS
     sources:
-      - path: SubReminderWidget
+      - path: SuberWidget
       - path: Sources/Models/Subscription.swift
       - path: Sources/Models/Constants.swift
       - path: Sources/Models/Settings.swift
@@ -44,22 +44,22 @@ targets:
       - path: Sources/Utilities/CurrencyFormatter.swift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.subreminder.app.widget
+        PRODUCT_BUNDLE_IDENTIFIER: com.suber.app.widget
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
-        CODE_SIGN_ENTITLEMENTS: SubReminderWidget/SubReminderWidget.entitlements
-  SubReminderTests:
+        CODE_SIGN_ENTITLEMENTS: SuberWidget/SuberWidget.entitlements
+  SuberTests:
     type: bundle.unit-test
     platform: macOS
     sources:
       - path: Tests
     dependencies:
-      - target: SubReminder
+      - target: Suber
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.subreminder.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.suber.tests
         GENERATE_INFOPLIST_FILE: true
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/SubReminder.app/Contents/MacOS/SubReminder"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Suber.app/Contents/MacOS/Suber"
         BUNDLE_LOADER: "$(TEST_HOST)"
