@@ -1,3 +1,7 @@
+<p align="right">
+  <b>English</b> · <a href="./README.zh.md">中文</a>
+</p>
+
 <p align="center">
   <img src="Screenshots/app-icon.png" width="128" alt="Suber App Icon">
 </p>
@@ -5,8 +9,8 @@
 <h1 align="center">Suber</h1>
 
 <p align="center">
-  A native macOS menu bar app for tracking and managing your subscriptions.<br>
-  Built with Swift + SwiftUI.
+  A native macOS menu-bar app for tracking your subscriptions.<br>
+  Built with Swift and SwiftUI.
 </p>
 
 <p align="center">
@@ -17,140 +21,146 @@
   <img src="https://img.shields.io/badge/Swift-5.9-F05138?logo=swift&logoColor=white" alt="Swift 5.9">
 </p>
 
+## About
+
+Suber lives in your macOS menu bar and tracks every subscription you pay for — Netflix, iCloud, ChatGPT, that forgotten gym app — so renewal dates and total monthly spend are always one click away. Works across all your Macs with iCloud sync, speaks 20+ currencies, and doesn't send your data anywhere.
+
 <p align="center">
-  Companion to the <a href="https://github.com/createpjf/suber">Suber Chrome Extension</a>
+  <img src="Screenshots/calendar.png" width="260" alt="Calendar">
+  &nbsp;
+  <img src="Screenshots/list.png" width="260" alt="List">
+  &nbsp;
+  <img src="Screenshots/add.png" width="260" alt="Add subscription">
 </p>
 
 ## Features
 
-- **Menu bar app** — lives in the macOS menu bar, always one click away
-- **Calendar view** — visual monthly calendar with animated month transitions and billing date indicators
-- **List view** — searchable, filterable, sortable subscription list
-- **Smart favicon caching** — 3-tier image cache (memory → disk → network) for fast icon loading
-- **Light / Dark mode** — follows system appearance automatically
-- **Chrome extension sync** — import subscriptions exported from the Chrome extension
-- **Multi-currency** — supports 20+ currencies (USD, EUR, CNY, JPY, etc.)
-- **Notifications** — configurable reminders before billing dates
-- **Data export / import** — JSON backup and restore
-- **Custom typography** — Space Grotesk font throughout the UI
+- **Menu-bar app** — always one click away, never in your Dock
+- **Calendar view** — monthly grid with billing-date indicators and per-day detail popup
+- **List view** — searchable across name / category / URL / notes, sortable by next bill / name / amount / date added, filterable by status
+- **Dashboard** — headline monthly spend, 6-month trend chart, category breakdown, top subscriptions
+- **Widgets** — small (monthly spend) and medium (upcoming bills) home-screen widgets
+- **iCloud sync** — subscriptions and settings stay in sync across your Macs via `NSUbiquitousKeyValueStore`
+- **Multi-currency** — 20+ currencies with automatic exchange-rate conversion to your primary currency
+- **Image auto-fill** — drop a receipt or email screenshot into the add form; Vision-based OCR extracts the name and price
+- **Siri / App Intents** — "Add a Netflix subscription", "What's my monthly spend"
+- **Notifications** — local reminders 1 / 2 / 3 / 5 / 7 days before each bill, configurable
+- **JSON export / import** — local backup and restore; also imports from the Suber Chrome extension
+- **Light / dark** — follows system appearance
+- **Typography** — ships with Space Grotesk
 
-## Product Function
+## Install
 
-<p align="center">
-  <img src="Screenshots/calendar.png" width="260" alt="Calendar View">
-  &nbsp;
-  <img src="Screenshots/list.png" width="260" alt="List View">
-  &nbsp;
-  <img src="Screenshots/add.png" width="260" alt="Add Subscription">
-</p>
+Grab `Suber-1.4.0.dmg` (or whatever is newest) from the [latest release](../../releases/latest), mount it, and drag **Suber.app** into **Applications**. Launch from Applications.
 
-## Requirements
+Builds are signed with a Developer ID certificate and notarized by Apple — Gatekeeper lets them open directly, no right-click-workaround needed.
 
-- macOS 14.0 (Sonoma) or later
-- Apple Silicon or Intel Mac
+> Requires macOS 14 (Sonoma) or later. Current builds are Apple Silicon only.
 
-## Installation
-
-### Download DMG
-
-Download the latest `Suber-v1.0.0.dmg` from [Releases](../../releases), open it, and drag `Suber.app` to `Applications`.
-
-> **Note:** The app is ad-hoc signed. On first launch, right-click the app → Open → Open to bypass Gatekeeper.
-
-### Build from Source
+## Build from source
 
 ```bash
-# Clone
 git clone https://github.com/createpjf/suber-macos.git
 cd suber-macos
 
-# Install xcodegen (if not installed)
 brew install xcodegen
-
-# Generate Xcode project
 xcodegen generate
 
-# Build Release
-xcodebuild build -project Suber.xcodeproj -scheme Suber -configuration Release -derivedDataPath .build
-
-# The app is at .build/Build/Products/Release/Suber.app
+xcodebuild build \
+  -project Suber.xcodeproj -scheme Suber -configuration Release \
+  -derivedDataPath .build
+# Product at .build/Build/Products/Release/Suber.app
 ```
 
-### Build DMG
+The `scripts/build-dmg.sh` script wraps build + DMG packaging for local testing. Proper distribution additionally requires a Developer ID Application certificate and Apple notarization (see Apple's *Notarizing macOS Software Before Distribution*).
 
-```bash
-# After building, create DMG
-DMG_DIR=$(mktemp -d)
-cp -R .build/Build/Products/Release/Suber.app "$DMG_DIR/Suber.app"
-ln -s /Applications "$DMG_DIR/Applications"
-hdiutil create -volname "Suber" -srcfolder "$DMG_DIR" -ov -format UDZO Suber-v1.0.0.dmg
-```
-
-## Import from Chrome Extension
-
-1. In the Chrome extension, go to Settings → Export JSON
-2. In the macOS app, go to Settings → Import JSON
-3. Select the exported file — subscriptions and settings will be imported
-
-## Tech Stack
-
-- Swift 5.9+, SwiftUI, macOS 14+
-- `MenuBarExtra` with `.window` style
-- `UserDefaults` + `Codable` JSON persistence
-- `NSCache` + disk cache for favicon images
-- `xcodegen` for project generation
-- Space Grotesk custom font family
-
-## Project Structure
+## Project structure
 
 ```
 Sources/
-├── SuberApp.swift                    # App entry point (MenuBarExtra)
-├── Info.plist                        # App configuration
+├── SuberApp.swift                     # App entry (MenuBarExtra + URL scheme)
+├── Info.plist
 ├── Models/
-│   ├── Constants.swift               # Theme, AppFont, currencies, categories
-│   ├── Settings.swift                # AppSettings model
-│   └── Subscription.swift            # Subscription model & form data
+│   ├── Constants.swift                # Theme, AppFont, currencies, categories
+│   ├── KnownServices.swift            # Recognized service metadata
+│   ├── Settings.swift
+│   └── Subscription.swift
 ├── Services/
-│   ├── BillingCalculator.swift       # Next billing date calculations
-│   ├── ImageCache.swift              # 3-tier favicon cache (memory/disk/network)
-│   ├── NotificationService.swift     # Local notification scheduling
-│   └── StorageService.swift          # JSON persistence & import/export
+│   ├── BillingCalculator.swift        # Next-billing-date logic
+│   ├── CloudSyncService.swift         # iCloud Key-Value Store sync
+│   ├── ExchangeRateService.swift      # FX rates for multi-currency
+│   ├── HotkeyService.swift            # (dormant) global shortcut
+│   ├── ImageCache.swift               # Memory / disk / network favicon cache
+│   ├── ImageRecognitionService.swift  # Vision-based OCR for receipt drop-zone
+│   ├── NotificationService.swift      # Local reminders
+│   ├── StorageService.swift           # JSON persistence + export/import
+│   ├── SubscriptionTextParser.swift
+│   ├── UpdateService.swift            # GitHub release check
+│   └── URLSchemeHandler.swift         # suber:// deep links
+├── Intents/
+│   ├── AddSubscriptionIntent.swift    # Siri / Shortcuts
+│   └── GetSpendIntent.swift
 ├── Utilities/
-│   ├── CurrencyFormatter.swift       # Currency display formatting
-│   └── DateHelpers.swift             # Calendar grid & date formatting
+│   ├── CurrencyFormatter.swift
+│   └── DateHelpers.swift
 ├── ViewModels/
-│   ├── SettingsStore.swift           # Settings state management
-│   └── SubscriptionStore.swift       # Subscription CRUD operations
-├── Views/
-│   ├── MenuBarView.swift             # Root view with tab navigation
-│   ├── TopBarView.swift              # Navigation bar with Suber branding
-│   ├── CalendarView.swift            # Monthly calendar with slide animation
-│   ├── CalendarDayCellView.swift     # Calendar day cell with billing dots
-│   ├── DayDetailView.swift           # Day detail popup
-│   ├── ListView.swift                # Subscription list with sort/filter
-│   ├── SubCardView.swift             # Subscription card component
-│   ├── SubscriptionFormView.swift    # Add/edit subscription form
-│   ├── SettingsView.swift            # Settings page
-│   └── Components/
-│       ├── FilterBarView.swift       # Status filter tabs
-│       ├── LogoView.swift            # Favicon with cache integration
-│       ├── SearchBarView.swift       # Search input
-│       └── ToggleRow.swift           # Toggle setting row
-└── Resources/
-    └── Fonts/                        # Space Grotesk TTF files
+│   ├── DashboardViewModel.swift
+│   ├── SettingsStore.swift
+│   └── SubscriptionStore.swift
+└── Views/
+    ├── MenuBarView.swift              # Root tab container
+    ├── TopBarView.swift
+    ├── CalendarView.swift
+    ├── CalendarDayCellView.swift
+    ├── DayDetailView.swift
+    ├── DashboardView.swift
+    ├── ListView.swift
+    ├── SubCardView.swift
+    ├── SubscriptionFormView.swift
+    ├── SettingsView.swift
+    └── Components/
+        ├── EmailParseView.swift
+        ├── FilterBarView.swift
+        ├── ImageDropZoneView.swift
+        ├── LogoView.swift
+        ├── SearchBarView.swift
+        └── ToggleRow.swift
+
+SuberWidget/
+├── SuberWidget.swift                  # Widget bundle entry
+├── SmallSpendWidget.swift
+├── MediumUpcomingWidget.swift
+└── WidgetDataProvider.swift
+
 Assets.xcassets/
-├── AppIcon.appiconset/               # macOS app icon (blue S-knot)
-└── MenuBarIcon.imageset/             # Menu bar template icon
+├── AppIcon.appiconset/
+└── MenuBarIcon.imageset/
+
 Tests/
 ├── BillingCalculatorTests.swift
 ├── StorageServiceTests.swift
 └── SubscriptionStoreTests.swift
 ```
 
+## Tech stack
+
+- **Swift 5.9 · SwiftUI · macOS 14+**
+- **`MenuBarExtra`** with `.window` style for the popover UI
+- **`WidgetKit`** for home-screen widgets
+- **`App Intents`** for Siri and Shortcuts integration
+- **`NSUbiquitousKeyValueStore`** for iCloud sync
+- **`Vision` + `CoreImage`** for receipt / screenshot OCR
+- **`UserDefaults` + `Codable`** for JSON persistence
+- **`NSCache` + disk cache** for favicon images (3-tier: memory → disk → network)
+- **URL scheme** (`suber://`) for deep links
+- **`xcodegen`** for project generation from `project.yml`
+- **Space Grotesk** custom font
+
 ## Author
 
 **createpjf** — [@createpjf](https://twitter.com/createpjf)
+
+Companion to the [Suber Chrome Extension](https://github.com/createpjf/suber).
 
 ## License
 
