@@ -110,7 +110,9 @@ struct ListView: View {
         case .amount:
             subs.sort { $0.amount > $1.amount }
         case .nextBilling:
-            subs.sort { BillingCalculator.getNextBillingDate($0) < BillingCalculator.getNextBillingDate($1) }
+            // Pre-compute billing dates to avoid O(2N log N) redundant calculations
+            let billingDates = Dictionary(uniqueKeysWithValues: subs.map { ($0.id, BillingCalculator.getNextBillingDate($0)) })
+            subs.sort { billingDates[$0.id]! < billingDates[$1.id]! }
         case .dateAdded:
             subs.sort { $0.createdAt > $1.createdAt }
         }

@@ -41,6 +41,9 @@ struct CalendarView: View {
             }
         }
         .animation(.easeOut(duration: 0.2), value: selectedDate)
+        .onAppear { recomputeCache() }
+        .onChange(of: currentMonth) { _ in recomputeCache() }
+        .onChange(of: subscriptionStore.subscriptions) { _ in recomputeCache() }
     }
 
     private var monthTransition: AnyTransition {
@@ -144,21 +147,23 @@ struct CalendarView: View {
         .padding(.bottom, 8)
     }
 
-    // MARK: - Computed
+    // MARK: - Cached Computed Data
 
-    private var calendarDays: [Date] {
-        DateHelpers.calendarDays(for: currentMonth)
-    }
+    @State private var cachedCalendarDays: [Date] = []
+    @State private var cachedSubscriptionsByDate: [String: [Subscription]] = [:]
+    @State private var cachedMonthlySpend: String = ""
 
-    private var subscriptionsByDate: [String: [Subscription]] {
-        DateHelpers.subscriptionsByDate(month: currentMonth, subscriptions: subscriptionStore.subscriptions)
-    }
+    private var calendarDays: [Date] { cachedCalendarDays }
+    private var subscriptionsByDate: [String: [Subscription]] { cachedSubscriptionsByDate }
+    private var monthlySpend: String { cachedMonthlySpend }
 
-    private var monthlySpend: String {
+    private func recomputeCache() {
+        cachedCalendarDays = DateHelpers.calendarDaysCompact(for: currentMonth)
+        cachedSubscriptionsByDate = DateHelpers.subscriptionsByDate(month: currentMonth, subscriptions: subscriptionStore.subscriptions)
         let total = subscriptionStore.subscriptions
             .filter { $0.status == .active || $0.status == .trial }
             .reduce(0.0) { $0 + BillingCalculator.getMonthlyEquivalent($1) }
-        return CurrencyFormatter.formatShort(total, currency: settingsStore.settings.primaryCurrency)
+        cachedMonthlySpend = CurrencyFormatter.formatShort(total, currency: settingsStore.settings.primaryCurrency)
     }
 
     // MARK: - Actions

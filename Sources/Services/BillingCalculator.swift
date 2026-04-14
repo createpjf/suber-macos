@@ -1,11 +1,11 @@
 import Foundation
 
 enum BillingCalculator {
-    private static var calendar: Calendar {
+    private static let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
         cal.firstWeekday = 2 // Monday
         return cal
-    }
+    }()
 
     // MARK: - Private Helpers
 
