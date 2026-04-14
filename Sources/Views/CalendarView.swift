@@ -184,7 +184,7 @@ struct CalendarView: View {
             .filter { !hasMultipleCurrencies || $0.currency == primaryCurrency }
             .reduce(0.0) { $0 + BillingCalculator.getMonthlyEquivalent($1) }
         let formatted = CurrencyFormatter.formatShort(total, currency: primaryCurrency)
-        cachedMonthlySpend = hasMultipleCurrencies ? "~\(formatted)" : formatted
+        cachedMonthlySpend = (hasMultipleCurrencies && total > 0) ? "~\(formatted)" : formatted
     }
 
     // MARK: - Actions

@@ -4,6 +4,11 @@ import UserNotifications
 final class NotificationService {
     static let shared = NotificationService()
 
+    /// Tracks the latest set of expected notification IDs across calls,
+    /// so the async cleanup callback always uses the most recent set.
+    private var latestExpectedIDs: Set<String> = []
+    private let lock = NSLock()
+
     private init() {}
 
     func requestPermission() {
@@ -58,9 +63,20 @@ final class NotificationService {
             }
         }
 
+        // Store the latest expected IDs (thread-safe) so the async callback
+        // always checks against the most recent call's set.
+        lock.lock()
+        latestExpectedIDs = expectedIDs
+        lock.unlock()
+
         // Remove only stale notifications (ones no longer expected)
-        center.getPendingNotificationRequests { pending in
-            let staleIDs = pending.map(\.identifier).filter { !expectedIDs.contains($0) }
+        center.getPendingNotificationRequests { [weak self] pending in
+            guard let self = self else { return }
+            self.lock.lock()
+            let currentExpected = self.latestExpectedIDs
+            self.lock.unlock()
+
+            let staleIDs = pending.map(\.identifier).filter { !currentExpected.contains($0) }
             if !staleIDs.isEmpty {
                 center.removePendingNotificationRequests(withIdentifiers: staleIDs)
             }
