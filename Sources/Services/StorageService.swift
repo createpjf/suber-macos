@@ -13,6 +13,28 @@ final class StorageService {
         return e
     }()
 
+    // MARK: - Cached date formatters for decoding
+
+    private static let isoFractionalFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
+    private static let dateOnlyFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(secondsFromGMT: 0)
+        return f
+    }()
+
     /// Decoder that handles multiple date formats from Chrome extension exports:
     /// - ISO 8601 with fractional seconds: "2026-02-06T08:10:11.226Z"
     /// - ISO 8601 without fractional: "2026-02-06T08:10:11Z"
@@ -24,21 +46,13 @@ final class StorageService {
             let str = try container.decode(String.self)
 
             // Try ISO 8601 with fractional seconds (Chrome's createdAt/updatedAt)
-            let isoFractional = ISO8601DateFormatter()
-            isoFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            if let date = isoFractional.date(from: str) { return date }
+            if let date = StorageService.isoFractionalFormatter.date(from: str) { return date }
 
             // Try standard ISO 8601 (Swift's default export)
-            let iso = ISO8601DateFormatter()
-            iso.formatOptions = [.withInternetDateTime]
-            if let date = iso.date(from: str) { return date }
+            if let date = StorageService.isoFormatter.date(from: str) { return date }
 
             // Try date-only "yyyy-MM-dd" (Chrome's startDate)
-            let dateOnly = DateFormatter()
-            dateOnly.dateFormat = "yyyy-MM-dd"
-            dateOnly.locale = Locale(identifier: "en_US_POSIX")
-            dateOnly.timeZone = TimeZone(secondsFromGMT: 0)
-            if let date = dateOnly.date(from: str) { return date }
+            if let date = StorageService.dateOnlyFormatter.date(from: str) { return date }
 
             throw DecodingError.dataCorruptedError(
                 in: container,

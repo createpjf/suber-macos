@@ -106,6 +106,16 @@ struct SubscriptionFormView: View {
                                         .textFieldStyle(.plain)
                                         .font(AppFont.regular(14))
                                         .foregroundColor(Theme.textPrimary)
+                                        .onChange(of: formData.amount) { newValue in
+                                            let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                            // Allow only one decimal point
+                                            let parts = filtered.split(separator: ".", omittingEmptySubsequences: false)
+                                            if parts.count > 2 {
+                                                formData.amount = String(parts[0]) + "." + String(parts[1])
+                                            } else if filtered != newValue {
+                                                formData.amount = filtered
+                                            }
+                                        }
                                 }
 
                                 Button(action: { adjustAmount(1) }) {
@@ -128,13 +138,22 @@ struct SubscriptionFormView: View {
                         .frame(width: 150)
                     }
 
-                    // Start date + End date
+                    // Start date + Billing Day / End date
                     HStack(alignment: .top, spacing: 16) {
                         dateField("Start date", selection: $formData.startDate, showPicker: $showStartDatePicker)
-                        dateField("End date", selection: Binding(
-                            get: { formData.trialEndDate ?? Date() },
-                            set: { formData.trialEndDate = $0 }
-                        ), showPicker: $showEndDatePicker)
+
+                        if formData.status == .trial {
+                            dateField("Trial end", selection: Binding(
+                                get: { formData.trialEndDate ?? Date() },
+                                set: { formData.trialEndDate = $0 }
+                            ), showPicker: $showEndDatePicker)
+                        } else if formData.cycle != .weekly && formData.cycle != .oneTime {
+                            menuField("Billing day", displayText: "\(formData.billingDay)") {
+                                ForEach(1...31, id: \.self) { day in
+                                    Button("\(day)") { formData.billingDay = day }
+                                }
+                            }
+                        }
                     }
 
                     // Category + Status + Currency
@@ -156,6 +175,15 @@ struct SubscriptionFormView: View {
                                 Button("\(AppConstants.currencySymbols[c] ?? "") \(c)") { formData.currency = c }
                             }
                         }
+                    }
+
+                    // Notes
+                    field("Notes") {
+                        TextField("Optional notes...", text: $formData.notes, axis: .vertical)
+                            .textFieldStyle(.plain)
+                            .font(AppFont.regular(14))
+                            .foregroundColor(Theme.textPrimary)
+                            .lineLimit(3...5)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -419,15 +447,23 @@ struct SubscriptionFormView: View {
         }
     }
 
+    private static let formDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy/MM/dd"
+        return f
+    }()
+
+    private static let longDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEEE, MMM d, yyyy"
+        return f
+    }()
+
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd"
-        return formatter.string(from: date)
+        Self.formDateFormatter.string(from: date)
     }
 
     private func longFormatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMM d, yyyy"
-        return formatter.string(from: date)
+        Self.longDateFormatter.string(from: date)
     }
 }

@@ -1,11 +1,11 @@
 import Foundation
 
 enum BillingCalculator {
-    private static var calendar: Calendar {
+    private static let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
         cal.firstWeekday = 2 // Monday
         return cal
-    }
+    }()
 
     // MARK: - Private Helpers
 
@@ -28,15 +28,15 @@ enum BillingCalculator {
     private static func advanceByOneCycle(_ date: Date, cycle: BillingCycle, billingDay: Int) -> Date {
         switch cycle {
         case .monthly:
-            let next = calendar.date(byAdding: .month, value: 1, to: date)!
+            guard let next = calendar.date(byAdding: .month, value: 1, to: date) else { return date }
             return clampDay(next, day: billingDay)
         case .yearly:
-            let next = calendar.date(byAdding: .year, value: 1, to: date)!
+            guard let next = calendar.date(byAdding: .year, value: 1, to: date) else { return date }
             return clampDay(next, day: billingDay)
         case .weekly:
-            return calendar.date(byAdding: .weekOfYear, value: 1, to: date)!
+            return calendar.date(byAdding: .weekOfYear, value: 1, to: date) ?? date
         case .quarterly:
-            let next = calendar.date(byAdding: .month, value: 3, to: date)!
+            guard let next = calendar.date(byAdding: .month, value: 3, to: date) else { return date }
             return clampDay(next, day: billingDay)
         case .oneTime:
             return date
@@ -55,8 +55,11 @@ enum BillingCalculator {
             return next
         }
 
-        while next < today {
+        // Safety: limit iterations to prevent infinite loop from unexpected data
+        var iterations = 0
+        while next < today && iterations < 2000 {
             next = advanceByOneCycle(next, cycle: sub.cycle, billingDay: sub.billingDay)
+            iterations += 1
         }
 
         return next
@@ -121,10 +124,10 @@ enum BillingCalculator {
     }
 
     /// Returns all weekly billing dates in a given month.
+    /// Optimized: jumps directly to the target month instead of iterating week-by-week from startDate.
     static func getWeeklyBillingDatesInMonth(_ sub: Subscription, year: Int, month: Int) -> [Date] {
         guard sub.cycle == .weekly else { return [] }
 
-        var dates: [Date] = []
         let start = startOfDay(sub.startDate)
 
         var monthStartComps = DateComponents()
@@ -139,17 +142,30 @@ enum BillingCalculator {
         monthEndComps.day = 0
         guard let monthEnd = calendar.date(from: monthEndComps) else { return [] }
 
-        var current = start
-        while current < monthStart {
-            current = calendar.date(byAdding: .weekOfYear, value: 1, to: current)!
+        // Jump: calculate weeks from start to monthStart, then align
+        var current: Date
+        if start >= monthStart {
+            current = start
+        } else {
+            let daysBetween = calendar.dateComponents([.day], from: start, to: monthStart).day ?? 0
+            let weeksToSkip = daysBetween / 7
+            guard let jumped = calendar.date(byAdding: .weekOfYear, value: weeksToSkip, to: start) else { return [] }
+            current = jumped
+            // Advance one more week if we landed before monthStart
+            if current < monthStart {
+                guard let next = calendar.date(byAdding: .weekOfYear, value: 1, to: current) else { return [] }
+                current = next
+            }
         }
 
+        var dates: [Date] = []
         while current <= monthEnd {
             let currentMonth = calendar.component(.month, from: current)
             if currentMonth == month {
                 dates.append(current)
             }
-            current = calendar.date(byAdding: .weekOfYear, value: 1, to: current)!
+            guard let next = calendar.date(byAdding: .weekOfYear, value: 1, to: current) else { break }
+            current = next
         }
 
         return dates

@@ -94,12 +94,14 @@ struct ListView: View {
             subs = subs.filter { $0.status.rawValue == statusFilter }
         }
 
-        // Filter by search text
+        // Filter by search text (matches name, category, url, and notes)
         if !searchText.isEmpty {
             let query = searchText.lowercased()
             subs = subs.filter {
                 $0.name.lowercased().contains(query) ||
-                $0.category.lowercased().contains(query)
+                $0.category.lowercased().contains(query) ||
+                ($0.url?.lowercased().contains(query) ?? false) ||
+                ($0.notes?.lowercased().contains(query) ?? false)
             }
         }
 
@@ -110,7 +112,9 @@ struct ListView: View {
         case .amount:
             subs.sort { $0.amount > $1.amount }
         case .nextBilling:
-            subs.sort { BillingCalculator.getNextBillingDate($0) < BillingCalculator.getNextBillingDate($1) }
+            // Pre-compute billing dates to avoid O(2N log N) redundant calculations
+            let billingDates = Dictionary(uniqueKeysWithValues: subs.map { ($0.id, BillingCalculator.getNextBillingDate($0)) })
+            subs.sort { billingDates[$0.id]! < billingDates[$1.id]! }
         case .dateAdded:
             subs.sort { $0.createdAt > $1.createdAt }
         }

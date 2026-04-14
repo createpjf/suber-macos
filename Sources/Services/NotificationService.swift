@@ -4,6 +4,11 @@ import UserNotifications
 final class NotificationService {
     static let shared = NotificationService()
 
+    /// Tracks the latest set of expected notification IDs across calls,
+    /// so the async cleanup callback always uses the most recent set.
+    private var latestExpectedIDs: Set<String> = []
+    private let lock = NSLock()
+
     private init() {}
 
     func requestPermission() {
@@ -19,9 +24,11 @@ final class NotificationService {
 
     func scheduleReminders(for subscriptions: [Subscription], daysBefore: [Int]) {
         let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
 
         let activeSubs = subscriptions.filter { $0.status == .active || $0.status == .trial }
+
+        // Build the set of notification IDs we expect
+        var expectedIDs: Set<String> = []
 
         for sub in activeSubs {
             let nextBilling = BillingCalculator.getNextBillingDate(sub)
@@ -33,6 +40,9 @@ final class NotificationService {
 
                 // Only schedule future reminders
                 if reminderDate <= Date() { continue }
+
+                let id = "\(sub.id.uuidString)-\(days)d"
+                expectedIDs.insert(id)
 
                 let content = UNMutableNotificationContent()
                 content.title = "Subscription Reminder"
@@ -48,10 +58,27 @@ final class NotificationService {
                 let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: reminderDate)
                 let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
-                let id = "\(sub.id.uuidString)-\(days)d"
                 let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-
                 center.add(request)
+            }
+        }
+
+        // Store the latest expected IDs (thread-safe) so the async callback
+        // always checks against the most recent call's set.
+        lock.lock()
+        latestExpectedIDs = expectedIDs
+        lock.unlock()
+
+        // Remove only stale notifications (ones no longer expected)
+        center.getPendingNotificationRequests { [weak self] pending in
+            guard let self = self else { return }
+            self.lock.lock()
+            let currentExpected = self.latestExpectedIDs
+            self.lock.unlock()
+
+            let staleIDs = pending.map(\.identifier).filter { !currentExpected.contains($0) }
+            if !staleIDs.isEmpty {
+                center.removePendingNotificationRequests(withIdentifiers: staleIDs)
             }
         }
     }
