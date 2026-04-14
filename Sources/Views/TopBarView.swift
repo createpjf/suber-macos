@@ -44,21 +44,49 @@ struct TopBarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
+        .background(
+            // Keyboard shortcuts (hidden buttons)
+            Group {
+                Button(action: onAdd) { EmptyView() }
+                    .keyboardShortcut("n", modifiers: .command)
+                    .hidden()
+                Button(action: { currentView = currentView == .list ? .calendar : .list }) { EmptyView() }
+                    .keyboardShortcut("l", modifiers: .command)
+                    .hidden()
+                Button(action: { currentView = currentView == .settings ? .calendar : .settings }) { EmptyView() }
+                    .keyboardShortcut(",", modifiers: .command)
+                    .hidden()
+            }
+            .frame(width: 0, height: 0)
+        )
     }
 
     @ViewBuilder
     private func barButton(icon: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+        BarButtonView(icon: icon, isActive: isActive, action: action)
+    }
+}
+
+/// Extracted to a separate View so each button has its own @State for hover tracking.
+private struct BarButtonView: View {
+    let icon: String
+    var isActive: Bool = false
+    let action: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(isActive ? Theme.textPrimary : Theme.textSecondary)
+                .foregroundColor(isActive || isHovered ? Theme.textPrimary : Theme.textSecondary)
                 .frame(width: 32, height: 32)
-                .background(Theme.bgSecondary.opacity(0.01))
+                .background(isHovered ? Theme.bgCell : Theme.bgSecondary.opacity(0.01))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .onHover { hovering in
-            // SwiftUI handles hover natively via the background
+            isHovered = hovering
         }
     }
 }

@@ -1,11 +1,11 @@
 import Foundation
 
 enum DateHelpers {
-    private static var calendar: Calendar {
+    private static let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
         cal.firstWeekday = 2 // Monday
         return cal
-    }
+    }()
 
     /// Returns all dates for a 6-week calendar grid starting on Monday.
     static func calendarDays(for month: Date) -> [Date] {
@@ -99,18 +99,28 @@ enum DateHelpers {
         return String(format: "%04d-%02d-%02d", y, m, d)
     }
 
+    // MARK: - Cached DateFormatters
+
+    private static let monthYearFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMMM yyyy"
+        return f
+    }()
+
+    private static let shortDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d, yyyy"
+        return f
+    }()
+
     /// Format date as "MMMM yyyy" for month header display.
     static func formatMonthYear(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: date)
+        monthYearFormatter.string(from: date)
     }
 
     /// Format date as "MMM d, yyyy" for general display.
     static func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
-        return formatter.string(from: date)
+        shortDateFormatter.string(from: date)
     }
 
     /// Check if two dates are in the same month.
