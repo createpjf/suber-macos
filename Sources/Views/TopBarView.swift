@@ -21,12 +21,13 @@ struct TopBarView: View {
             // Left + Right buttons
             HStack {
                 HStack(spacing: 6) {
-                    barButton(icon: "plus.circle", action: onAdd)
-                    barButton(
+                    TopBarButton(icon: "plus.circle", isActive: false, action: onAdd)
+                    TopBarButton(
                         icon: currentView == .list ? "calendar" : "list.bullet.clipboard",
+                        isActive: false,
                         action: { currentView = currentView == .list ? .calendar : .list }
                     )
-                    barButton(
+                    TopBarButton(
                         icon: "chart.bar",
                         isActive: currentView == .dashboard,
                         action: { currentView = currentView == .dashboard ? .calendar : .dashboard }
@@ -35,7 +36,7 @@ struct TopBarView: View {
 
                 Spacer()
 
-                barButton(
+                TopBarButton(
                     icon: "gearshape",
                     isActive: currentView == .settings,
                     action: { currentView = currentView == .settings ? .calendar : .settings }
@@ -43,22 +44,32 @@ struct TopBarView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
     }
+}
 
-    @ViewBuilder
-    private func barButton(icon: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+private struct TopBarButton: View {
+    let icon: String
+    let isActive: Bool
+    let action: () -> Void
+
+    @State private var isHovering = false
+
+    var body: some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(isActive ? Theme.textPrimary : Theme.textSecondary)
                 .frame(width: 32, height: 32)
-                .background(Theme.bgSecondary.opacity(0.01))
+                .background(background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .onHover { hovering in
-            // SwiftUI handles hover natively via the background
-        }
+        .onHover { isHovering = $0 }
+    }
+
+    private var background: Color {
+        if isActive { return Theme.bgCell }
+        return isHovering ? Theme.bgSecondary : Color.clear
     }
 }

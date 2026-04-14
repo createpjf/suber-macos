@@ -116,7 +116,7 @@ struct CalendarView: View {
                     .padding(.vertical, 6)
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 16)
     }
 
     // MARK: - Calendar Grid
@@ -131,23 +131,25 @@ struct CalendarView: View {
                     isToday: DateHelpers.isToday(date),
                     isSelected: selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false,
                     onTap: {
-                        if let subs = subscriptionsByDate[DateHelpers.formatDayKey(date)], !subs.isEmpty {
-                            withAnimation {
+                        withAnimation {
+                            if let subs = subscriptionsByDate[DateHelpers.formatDayKey(date)], !subs.isEmpty {
                                 selectedDate = date
+                            } else {
+                                selectedDate = nil
                             }
                         }
                     }
                 )
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 16)
         .padding(.bottom, 8)
     }
 
     // MARK: - Computed
 
     private var calendarDays: [Date] {
-        DateHelpers.calendarDays(for: currentMonth)
+        DateHelpers.calendarDaysCompact(for: currentMonth)
     }
 
     private var subscriptionsByDate: [String: [Subscription]] {

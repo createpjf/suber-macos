@@ -20,8 +20,8 @@ struct DayDetailView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(Theme.textSecondary)
-                        .frame(width: 24, height: 24)
-                        .background(Theme.bgSecondary)
+                        .frame(width: 28, height: 28)
+                        .background(Theme.bgPrimary)
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -73,7 +73,7 @@ struct DayDetailView: View {
                     }
                 }
             }
-            .frame(maxHeight: 200)
+            .frame(maxHeight: min(CGFloat(subscriptions.count) * 52 + 8, 280))
         }
         .background(Theme.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))

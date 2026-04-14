@@ -5,9 +5,11 @@ struct SuberApp: App {
     @StateObject private var subscriptionStore = SubscriptionStore()
     @StateObject private var settingsStore = SettingsStore()
 
-    init() {
-        HotkeyService.shared.register()
-    }
+    // NOTE: HotkeyService (Option+S global shortcut) was removed — its
+    // NSEvent.addGlobalMonitorForEvents triggered repeated TCC Accessibility /
+    // Input-Monitoring requests which, on ad-hoc signed builds, corrupted event
+    // routing and broke MenuBarExtra clicks. Revisit with Carbon
+    // RegisterEventHotKey when properly signed.
 
     var body: some Scene {
         MenuBarExtra("Suber", image: "MenuBarIcon") {

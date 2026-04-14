@@ -103,9 +103,9 @@ struct SubscriptionFormView: View {
                             HStack(spacing: 6) {
                                 Button(action: { adjustAmount(-1) }) {
                                     Image(systemName: "minus")
-                                        .font(.system(size: 11, weight: .bold))
+                                        .font(.system(size: 10, weight: .bold))
                                         .foregroundColor(Color(hex: "38b2ac"))
-                                        .frame(width: 28, height: 28)
+                                        .frame(width: 24, height: 24)
                                         .background(Theme.bgPrimary)
                                         .clipShape(Circle())
                                 }
@@ -123,9 +123,9 @@ struct SubscriptionFormView: View {
 
                                 Button(action: { adjustAmount(1) }) {
                                     Image(systemName: "plus")
-                                        .font(.system(size: 11, weight: .bold))
+                                        .font(.system(size: 10, weight: .bold))
                                         .foregroundColor(Color(hex: "38b2ac"))
-                                        .frame(width: 28, height: 28)
+                                        .frame(width: 24, height: 24)
                                         .background(Theme.bgPrimary)
                                         .clipShape(Circle())
                                 }
@@ -426,8 +426,8 @@ struct SubscriptionFormView: View {
                 .foregroundColor(Theme.textPrimary)
             content()
                 .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
                 .background(Theme.bgCell)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
@@ -450,8 +450,8 @@ struct SubscriptionFormView: View {
                         .foregroundColor(Theme.textSecondary)
                 }
                 .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
                 .background(Theme.bgCell)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
@@ -500,8 +500,8 @@ struct SubscriptionFormView: View {
                         .foregroundColor(Theme.textSecondary)
                 }
                 .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
                 .background(Theme.bgCell)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }

@@ -35,7 +35,7 @@ struct MenuBarView: View {
                     ListView(onEdit: { editingSubscription = $0 })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .dashboard:
-                    DashboardView()
+                    DashboardView(onAdd: { showAddForm = true })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .settings:
                     SettingsView()

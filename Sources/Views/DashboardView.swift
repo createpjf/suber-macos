@@ -6,6 +6,8 @@ struct DashboardView: View {
 
     @StateObject private var viewModel = DashboardViewModel()
 
+    var onAdd: (() -> Void)? = nil
+
     private let categoryColors: [Color] = [
         Color(hex: "6366f1"),  // indigo
         Color(hex: "f59e0b"),  // amber
@@ -23,17 +25,86 @@ struct DashboardView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
-                spendOverview
-                monthTrendChart
-                categorySection
-                topSubscriptionsSection
+            if hasAnyData {
+                VStack(spacing: 0) {
+                    spendOverview
+                    sectionDivider
+                    monthTrendChart
+                    sectionDivider
+                    categorySection
+                    sectionDivider
+                    topSubscriptionsSection
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            } else {
+                emptyState
+                    .padding(.horizontal, 16)
+                    .padding(.top, 40)
+                    .padding(.bottom, 20)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
         .onAppear { refresh() }
         .onChange(of: subscriptionStore.subscriptions) { refresh() }
+    }
+
+    private var sectionDivider: some View {
+        Divider()
+            .background(Theme.border)
+            .padding(.vertical, 4)
+    }
+
+    private var hasAnyData: Bool {
+        subscriptionStore.subscriptions.contains { $0.status != .cancelled }
+    }
+
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "chart.bar.doc.horizontal")
+                .font(.system(size: 40, weight: .light))
+                .foregroundColor(Theme.textDim)
+
+            VStack(spacing: 6) {
+                Text("No subscriptions yet")
+                    .font(AppFont.medium(15))
+                    .foregroundColor(Theme.textPrimary)
+                Text("Add your first subscription to see monthly spend, trends, and category breakdown here.")
+                    .font(AppFont.regular(12))
+                    .foregroundColor(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 20)
+            }
+
+            if let onAdd = onAdd {
+                Button(action: onAdd) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text("Add subscription")
+                            .font(AppFont.medium(12))
+                    }
+                    .foregroundColor(Theme.bgPrimary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Theme.textPrimary)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 32)
+        .padding(.horizontal, 16)
+        .background(Theme.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Theme.border, lineWidth: 1)
+        )
     }
 
     private func refresh() {
@@ -53,25 +124,21 @@ struct DashboardView: View {
                     .font(AppFont.bold(28))
                     .foregroundColor(Theme.textPrimary)
                 Text("per month · \(CurrencyFormatter.formatShort(viewModel.yearlySpend, currency: settingsStore.settings.primaryCurrency))/yr")
-                    .font(AppFont.regular(11))
+                    .font(AppFont.regular(12))
                     .foregroundColor(Theme.textSecondary)
             }
 
-            // Status counts
-            HStack(spacing: 16) {
-                statusBadge(count: viewModel.activeCount, label: "Active", color: Theme.success)
-                statusBadge(count: viewModel.pausedCount, label: "Paused", color: Theme.warning)
-                statusBadge(count: viewModel.trialCount, label: "Trial", color: Theme.trial)
+            // Status counts (hide when everything is zero)
+            if viewModel.activeCount + viewModel.pausedCount + viewModel.trialCount > 0 {
+                HStack(spacing: 16) {
+                    statusBadge(count: viewModel.activeCount, label: "Active", color: Theme.success)
+                    statusBadge(count: viewModel.pausedCount, label: "Paused", color: Theme.warning)
+                    statusBadge(count: viewModel.trialCount, label: "Trial", color: Theme.trial)
+                }
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(Theme.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.border, lineWidth: 1)
-        )
+        .padding(.vertical, 18)
     }
 
     private func statusBadge(count: Int, label: String, color: Color) -> some View {
@@ -91,35 +158,47 @@ struct DashboardView: View {
     // MARK: - Section B: Month Trend
 
     private var monthTrendChart: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("MONTHLY TREND")
-                .font(AppFont.bold(10))
-                .foregroundColor(Theme.textSecondary)
-                .tracking(1)
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Monthly trend")
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
 
-            if viewModel.monthTrend.isEmpty {
-                Text("No data")
+            let allZero = viewModel.monthTrend.allSatisfy { $0.total == 0 }
+
+            if viewModel.monthTrend.isEmpty || allZero {
+                Text("No spend yet")
                     .font(AppFont.regular(12))
                     .foregroundColor(Theme.textDim)
-                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .frame(maxWidth: .infinity, minHeight: 48)
             } else {
                 let maxVal = viewModel.monthTrend.map(\.total).max() ?? 1
 
                 HStack(alignment: .bottom, spacing: 6) {
                     ForEach(viewModel.monthTrend) { month in
                         VStack(spacing: 4) {
-                            Text(CurrencyFormatter.formatShort(month.total, currency: settingsStore.settings.primaryCurrency))
-                                .font(AppFont.regular(8))
-                                .foregroundColor(Theme.textDim)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
+                            if month.total > 0 {
+                                Text(CurrencyFormatter.formatShort(month.total, currency: settingsStore.settings.primaryCurrency))
+                                    .font(AppFont.regular(8))
+                                    .foregroundColor(Theme.textDim)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                            } else {
+                                Text(" ")
+                                    .font(AppFont.regular(8))
+                            }
 
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(month.isCurrent ? Color(hex: "6366f1") : Theme.bgCell)
-                                .frame(height: max(4, CGFloat(month.total / max(maxVal, 1)) * 80))
+                            if month.total > 0 {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(month.isCurrent ? Color(hex: "6366f1") : Theme.bgCell)
+                                    .frame(height: max(4, CGFloat(month.total / max(maxVal, 1)) * 80))
+                            } else {
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(height: 0)
+                            }
 
                             Text(month.label)
-                                .font(AppFont.medium(9))
+                                .font(AppFont.medium(10))
                                 .foregroundColor(month.isCurrent ? Theme.textPrimary : Theme.textSecondary)
                         }
                         .frame(maxWidth: .infinity)
@@ -128,23 +207,16 @@ struct DashboardView: View {
                 .frame(height: 120)
             }
         }
-        .padding(12)
-        .background(Theme.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.border, lineWidth: 1)
-        )
+        .padding(.vertical, 14)
     }
 
     // MARK: - Section C: Category Distribution
 
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("CATEGORIES")
-                .font(AppFont.bold(10))
-                .foregroundColor(Theme.textSecondary)
-                .tracking(1)
+            Text("Categories")
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
 
             if viewModel.categoryBreakdown.isEmpty {
                 Text("No active subscriptions")
@@ -187,23 +259,16 @@ struct DashboardView: View {
                 }
             }
         }
-        .padding(12)
-        .background(Theme.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.border, lineWidth: 1)
-        )
+        .padding(.vertical, 14)
     }
 
     // MARK: - Section D: Top 5
 
     private var topSubscriptionsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("TOP SUBSCRIPTIONS")
-                .font(AppFont.bold(10))
-                .foregroundColor(Theme.textSecondary)
-                .tracking(1)
+            Text("Top subscriptions")
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
 
             if viewModel.topSubscriptions.isEmpty {
                 Text("No active subscriptions")
@@ -241,13 +306,7 @@ struct DashboardView: View {
                 }
             }
         }
-        .padding(12)
-        .background(Theme.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.border, lineWidth: 1)
-        )
+        .padding(.vertical, 14)
     }
 
     // MARK: - Helpers
