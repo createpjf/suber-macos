@@ -3,6 +3,8 @@ import SwiftUI
 struct SubCardView: View {
     let subscription: Subscription
 
+    @State private var isHovered = false
+
     var body: some View {
         HStack(spacing: 10) {
             LogoView(subscription: subscription, size: 36)
@@ -55,12 +57,15 @@ struct SubCardView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Theme.bgSecondary)
+        .background(isHovered ? Theme.bgCell : Theme.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.border, lineWidth: 1)
+                .stroke(isHovered ? Theme.textDim : Theme.border, lineWidth: 1)
         )
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 
     private var statusColor: Color {

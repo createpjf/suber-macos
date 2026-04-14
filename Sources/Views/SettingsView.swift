@@ -175,14 +175,67 @@ struct SettingsView: View {
             }
             .padding(.bottom, 16)
         }
-        .alert("Clear All Data", isPresented: $showClearConfirm) {
-            Button("Cancel", role: .cancel) {}
-            Button("Clear", role: .destructive) {
-                subscriptionStore.clearAll()
-                settingsStore.reset()
+        .overlay {
+            if showClearConfirm {
+                // Full-screen dimmed backdrop
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture { showClearConfirm = false }
+
+                // Confirmation dialog
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 28, weight: .light))
+                        .foregroundColor(Theme.danger)
+
+                    Text("Clear All Data?")
+                        .font(AppFont.bold(16))
+                        .foregroundColor(Theme.textPrimary)
+
+                    Text("This will permanently delete all subscriptions and reset settings.")
+                        .font(AppFont.regular(12))
+                        .foregroundColor(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+
+                    HStack(spacing: 12) {
+                        Button(action: { showClearConfirm = false }) {
+                            Text("Cancel")
+                                .font(AppFont.medium(13))
+                                .foregroundColor(Theme.textPrimary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Theme.bgSecondary)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Theme.border, lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button(action: {
+                            subscriptionStore.clearAll()
+                            settingsStore.reset()
+                            showClearConfirm = false
+                        }) {
+                            Text("Clear")
+                                .font(AppFont.medium(13))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Theme.danger)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(24)
+                .frame(width: 300)
+                .background(Theme.bgPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: .black.opacity(0.3), radius: 20)
             }
-        } message: {
-            Text("This will permanently delete all subscriptions and reset settings.")
         }
         .alert("Import Error", isPresented: $showImportError) {
             Button("OK") {}

@@ -9,43 +9,40 @@ struct CalendarDayCellView: View {
     let onTap: () -> Void
 
     private let maxVisible = 3
-    @State private var isHovering = false
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 Text("\(DateHelpers.dayOfMonth(date))")
-                    .font(AppFont.medium(13))
+                    .font(AppFont.medium(12))
                     .foregroundColor(dayTextColor)
 
                 if !subscriptions.isEmpty {
-                    HStack(spacing: 3) {
+                    HStack(spacing: 2) {
                         ForEach(subscriptions.prefix(maxVisible)) { sub in
-                            LogoView(subscription: sub, size: 16)
+                            LogoView(subscription: sub, size: 14)
                         }
                         if subscriptions.count > maxVisible {
                             Text("+\(subscriptions.count - maxVisible)")
-                                .font(AppFont.medium(7))
+                                .font(AppFont.medium(6))
                                 .foregroundColor(Theme.textDim)
-                                .frame(width: 16, height: 16)
+                                .frame(width: 14, height: 14)
                                 .background(Theme.bgPrimary)
-                                .clipShape(RoundedRectangle(cornerRadius: 3))
+                                .clipShape(RoundedRectangle(cornerRadius: 2))
                         }
                     }
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(minHeight: 64)
-            .padding(.vertical, 4)
+            .frame(minHeight: 48)
+            .padding(.vertical, 1)
+            .padding(.horizontal, 0.5)
             .background(cellBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(cellOverlay)
         }
         .buttonStyle(.plain)
         .disabled(!isCurrentMonth)
-        .onHover { hovering in
-            if isCurrentMonth { isHovering = hovering }
-        }
     }
 
     private var dayTextColor: Color {
@@ -55,8 +52,10 @@ struct CalendarDayCellView: View {
     }
 
     private var cellBackground: Color {
-        if isHovering && isCurrentMonth { return Theme.bgSecondary }
-        return Theme.bgCell
+        if !subscriptions.isEmpty && isCurrentMonth {
+            return Theme.bgCell.opacity(0.9)
+        }
+        return Theme.bgCell.opacity(0.4)
     }
 
     @ViewBuilder

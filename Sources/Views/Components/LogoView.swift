@@ -6,6 +6,7 @@ struct LogoView: View {
 
     @State private var loadedImage: NSImage?
     @State private var loadFailed = false
+    @State private var retryToken = UUID()
 
     private let cache = ImageCache.shared
 
@@ -22,10 +23,16 @@ struct LogoView: View {
             } else {
                 initialFallback
                     .transition(.opacity)
+                    .onTapGesture {
+                        if loadFailed {
+                            loadFailed = false
+                            retryToken = UUID()
+                        }
+                    }
             }
         }
         .animation(.easeIn(duration: 0.15), value: loadedImage != nil)
-        .task(id: cacheKey) {
+        .task(id: "\(cacheKey)-\(retryToken)") {
             await loadFavicon()
         }
     }

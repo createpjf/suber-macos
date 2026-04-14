@@ -6,9 +6,18 @@ struct DayDetailView: View {
     let onEdit: (Subscription) -> Void
     let onClose: () -> Void
 
+    @State private var dragOffset: CGFloat = 0
+
     var body: some View {
         VStack(spacing: 0) {
-            // Handle
+            // Drag handle
+            Capsule()
+                .fill(Theme.textDim)
+                .frame(width: 36, height: 4)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
+            // Header
             HStack {
                 Text(DateHelpers.formatDate(date))
                     .font(AppFont.medium(13))
@@ -27,7 +36,7 @@ struct DayDetailView: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.vertical, 6)
 
             Divider()
                 .background(Theme.border)
@@ -80,5 +89,25 @@ struct DayDetailView: View {
         .shadow(color: .black.opacity(0.3), radius: 10, y: -2)
         .padding(.horizontal, 8)
         .padding(.bottom, 8)
+        .offset(y: max(0, dragOffset))
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if value.translation.height > 0 {
+                        dragOffset = value.translation.height
+                    }
+                }
+                .onEnded { value in
+                    if value.translation.height > 60 {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            onClose()
+                        }
+                    } else {
+                        withAnimation(.spring(response: 0.3)) {
+                            dragOffset = 0
+                        }
+                    }
+                }
+        )
     }
 }
