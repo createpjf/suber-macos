@@ -2,7 +2,7 @@
 set -e
 
 # Configuration
-APP_NAME="SubReminder"
+APP_NAME="Suber"
 VERSION="1.0.0"
 DMG_NAME="${APP_NAME}-${VERSION}"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -19,8 +19,8 @@ rm -f "${OUTPUT_DMG}"
 # Step 1: Build Release
 echo ">> Building Release..."
 xcodebuild build \
-    -project "${PROJECT_DIR}/SubReminder.xcodeproj" \
-    -scheme SubReminder \
+    -project "${PROJECT_DIR}/Suber.xcodeproj" \
+    -scheme Suber \
     -configuration Release \
     -derivedDataPath "${BUILD_DIR}/DerivedData" \
     -destination 'platform=macOS' \

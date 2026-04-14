@@ -8,18 +8,40 @@ struct FilterBarView: View {
     var body: some View {
         HStack(spacing: 4) {
             ForEach(filters, id: \.self) { filter in
-                Button(action: { selected = filter }) {
-                    Text(filter.capitalized)
-                        .font(AppFont.medium(10))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(selected == filter ? Theme.textPrimary : Theme.bgSecondary)
-                        .foregroundColor(selected == filter ? Theme.bgPrimary : Theme.textSecondary)
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
+                FilterChip(
+                    label: filter.capitalized,
+                    isSelected: selected == filter,
+                    action: { selected = filter }
+                )
             }
             Spacer()
         }
+    }
+}
+
+private struct FilterChip: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(AppFont.medium(11))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(background)
+                .foregroundColor(isSelected ? Theme.bgPrimary : Theme.textSecondary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering = $0 }
+    }
+
+    private var background: Color {
+        if isSelected { return Theme.textPrimary }
+        return isHovering ? Theme.bgCell : Theme.bgSecondary
     }
 }

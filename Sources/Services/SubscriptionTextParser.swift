@@ -90,7 +90,8 @@ enum SubscriptionTextParser {
         // Priority keywords — amounts near these words are more likely the real price
         let priorityKeywords = ["total", "charge", "amount", "payment", "price",
                                 "billed", "due", "subtotal", "cost", "fee",
-                                "合计", "总计", "金额", "价格", "费用", "支付"]
+                                "debit", "charged", "transaction", "auto-pay", "recurring",
+                                "合计", "总计", "金额", "价格", "费用", "支付", "扣款", "自动续费", "交易"]
 
         let lines = text.components(separatedBy: .newlines)
 
@@ -322,8 +323,27 @@ enum SubscriptionTextParser {
 
     // MARK: - Service Name Inference
 
+    /// Try to extract merchant name from structured email patterns like "Merchant: Netflix"
+    private static func extractMerchantFromEmail(_ text: String) -> String? {
+        let patterns = [
+            "(?:Merchant|Payee|Description|Vendor|Seller|商户|商家|收款方)[:\\s：]+([^\\n]{2,40})",
+            "(?:Payment to|Paid to|Charge from)[:\\s]+([^\\n]{2,40})",
+        ]
+        for pattern in patterns {
+            if let match = firstMatch(pattern: pattern, in: text) {
+                let trimmed = match.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty { return trimmed }
+            }
+        }
+        return nil
+    }
+
     /// If no known service matched, try to pick the most prominent text as service name.
     static func inferServiceName(_ text: String) -> String? {
+        // First try structured merchant patterns (common in bank emails)
+        if let merchant = extractMerchantFromEmail(text) {
+            return merchant
+        }
         let lines = text.components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }

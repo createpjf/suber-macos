@@ -3,9 +3,9 @@ import Foundation
 final class StorageService {
     static let shared = StorageService()
 
-    private let defaults = UserDefaults.standard
-    private let subscriptionsKey = "subreminder-subscriptions"
-    private let settingsKey = "subreminder-settings"
+    private let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
+    private let subscriptionsKey = "suber-subscriptions"
+    private let settingsKey = "suber-settings"
 
     private let encoder: JSONEncoder = {
         let e = JSONEncoder()
@@ -74,6 +74,7 @@ final class StorageService {
     func saveSubscriptions(_ subs: [Subscription]) {
         if let data = try? encoder.encode(subs) {
             defaults.set(data, forKey: subscriptionsKey)
+            CloudSyncService.shared.pushSubscriptions(data)
         }
     }
 
@@ -87,6 +88,7 @@ final class StorageService {
     func saveSettings(_ settings: AppSettings) {
         if let data = try? encoder.encode(settings) {
             defaults.set(data, forKey: settingsKey)
+            CloudSyncService.shared.pushSettings(data)
         }
     }
 

@@ -17,7 +17,7 @@ final class ImageCache {
     private init() {
         // Setup disk cache directory
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        cacheDirectory = caches.appendingPathComponent("com.subreminder.favicons", isDirectory: true)
+cacheDirectory = caches.appendingPathComponent("com.suber.favicons", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
 
         // Memory cache limits (keep lightweight for menu bar app)

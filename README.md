@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  Companion to the <a href="https://github.com/createpjf/subreminder">Suber Chrome Extension</a>
+  Companion to the <a href="https://github.com/createpjf/suber">Suber Chrome Extension</a>
 </p>
 
 ## Features
@@ -71,9 +71,9 @@ brew install xcodegen
 xcodegen generate
 
 # Build Release
-xcodebuild build -project SubReminder.xcodeproj -scheme SubReminder -configuration Release -derivedDataPath .build
+xcodebuild build -project Suber.xcodeproj -scheme Suber -configuration Release -derivedDataPath .build
 
-# The app is at .build/Build/Products/Release/SubReminder.app
+# The app is at .build/Build/Products/Release/Suber.app
 ```
 
 ### Build DMG
@@ -81,7 +81,7 @@ xcodebuild build -project SubReminder.xcodeproj -scheme SubReminder -configurati
 ```bash
 # After building, create DMG
 DMG_DIR=$(mktemp -d)
-cp -R .build/Build/Products/Release/SubReminder.app "$DMG_DIR/Suber.app"
+cp -R .build/Build/Products/Release/Suber.app "$DMG_DIR/Suber.app"
 ln -s /Applications "$DMG_DIR/Applications"
 hdiutil create -volname "Suber" -srcfolder "$DMG_DIR" -ov -format UDZO Suber-v1.0.0.dmg
 ```
@@ -105,7 +105,7 @@ hdiutil create -volname "Suber" -srcfolder "$DMG_DIR" -ov -format UDZO Suber-v1.
 
 ```
 Sources/
-├── SubReminderApp.swift              # App entry point (MenuBarExtra)
+├── SuberApp.swift                    # App entry point (MenuBarExtra)
 ├── Info.plist                        # App configuration
 ├── Models/
 │   ├── Constants.swift               # Theme, AppFont, currencies, categories

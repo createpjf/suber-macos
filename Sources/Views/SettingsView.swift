@@ -25,9 +25,9 @@ struct SettingsView: View {
         ScrollView {
             VStack(spacing: 0) {
                 // Currency
-                section("CURRENCY") {
+                section("Currency") {
                     HStack {
-                        Text("Primary Currency")
+                        Text("Primary currency")
                             .font(AppFont.regular(13))
                             .foregroundColor(Theme.textPrimary)
                         Spacer()
@@ -48,15 +48,15 @@ struct SettingsView: View {
                 divider
 
                 // Notifications
-                section("NOTIFICATIONS") {
-                    ToggleRow(label: "Enable Notifications", isOn: Binding(
+                section("Notifications") {
+                    ToggleRow(label: "Enable notifications", isOn: Binding(
                         get: { settingsStore.settings.enableNotifications },
                         set: { val in settingsStore.update { $0.enableNotifications = val } }
                     ))
 
                     if settingsStore.settings.enableNotifications {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Remind Before")
+                            Text("Remind before")
                                 .font(AppFont.regular(11))
                                 .foregroundColor(Theme.textSecondary)
 
@@ -81,19 +81,24 @@ struct SettingsView: View {
 
                 divider
 
-                // Launch at Login
-                section("GENERAL") {
-                    ToggleRow(label: "Launch at Login", isOn: Binding(
+                // General
+                section("General") {
+                    ToggleRow(label: "Launch at login", isOn: Binding(
                         get: { settingsStore.settings.launchAtLogin },
                         set: { _ in settingsStore.toggleLaunchAtLogin() }
+                    ))
+
+                    ToggleRow(label: "iCloud sync", isOn: Binding(
+                        get: { settingsStore.settings.enableCloudSync },
+                        set: { val in settingsStore.update { $0.enableCloudSync = val } }
                     ))
                 }
 
                 divider
 
                 // Data
-                section("DATA") {
-                    VStack(spacing: 8) {
+                section("Data") {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 8) {
                             actionButton("Export JSON", icon: "square.and.arrow.up") {
                                 exportData()
@@ -104,26 +109,23 @@ struct SettingsView: View {
                         }
 
                         Button(action: { showClearConfirm = true }) {
-                            HStack {
+                            HStack(spacing: 4) {
                                 Image(systemName: "trash")
-                                    .font(.system(size: 11))
-                                Text("Clear All Data")
-                                    .font(AppFont.medium(12))
+                                    .font(.system(size: 10))
+                                Text("Clear all data")
+                                    .font(AppFont.medium(11))
                             }
                             .foregroundColor(Theme.danger)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(Theme.danger.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
+                        .padding(.top, 2)
                     }
                 }
 
                 divider
 
                 // Update
-                section("UPDATE") {
+                section("Update") {
                     updateSectionContent
                 }
                 .onAppear {
@@ -134,52 +136,42 @@ struct SettingsView: View {
 
                 divider
 
-                // Quit
-                Button(action: {
-                    NSApplication.shared.terminate(nil)
-                }) {
-                    HStack {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                            .font(.system(size: 12))
-                        Text("Quit Suber")
-                            .font(AppFont.medium(13))
-                    }
-                    .foregroundColor(Theme.textSecondary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                // About + Quit (merged footer)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("About")
+                        .font(AppFont.medium(13))
+                        .foregroundColor(Theme.textPrimary)
 
-                divider
-
-                // About
-                section("ABOUT") {
                     HStack {
-                        Text("Suber")
-                            .font(AppFont.regular(13))
-                            .foregroundColor(Theme.textPrimary)
-                        Spacer()
-                        Text("v\(UpdateService.currentVersion)")
+                        Text("Suber \(UpdateService.currentVersion)")
                             .font(AppFont.regular(12))
                             .foregroundColor(Theme.textSecondary)
+                        Spacer()
+                        Button(action: {
+                            if let url = URL(string: "https://github.com/createpjf/suber-macos") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }) {
+                            HStack(spacing: 4) {
+                                githubLogo
+                                Text("Website")
+                                    .font(AppFont.regular(12))
+                                    .foregroundColor(Theme.textSecondary)
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
-                    Button(action: {
-                        if let url = URL(string: "https://github.com/createpjf/suber-macos") {
-                            NSWorkspace.shared.open(url)
-                        }
-                    }) {
-                        HStack(spacing: 6) {
-                            githubLogo
-                            Text("Website")
-                                .font(AppFont.regular(13))
-                        }
-                        .foregroundColor(Theme.textSecondary)
-                        .frame(maxWidth: .infinity)
+
+                    Button(action: { NSApplication.shared.terminate(nil) }) {
+                        Text("Quit Suber")
+                            .font(AppFont.medium(12))
+                            .foregroundColor(Theme.textDim)
                     }
                     .buttonStyle(.plain)
+                    .padding(.top, 2)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
             .padding(.bottom, 16)
         }
@@ -258,9 +250,8 @@ struct SettingsView: View {
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
-                .font(AppFont.bold(10))
-                .foregroundColor(Theme.textSecondary)
-                .tracking(1)
+                .font(AppFont.medium(13))
+                .foregroundColor(Theme.textPrimary)
 
             content()
         }
@@ -300,7 +291,7 @@ struct SettingsView: View {
     private var updateSectionContent: some View {
         switch updateState {
         case .idle:
-            actionButton("Check for Updates", icon: "arrow.clockwise") {
+            actionButton("Check for updates", icon: "arrow.clockwise") {
                 checkForUpdate()
             }
         case .checking:
@@ -312,17 +303,11 @@ struct SettingsView: View {
                     .foregroundColor(Theme.textSecondary)
             }
         case .available(let release):
-            VStack(spacing: 8) {
-                HStack {
-                    Text("v\(release.version) available")
-                        .font(AppFont.medium(13))
-                        .foregroundColor(Theme.textPrimary)
-                    Spacer()
-                    Text("Current: v\(UpdateService.currentVersion)")
-                        .font(AppFont.regular(11))
-                        .foregroundColor(Theme.textDim)
-                }
-                actionButton("Download Update", icon: "arrow.down.circle") {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("New version v\(release.version) available · you have v\(UpdateService.currentVersion)")
+                    .font(AppFont.regular(12))
+                    .foregroundColor(Theme.textSecondary)
+                actionButton("Download update", icon: "arrow.down.circle") {
                     downloadUpdate(release)
                 }
             }

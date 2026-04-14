@@ -52,7 +52,7 @@ struct ListView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
             .padding(.top, 6)
 
             // List
@@ -79,7 +79,7 @@ struct ListView: View {
                                 .onTapGesture { onEdit(sub) }
                         }
                     }
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 16)
                     .padding(.bottom, 12)
                 }
             }

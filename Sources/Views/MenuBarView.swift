@@ -3,6 +3,7 @@ import SwiftUI
 enum AppView: Hashable {
     case calendar
     case list
+    case dashboard
     case settings
 }
 
@@ -32,6 +33,9 @@ struct MenuBarView: View {
                         .frame(maxWidth: .infinity)
                 case .list:
                     ListView(onEdit: { editingSubscription = $0 })
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                case .dashboard:
+                    DashboardView(onAdd: { showAddForm = true })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .settings:
                     SettingsView()
