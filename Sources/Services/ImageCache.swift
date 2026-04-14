@@ -8,6 +8,9 @@ final class ImageCache {
     private let memoryCache = NSCache<NSString, NSImage>()
     private let cacheDirectory: URL
     private let session: URLSession
+    /// In-flight request dedup: prevents duplicate network fetches for the same cache key.
+    private var inFlightTasks: [String: Task<NSImage?, Never>] = []
+    private let taskLock = NSLock()
 
     private init() {
         // Setup disk cache directory
@@ -15,9 +18,9 @@ final class ImageCache {
         cacheDirectory = caches.appendingPathComponent("com.subreminder.favicons", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
 
-        // Memory cache limits
-        memoryCache.countLimit = 200
-        memoryCache.totalCostLimit = 50 * 1024 * 1024 // 50MB
+        // Memory cache limits (keep lightweight for menu bar app)
+        memoryCache.countLimit = 150
+        memoryCache.totalCostLimit = 15 * 1024 * 1024 // 15MB
 
         // URL session with caching
         let config = URLSessionConfiguration.default
@@ -49,36 +52,55 @@ final class ImageCache {
         return nil
     }
 
-    /// Load image from URL with caching.
+    /// Load image from URL with caching and in-flight dedup.
     func loadImage(for key: String, url: URL) async -> NSImage? {
         // Check caches first
         if let cached = cachedImage(for: key) {
             return cached
         }
 
-        // Fetch from network
-        do {
-            let (data, response) = try await session.data(from: url)
+        // Dedup: reuse existing in-flight task for same key
+        taskLock.lock()
+        if let existing = inFlightTasks[key] {
+            taskLock.unlock()
+            return await existing.value
+        }
 
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200,
-                  data.count > 100, // filter out tiny error responses
-                  let image = NSImage(data: data) else {
+        let task = Task<NSImage?, Never> {
+            do {
+                let (data, response) = try await session.data(from: url)
+
+                guard let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      data.count > 100,
+                      let image = NSImage(data: data) else {
+                    return nil
+                }
+
+                // Store in memory cache with cost
+                let nsKey = key as NSString
+                memoryCache.setObject(image, forKey: nsKey, cost: data.count)
+
+                // Store on disk (fire-and-forget)
+                let diskPath = diskCachePath(for: key)
+                try? data.write(to: diskPath, options: .atomic)
+
+                return image
+            } catch {
                 return nil
             }
-
-            // Store in memory cache
-            let nsKey = key as NSString
-            memoryCache.setObject(image, forKey: nsKey)
-
-            // Store on disk (fire-and-forget)
-            let diskPath = diskCachePath(for: key)
-            try? data.write(to: diskPath, options: .atomic)
-
-            return image
-        } catch {
-            return nil
         }
+        inFlightTasks[key] = task
+        taskLock.unlock()
+
+        let result = await task.value
+
+        // Clean up in-flight entry
+        taskLock.lock()
+        inFlightTasks.removeValue(forKey: key)
+        taskLock.unlock()
+
+        return result
     }
 
     /// Build favicon URLs to try, in priority order.

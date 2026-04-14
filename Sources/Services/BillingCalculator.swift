@@ -121,10 +121,10 @@ enum BillingCalculator {
     }
 
     /// Returns all weekly billing dates in a given month.
+    /// Optimized: jumps directly to the target month instead of iterating week-by-week from startDate.
     static func getWeeklyBillingDatesInMonth(_ sub: Subscription, year: Int, month: Int) -> [Date] {
         guard sub.cycle == .weekly else { return [] }
 
-        var dates: [Date] = []
         let start = startOfDay(sub.startDate)
 
         var monthStartComps = DateComponents()
@@ -139,11 +139,21 @@ enum BillingCalculator {
         monthEndComps.day = 0
         guard let monthEnd = calendar.date(from: monthEndComps) else { return [] }
 
-        var current = start
-        while current < monthStart {
-            current = calendar.date(byAdding: .weekOfYear, value: 1, to: current)!
+        // Jump: calculate weeks from start to monthStart, then align
+        var current: Date
+        if start >= monthStart {
+            current = start
+        } else {
+            let daysBetween = calendar.dateComponents([.day], from: start, to: monthStart).day ?? 0
+            let weeksToSkip = daysBetween / 7
+            current = calendar.date(byAdding: .weekOfYear, value: weeksToSkip, to: start)!
+            // Advance one more week if we landed before monthStart
+            if current < monthStart {
+                current = calendar.date(byAdding: .weekOfYear, value: 1, to: current)!
+            }
         }
 
+        var dates: [Date] = []
         while current <= monthEnd {
             let currentMonth = calendar.component(.month, from: current)
             if currentMonth == month {

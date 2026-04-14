@@ -52,7 +52,10 @@ struct CalendarDayCellView: View {
     }
 
     private var cellBackground: Color {
-        Theme.bgCell
+        if !subscriptions.isEmpty && isCurrentMonth {
+            return Theme.bgCell.opacity(0.9)
+        }
+        return Theme.bgCell.opacity(0.4)
     }
 
     @ViewBuilder

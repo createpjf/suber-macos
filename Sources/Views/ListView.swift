@@ -94,12 +94,14 @@ struct ListView: View {
             subs = subs.filter { $0.status.rawValue == statusFilter }
         }
 
-        // Filter by search text
+        // Filter by search text (matches name, category, url, and notes)
         if !searchText.isEmpty {
             let query = searchText.lowercased()
             subs = subs.filter {
                 $0.name.lowercased().contains(query) ||
-                $0.category.lowercased().contains(query)
+                $0.category.lowercased().contains(query) ||
+                ($0.url?.lowercased().contains(query) ?? false) ||
+                ($0.notes?.lowercased().contains(query) ?? false)
             }
         }
 
