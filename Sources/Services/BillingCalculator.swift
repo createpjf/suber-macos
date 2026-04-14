@@ -28,15 +28,15 @@ enum BillingCalculator {
     private static func advanceByOneCycle(_ date: Date, cycle: BillingCycle, billingDay: Int) -> Date {
         switch cycle {
         case .monthly:
-            let next = calendar.date(byAdding: .month, value: 1, to: date)!
+            guard let next = calendar.date(byAdding: .month, value: 1, to: date) else { return date }
             return clampDay(next, day: billingDay)
         case .yearly:
-            let next = calendar.date(byAdding: .year, value: 1, to: date)!
+            guard let next = calendar.date(byAdding: .year, value: 1, to: date) else { return date }
             return clampDay(next, day: billingDay)
         case .weekly:
-            return calendar.date(byAdding: .weekOfYear, value: 1, to: date)!
+            return calendar.date(byAdding: .weekOfYear, value: 1, to: date) ?? date
         case .quarterly:
-            let next = calendar.date(byAdding: .month, value: 3, to: date)!
+            guard let next = calendar.date(byAdding: .month, value: 3, to: date) else { return date }
             return clampDay(next, day: billingDay)
         case .oneTime:
             return date
@@ -55,8 +55,11 @@ enum BillingCalculator {
             return next
         }
 
-        while next < today {
+        // Safety: limit iterations to prevent infinite loop from unexpected data
+        var iterations = 0
+        while next < today && iterations < 2000 {
             next = advanceByOneCycle(next, cycle: sub.cycle, billingDay: sub.billingDay)
+            iterations += 1
         }
 
         return next
@@ -146,10 +149,12 @@ enum BillingCalculator {
         } else {
             let daysBetween = calendar.dateComponents([.day], from: start, to: monthStart).day ?? 0
             let weeksToSkip = daysBetween / 7
-            current = calendar.date(byAdding: .weekOfYear, value: weeksToSkip, to: start)!
+            guard let jumped = calendar.date(byAdding: .weekOfYear, value: weeksToSkip, to: start) else { return [] }
+            current = jumped
             // Advance one more week if we landed before monthStart
             if current < monthStart {
-                current = calendar.date(byAdding: .weekOfYear, value: 1, to: current)!
+                guard let next = calendar.date(byAdding: .weekOfYear, value: 1, to: current) else { return [] }
+                current = next
             }
         }
 
@@ -159,7 +164,8 @@ enum BillingCalculator {
             if currentMonth == month {
                 dates.append(current)
             }
-            current = calendar.date(byAdding: .weekOfYear, value: 1, to: current)!
+            guard let next = calendar.date(byAdding: .weekOfYear, value: 1, to: current) else { break }
+            current = next
         }
 
         return dates

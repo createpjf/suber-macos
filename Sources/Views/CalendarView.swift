@@ -125,26 +125,41 @@ struct CalendarView: View {
     // MARK: - Calendar Grid
 
     private var calendarGrid: some View {
-        LazyVGrid(columns: columns, spacing: 4) {
-            ForEach(calendarDays, id: \.self) { date in
-                CalendarDayCellView(
-                    date: date,
-                    subscriptions: subscriptionsByDate[DateHelpers.formatDayKey(date)] ?? [],
-                    isCurrentMonth: DateHelpers.isSameMonth(date, currentMonth),
-                    isToday: DateHelpers.isToday(date),
-                    isSelected: selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false,
-                    onTap: {
-                        if let subs = subscriptionsByDate[DateHelpers.formatDayKey(date)], !subs.isEmpty {
-                            withAnimation {
-                                selectedDate = date
+        VStack(spacing: 0) {
+            LazyVGrid(columns: columns, spacing: 4) {
+                ForEach(calendarDays, id: \.self) { date in
+                    CalendarDayCellView(
+                        date: date,
+                        subscriptions: subscriptionsByDate[DateHelpers.formatDayKey(date)] ?? [],
+                        isCurrentMonth: DateHelpers.isSameMonth(date, currentMonth),
+                        isToday: DateHelpers.isToday(date),
+                        isSelected: selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false,
+                        onTap: {
+                            if let subs = subscriptionsByDate[DateHelpers.formatDayKey(date)], !subs.isEmpty {
+                                withAnimation {
+                                    selectedDate = date
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.bottom, 8)
+
+            // Empty state hint when no subscriptions
+            if subscriptionStore.subscriptions.isEmpty {
+                VStack(spacing: 6) {
+                    Text("No subscriptions yet")
+                        .font(AppFont.regular(12))
+                        .foregroundColor(Theme.textSecondary)
+                    Text("Tap + or ⌘N to add your first one")
+                        .font(AppFont.regular(11))
+                        .foregroundColor(Theme.textDim)
+                }
+                .padding(.vertical, 8)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.bottom, 8)
     }
 
     // MARK: - Cached Computed Data
@@ -160,10 +175,16 @@ struct CalendarView: View {
     private func recomputeCache() {
         cachedCalendarDays = DateHelpers.calendarDaysCompact(for: currentMonth)
         cachedSubscriptionsByDate = DateHelpers.subscriptionsByDate(month: currentMonth, subscriptions: subscriptionStore.subscriptions)
-        let total = subscriptionStore.subscriptions
+
+        let activeSubs = subscriptionStore.subscriptions
             .filter { $0.status == .active || $0.status == .trial }
+        let primaryCurrency = settingsStore.settings.primaryCurrency
+        let hasMultipleCurrencies = Set(activeSubs.map(\.currency)).count > 1
+        let total = activeSubs
+            .filter { !hasMultipleCurrencies || $0.currency == primaryCurrency }
             .reduce(0.0) { $0 + BillingCalculator.getMonthlyEquivalent($1) }
-        cachedMonthlySpend = CurrencyFormatter.formatShort(total, currency: settingsStore.settings.primaryCurrency)
+        let formatted = CurrencyFormatter.formatShort(total, currency: primaryCurrency)
+        cachedMonthlySpend = hasMultipleCurrencies ? "~\(formatted)" : formatted
     }
 
     // MARK: - Actions
@@ -172,7 +193,7 @@ struct CalendarView: View {
         selectedDate = nil
         slideDirection = .backward
         withAnimation(.easeInOut(duration: 0.25)) {
-            currentMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth)!
+            currentMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
         }
     }
 
@@ -180,7 +201,7 @@ struct CalendarView: View {
         selectedDate = nil
         slideDirection = .forward
         withAnimation(.easeInOut(duration: 0.25)) {
-            currentMonth = Calendar.current.date(byAdding: .month, value: 1, to: currentMonth)!
+            currentMonth = Calendar.current.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
         }
     }
 }

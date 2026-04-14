@@ -39,6 +39,21 @@ struct TopBarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
+        .background(
+            // Keyboard shortcuts (hidden buttons)
+            Group {
+                Button(action: onAdd) { EmptyView() }
+                    .keyboardShortcut("n", modifiers: .command)
+                    .hidden()
+                Button(action: { currentView = currentView == .list ? .calendar : .list }) { EmptyView() }
+                    .keyboardShortcut("l", modifiers: .command)
+                    .hidden()
+                Button(action: { currentView = currentView == .settings ? .calendar : .settings }) { EmptyView() }
+                    .keyboardShortcut(",", modifiers: .command)
+                    .hidden()
+            }
+            .frame(width: 0, height: 0)
+        )
     }
 
     @ViewBuilder

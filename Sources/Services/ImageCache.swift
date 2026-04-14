@@ -11,6 +11,8 @@ final class ImageCache {
     /// In-flight request dedup: prevents duplicate network fetches for the same cache key.
     private var inFlightTasks: [String: Task<NSImage?, Never>] = []
     private let taskLock = NSLock()
+    /// Serial queue for disk cache read/write to prevent concurrent file access.
+    private let diskQueue = DispatchQueue(label: "com.subreminder.diskcache", qos: .utility)
 
     private init() {
         // Setup disk cache directory
@@ -41,10 +43,13 @@ final class ImageCache {
             return image
         }
 
-        // 2. Check disk cache
+        // 2. Check disk cache (synchronous read on disk queue)
         let diskPath = diskCachePath(for: key)
-        if let data = try? Data(contentsOf: diskPath),
-           let image = NSImage(data: data) {
+        let image: NSImage? = diskQueue.sync {
+            guard let data = try? Data(contentsOf: diskPath) else { return nil }
+            return NSImage(data: data)
+        }
+        if let image = image {
             memoryCache.setObject(image, forKey: nsKey)
             return image
         }
@@ -81,9 +86,11 @@ final class ImageCache {
                 let nsKey = key as NSString
                 memoryCache.setObject(image, forKey: nsKey, cost: data.count)
 
-                // Store on disk (fire-and-forget)
-                let diskPath = diskCachePath(for: key)
-                try? data.write(to: diskPath, options: .atomic)
+                // Store on disk via serial queue (fire-and-forget)
+                let diskPath = self.diskCachePath(for: key)
+                self.diskQueue.async {
+                    try? data.write(to: diskPath, options: .atomic)
+                }
 
                 return image
             } catch {

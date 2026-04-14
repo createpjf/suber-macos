@@ -19,9 +19,11 @@ final class NotificationService {
 
     func scheduleReminders(for subscriptions: [Subscription], daysBefore: [Int]) {
         let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
 
         let activeSubs = subscriptions.filter { $0.status == .active || $0.status == .trial }
+
+        // Build the set of notification IDs we expect
+        var expectedIDs: Set<String> = []
 
         for sub in activeSubs {
             let nextBilling = BillingCalculator.getNextBillingDate(sub)
@@ -33,6 +35,9 @@ final class NotificationService {
 
                 // Only schedule future reminders
                 if reminderDate <= Date() { continue }
+
+                let id = "\(sub.id.uuidString)-\(days)d"
+                expectedIDs.insert(id)
 
                 let content = UNMutableNotificationContent()
                 content.title = "Subscription Reminder"
@@ -48,10 +53,16 @@ final class NotificationService {
                 let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: reminderDate)
                 let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
-                let id = "\(sub.id.uuidString)-\(days)d"
                 let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-
                 center.add(request)
+            }
+        }
+
+        // Remove only stale notifications (ones no longer expected)
+        center.getPendingNotificationRequests { pending in
+            let staleIDs = pending.map(\.identifier).filter { !expectedIDs.contains($0) }
+            if !staleIDs.isEmpty {
+                center.removePendingNotificationRequests(withIdentifiers: staleIDs)
             }
         }
     }

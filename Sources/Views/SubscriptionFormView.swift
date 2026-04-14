@@ -106,6 +106,16 @@ struct SubscriptionFormView: View {
                                         .textFieldStyle(.plain)
                                         .font(AppFont.regular(14))
                                         .foregroundColor(Theme.textPrimary)
+                                        .onChange(of: formData.amount) { newValue in
+                                            let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                            // Allow only one decimal point
+                                            let parts = filtered.split(separator: ".", omittingEmptySubsequences: false)
+                                            if parts.count > 2 {
+                                                formData.amount = String(parts[0]) + "." + String(parts[1])
+                                            } else if filtered != newValue {
+                                                formData.amount = filtered
+                                            }
+                                        }
                                 }
 
                                 Button(action: { adjustAmount(1) }) {
