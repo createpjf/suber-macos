@@ -190,14 +190,15 @@ enum BillingCalculator {
         return Int(ceil(diff / 86400))
     }
 
-    /// Normalize subscription cost to a monthly equivalent.
+    /// Normalize subscription cost to a monthly equivalent, using effective (split-adjusted) amount.
     static func getMonthlyEquivalent(_ sub: Subscription) -> Double {
+        let amt = sub.effectiveAmount
         switch sub.cycle {
-        case .yearly: return sub.amount / 12.0
-        case .weekly: return sub.amount * 4.33
-        case .quarterly: return sub.amount / 3.0
+        case .yearly: return amt / 12.0
+        case .weekly: return amt * 4.33
+        case .quarterly: return amt / 3.0
         case .oneTime: return 0
-        case .monthly: return sub.amount
+        case .monthly: return amt
         }
     }
 }

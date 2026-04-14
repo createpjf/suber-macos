@@ -16,6 +16,8 @@ struct SubscriptionFormView: View {
     @State private var showStartDatePicker = false
     @State private var showEndDatePicker = false
     @State private var showImageInput = false
+    @State private var showEmailInput = false
+    @State private var showSplit = false
 
     init(mode: FormMode, onSave: @escaping (SubscriptionFormData) -> Void, onCancel: @escaping () -> Void, onDelete: (() -> Void)? = nil) {
         self.mode = mode
@@ -40,6 +42,17 @@ struct SubscriptionFormView: View {
                     .foregroundColor(Theme.textPrimary)
                 Spacer()
                 if !isEdit {
+                    Button(action: { showEmailInput = true }) {
+                        Image(systemName: "envelope.open")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Theme.textSecondary)
+                            .frame(width: 28, height: 28)
+                            .background(Theme.bgCell)
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Parse billing email text")
+
                     Button(action: { showImageInput = true }) {
                         Image(systemName: "doc.viewfinder")
                             .font(.system(size: 13, weight: .medium))
@@ -126,6 +139,68 @@ struct SubscriptionFormView: View {
                             }
                         }
                         .frame(width: 150)
+                    }
+
+                    // Split
+                    if showSplit || formData.splitCount > 1 {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Split")
+                                .font(AppFont.medium(13))
+                                .foregroundColor(Theme.textPrimary)
+                            HStack(spacing: 12) {
+                                HStack(spacing: 8) {
+                                    Button(action: { if formData.splitCount > 1 { formData.splitCount -= 1 } }) {
+                                        Image(systemName: "minus")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(Color(hex: "38b2ac"))
+                                            .frame(width: 28, height: 28)
+                                            .background(Theme.bgPrimary)
+                                            .clipShape(Circle())
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    Text("\(formData.splitCount)")
+                                        .font(AppFont.medium(14))
+                                        .foregroundColor(Theme.textPrimary)
+                                        .frame(width: 24)
+
+                                    Button(action: { if formData.splitCount < 10 { formData.splitCount += 1 } }) {
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(Color(hex: "38b2ac"))
+                                            .frame(width: 28, height: 28)
+                                            .background(Theme.bgPrimary)
+                                            .clipShape(Circle())
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    Text("people")
+                                        .font(AppFont.regular(12))
+                                        .foregroundColor(Theme.textSecondary)
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(Theme.bgCell)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                                if formData.splitCount > 1, let amt = formData.parsedAmount {
+                                    Text("Your share: \(CurrencyFormatter.formatShort(amt / Double(formData.splitCount), currency: formData.currency))")
+                                        .font(AppFont.regular(12))
+                                        .foregroundColor(Theme.textSecondary)
+                                }
+                            }
+                        }
+                    } else {
+                        Button(action: { withAnimation { showSplit = true } }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "person.2")
+                                    .font(.system(size: 11))
+                                Text("Split with others")
+                                    .font(AppFont.regular(12))
+                            }
+                            .foregroundColor(Theme.textSecondary)
+                        }
+                        .buttonStyle(.plain)
                     }
 
                     // Start date + End date
@@ -270,6 +345,21 @@ struct SubscriptionFormView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showImageInput)
+        .overlay {
+            if showEmailInput {
+                EmailParseView(
+                    onResult: { parsed in
+                        applyParsedData(parsed)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showEmailInput = false
+                        }
+                    },
+                    onCancel: { showEmailInput = false }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: showEmailInput)
     }
 
     // MARK: - Image Scan

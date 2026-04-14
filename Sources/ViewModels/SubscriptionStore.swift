@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import WidgetKit
 
 @MainActor
 final class SubscriptionStore: ObservableObject {
@@ -26,6 +27,7 @@ final class SubscriptionStore: ObservableObject {
             category: data.category,
             status: data.status,
             notes: data.notes.isEmpty ? nil : data.notes,
+            splitCount: data.splitCount,
             createdAt: Date(),
             updatedAt: Date()
         )
@@ -50,6 +52,7 @@ final class SubscriptionStore: ObservableObject {
         subscriptions[index].category = data.category
         subscriptions[index].status = data.status
         subscriptions[index].notes = data.notes.isEmpty ? nil : data.notes
+        subscriptions[index].splitCount = data.splitCount
         subscriptions[index].updatedAt = Date()
         save()
     }
@@ -78,5 +81,6 @@ final class SubscriptionStore: ObservableObject {
 
     private func save() {
         StorageService.shared.saveSubscriptions(subscriptions)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

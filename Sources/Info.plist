@@ -30,5 +30,16 @@
 	<string>NSApplication</string>
 	<key>ATSApplicationFontsPath</key>
 	<string>.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.subreminder.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>suber</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

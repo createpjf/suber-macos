@@ -3,7 +3,7 @@ import Foundation
 final class StorageService {
     static let shared = StorageService()
 
-    private let defaults = UserDefaults.standard
+    private let defaults = UserDefaults(suiteName: "group.com.subreminder.app") ?? UserDefaults.standard
     private let subscriptionsKey = "subreminder-subscriptions"
     private let settingsKey = "subreminder-settings"
 
@@ -60,6 +60,7 @@ final class StorageService {
     func saveSubscriptions(_ subs: [Subscription]) {
         if let data = try? encoder.encode(subs) {
             defaults.set(data, forKey: subscriptionsKey)
+            CloudSyncService.shared.pushSubscriptions(data)
         }
     }
 
@@ -73,6 +74,7 @@ final class StorageService {
     func saveSettings(_ settings: AppSettings) {
         if let data = try? encoder.encode(settings) {
             defaults.set(data, forKey: settingsKey)
+            CloudSyncService.shared.pushSettings(data)
         }
     }
 

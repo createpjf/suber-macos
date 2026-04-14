@@ -28,6 +28,28 @@ targets:
         INFOPLIST_FILE: Sources/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: false
+        CODE_SIGN_ENTITLEMENTS: Sources/SubReminder.entitlements
+    dependencies:
+      - target: SubReminderWidget
+        embed: true
+  SubReminderWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: SubReminderWidget
+      - path: Sources/Models/Subscription.swift
+      - path: Sources/Models/Constants.swift
+      - path: Sources/Models/Settings.swift
+      - path: Sources/Services/BillingCalculator.swift
+      - path: Sources/Utilities/CurrencyFormatter.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.subreminder.app.widget
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        CODE_SIGN_ENTITLEMENTS: SubReminderWidget/SubReminderWidget.entitlements
   SubReminderTests:
     type: bundle.unit-test
     platform: macOS

@@ -38,9 +38,16 @@ struct SubCardView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(CurrencyFormatter.formatShort(subscription.amount, currency: subscription.currency))
-                    .font(AppFont.medium(13))
-                    .foregroundColor(Theme.textPrimary)
+                HStack(spacing: 3) {
+                    if subscription.splitCount > 1 {
+                        Text("÷\(subscription.splitCount)")
+                            .font(AppFont.regular(9))
+                            .foregroundColor(Theme.textDim)
+                    }
+                    Text(CurrencyFormatter.formatShort(subscription.effectiveAmount, currency: subscription.currency))
+                        .font(AppFont.medium(13))
+                        .foregroundColor(Theme.textPrimary)
+                }
                 Text(subscription.cycle.shortLabel)
                     .font(AppFont.regular(10))
                     .foregroundColor(Theme.textSecondary)

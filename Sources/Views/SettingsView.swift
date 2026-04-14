@@ -81,11 +81,30 @@ struct SettingsView: View {
 
                 divider
 
-                // Launch at Login
+                // General
                 section("GENERAL") {
                     ToggleRow(label: "Launch at Login", isOn: Binding(
                         get: { settingsStore.settings.launchAtLogin },
                         set: { _ in settingsStore.toggleLaunchAtLogin() }
+                    ))
+
+                    HStack {
+                        Text("Global Shortcut")
+                            .font(AppFont.regular(13))
+                            .foregroundColor(Theme.textPrimary)
+                        Spacer()
+                        Text("⌥S")
+                            .font(AppFont.medium(12))
+                            .foregroundColor(Theme.textSecondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Theme.bgCell)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+
+                    ToggleRow(label: "iCloud Sync", isOn: Binding(
+                        get: { settingsStore.settings.enableCloudSync },
+                        set: { val in settingsStore.update { $0.enableCloudSync = val } }
                     ))
                 }
 

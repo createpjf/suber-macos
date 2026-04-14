@@ -26,6 +26,11 @@ struct TopBarView: View {
                         icon: currentView == .list ? "calendar" : "list.bullet.clipboard",
                         action: { currentView = currentView == .list ? .calendar : .list }
                     )
+                    barButton(
+                        icon: "chart.bar",
+                        isActive: currentView == .dashboard,
+                        action: { currentView = currentView == .dashboard ? .calendar : .dashboard }
+                    )
                 }
 
                 Spacer()

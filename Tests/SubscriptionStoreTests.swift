@@ -7,7 +7,9 @@ final class SubscriptionStoreTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        UserDefaults.standard.removeObject(forKey: "subreminder-subscriptions")
+        let defaults = UserDefaults(suiteName: "group.com.subreminder.app") ?? UserDefaults.standard
+        defaults.removeObject(forKey: "subreminder-subscriptions")
+        defaults.removeObject(forKey: "subreminder-settings")
         store = SubscriptionStore()
     }
 

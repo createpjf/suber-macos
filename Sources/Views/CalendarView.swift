@@ -155,10 +155,14 @@ struct CalendarView: View {
     }
 
     private var monthlySpend: String {
+        let target = settingsStore.settings.primaryCurrency
         let total = subscriptionStore.subscriptions
             .filter { $0.status == .active || $0.status == .trial }
-            .reduce(0.0) { $0 + BillingCalculator.getMonthlyEquivalent($1) }
-        return CurrencyFormatter.formatShort(total, currency: settingsStore.settings.primaryCurrency)
+            .reduce(0.0) { sum, sub in
+                let monthly = BillingCalculator.getMonthlyEquivalent(sub)
+                return sum + ExchangeRateService.shared.convert(monthly, from: sub.currency, to: target)
+            }
+        return CurrencyFormatter.formatShort(total, currency: target)
     }
 
     // MARK: - Actions

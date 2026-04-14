@@ -4,7 +4,10 @@ import XCTest
 final class StorageServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
-        // Clear test data
+        // Clear test data from both standard and App Group defaults
+        let defaults = UserDefaults(suiteName: "group.com.subreminder.app") ?? UserDefaults.standard
+        defaults.removeObject(forKey: "subreminder-subscriptions")
+        defaults.removeObject(forKey: "subreminder-settings")
         UserDefaults.standard.removeObject(forKey: "subreminder-subscriptions")
         UserDefaults.standard.removeObject(forKey: "subreminder-settings")
     }
