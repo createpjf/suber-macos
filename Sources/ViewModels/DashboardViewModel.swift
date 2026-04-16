@@ -59,8 +59,8 @@ final class DashboardViewModel: ObservableObject {
         monthlySpend = monthly
         yearlySpend = monthly * 12
 
-        // Monthly trend (past 5 months + current)
-        monthTrend = computeMonthTrend(subscriptions: subscriptions)
+        // Monthly trend (past 5 months + current) — converts each sub into `currency`
+        monthTrend = computeMonthTrend(subscriptions: subscriptions, currency: currency)
 
         // Category breakdown
         categoryBreakdown = computeCategoryBreakdown(subscriptions: billable, currency: currency)
@@ -79,7 +79,7 @@ final class DashboardViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private func computeMonthTrend(subscriptions: [Subscription]) -> [MonthData] {
+    private func computeMonthTrend(subscriptions: [Subscription], currency: String) -> [MonthData] {
         let cal = Calendar.current
         let now = Date()
         let currentYear = cal.component(.year, from: now)
@@ -97,7 +97,7 @@ final class DashboardViewModel: ObservableObject {
             let label = formatter.string(from: monthDate)
             let key = String(format: "%04d-%02d", year, month)
 
-            let total = computeMonthTotal(subscriptions: subscriptions, year: year, month: month)
+            let total = computeMonthTotal(subscriptions: subscriptions, year: year, month: month, currency: currency)
             let isCurrent = (year == currentYear && month == currentMonth)
 
             result.append(MonthData(id: key, label: label, year: year, month: month, total: total, isCurrent: isCurrent))
@@ -106,16 +106,17 @@ final class DashboardViewModel: ObservableObject {
         return result
     }
 
-    private func computeMonthTotal(subscriptions: [Subscription], year: Int, month: Int) -> Double {
-        let activeSubs = subscriptions.filter { $0.status == .active || $0.status == .trial }
+    private func computeMonthTotal(subscriptions: [Subscription], year: Int, month: Int, currency: String) -> Double {
         var total = 0.0
 
-        for sub in activeSubs {
+        for sub in subscriptions where sub.status == .active || sub.status == .trial {
+            let amountInTarget = ExchangeRateService.shared.convert(sub.amount, from: sub.currency, to: currency)
+
             if sub.cycle == .weekly {
                 let dates = BillingCalculator.getWeeklyBillingDatesInMonth(sub, year: year, month: month)
-                total += Double(dates.count) * sub.amount
+                total += Double(dates.count) * amountInTarget
             } else if BillingCalculator.getBillingDateInMonth(sub, year: year, month: month) != nil {
-                total += sub.amount
+                total += amountInTarget
             }
         }
 
