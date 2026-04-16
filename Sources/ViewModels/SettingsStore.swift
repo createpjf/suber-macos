@@ -32,13 +32,14 @@ final class SettingsStore: ObservableObject {
     }
 
     func toggleReminderDay(_ day: Int) {
-        if settings.reminderDaysBefore.contains(day) {
-            settings.reminderDaysBefore.removeAll { $0 == day }
-        } else {
-            settings.reminderDaysBefore.append(day)
-            settings.reminderDaysBefore.sort()
+        update { settings in
+            if settings.reminderDaysBefore.contains(day) {
+                settings.reminderDaysBefore.removeAll { $0 == day }
+            } else {
+                settings.reminderDaysBefore.append(day)
+                settings.reminderDaysBefore.sort()
+            }
         }
-        save()
     }
 
     private func save() {

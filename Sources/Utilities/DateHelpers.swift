@@ -73,17 +73,9 @@ enum DateHelpers {
         let activeSubs = subscriptions.filter { $0.status != .cancelled }
 
         for sub in activeSubs {
-            if sub.cycle == .weekly {
-                let dates = BillingCalculator.getWeeklyBillingDatesInMonth(sub, year: year, month: monthNum)
-                for date in dates {
-                    let key = formatDayKey(date)
-                    result[key, default: []].append(sub)
-                }
-            } else {
-                if let date = BillingCalculator.getBillingDateInMonth(sub, year: year, month: monthNum) {
-                    let key = formatDayKey(date)
-                    result[key, default: []].append(sub)
-                }
+            for date in BillingCalculator.getBillingDatesInMonth(sub, year: year, month: monthNum) {
+                let key = formatDayKey(date)
+                result[key, default: []].append(sub)
             }
         }
 

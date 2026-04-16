@@ -43,7 +43,6 @@
 		9CCC6474863A909DD9A71FCA /* SpaceGrotesk-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3169530E0D794BF8348B6FC /* SpaceGrotesk-Medium.ttf */; };
 		9EB54FBE87938F4021098EF3 /* SubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA53D89C607C630B60617D4 /* SubCardView.swift */; };
 		A4BF81F28F48055C53BB2B8E /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D1458ABC9F1D769C48EB29 /* NotificationService.swift */; };
-		A64E6D11F42E2A734B472A7E /* HotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFC75E9CEDC6F6C0986FA89 /* HotkeyService.swift */; };
 		ACFE9828B1163E4E7F2BC6C2 /* BillingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9DEE6DA508FFB14AEE7124E /* BillingCalculator.swift */; };
 		AD7E286DD287AA60189A9E86 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1940BFFEDDC7D2FB96D14DF0 /* ListView.swift */; };
 		B0886311D6E746360DDBD6D0 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC79AF98975C727773BF90D /* SettingsStore.swift */; };
@@ -134,7 +133,6 @@
 		9494532546525F7E5D6BB7B1 /* URLSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSchemeHandler.swift; sourceTree = "<group>"; };
 		A0454D55BE6BC7470C7CBA1E /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		A0C0C0FFD8CE4F90A25285E2 /* SubscriptionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStoreTests.swift; sourceTree = "<group>"; };
-		AFFC75E9CEDC6F6C0986FA89 /* HotkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyService.swift; sourceTree = "<group>"; };
 		B164702B8BBDB3C53F4A508C /* SpaceGrotesk-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Light.ttf"; sourceTree = "<group>"; };
 		B3F2AB2B4C1B058EF8ED749C /* SuberWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SuberWidget.entitlements; sourceTree = "<group>"; };
 		B52C5D5162C9A8ABE25CFBAC /* ToggleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleRow.swift; sourceTree = "<group>"; };
@@ -293,7 +291,6 @@
 				D9DEE6DA508FFB14AEE7124E /* BillingCalculator.swift */,
 				D952CCBFC2EBFD4611E9143E /* CloudSyncService.swift */,
 				4B95933EC5EA5987B71DD666 /* ExchangeRateService.swift */,
-				AFFC75E9CEDC6F6C0986FA89 /* HotkeyService.swift */,
 				04F8D53742B96A524C270A8A /* ImageCache.swift */,
 				73E2F8DA8054615C97A01286 /* ImageRecognitionService.swift */,
 				08D1458ABC9F1D769C48EB29 /* NotificationService.swift */,
@@ -459,7 +456,6 @@
 				F90FAAE7A3F02C0F2272018A /* ExchangeRateService.swift in Sources */,
 				4122F89E76234D4B21FA2D15 /* FilterBarView.swift in Sources */,
 				FDD396EF7D7047E4B8BA8F64 /* GetSpendIntent.swift in Sources */,
-				A64E6D11F42E2A734B472A7E /* HotkeyService.swift in Sources */,
 				F652D608B4F8FA4F455831BB /* ImageCache.swift in Sources */,
 				31184A543C3D8C6CB6BF998C /* ImageDropZoneView.swift in Sources */,
 				045525EB96DE2C44F5557513 /* ImageRecognitionService.swift in Sources */,
@@ -533,17 +529,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
-				DEVELOPMENT_TEAM = M2XH53X5DB;
+				CURRENT_PROJECT_VERSION = 141;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -587,10 +581,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
-				DEVELOPMENT_TEAM = M2XH53X5DB;
+				CURRENT_PROJECT_VERSION = 141;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -598,7 +590,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};
@@ -666,17 +658,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
-				DEVELOPMENT_TEAM = M2XH53X5DB;
+				CURRENT_PROJECT_VERSION = 141;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -750,10 +740,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
-				DEVELOPMENT_TEAM = M2XH53X5DB;
+				CURRENT_PROJECT_VERSION = 141;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -761,7 +749,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};

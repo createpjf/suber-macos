@@ -74,6 +74,8 @@ xcodebuild build \
 
 The `scripts/build-dmg.sh` script wraps build + DMG packaging for local testing. Proper distribution additionally requires a Developer ID Application certificate and Apple notarization (see Apple's *Notarizing macOS Software Before Distribution*).
 
+> **Note**: `xcodegen generate` regenerates `Suber.xcodeproj` from `project.yml` and won't preserve any provisioning profile or signing identity selections you've made in Xcode. After regenerating, reopen the project in Xcode and re-select your team in **Signing & Capabilities**.
+
 ## Project structure
 
 ```

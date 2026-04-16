@@ -123,6 +123,19 @@ enum BillingCalculator {
         return billingDate
     }
 
+    /// Returns all billing dates for a subscription that fall within the given year/month.
+    /// Unifies weekly / monthly / quarterly / yearly / oneTime handling so callers don't
+    /// need to branch on cycle themselves.
+    static func getBillingDatesInMonth(_ sub: Subscription, year: Int, month: Int) -> [Date] {
+        if sub.cycle == .weekly {
+            return getWeeklyBillingDatesInMonth(sub, year: year, month: month)
+        }
+        if let date = getBillingDateInMonth(sub, year: year, month: month) {
+            return [date]
+        }
+        return []
+    }
+
     /// Returns all weekly billing dates in a given month.
     /// Optimized: jumps directly to the target month instead of iterating week-by-week from startDate.
     static func getWeeklyBillingDatesInMonth(_ sub: Subscription, year: Int, month: Int) -> [Date] {

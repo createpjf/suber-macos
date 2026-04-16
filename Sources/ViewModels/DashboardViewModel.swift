@@ -110,14 +110,10 @@ final class DashboardViewModel: ObservableObject {
         var total = 0.0
 
         for sub in subscriptions where sub.status == .active || sub.status == .trial {
+            let occurrences = BillingCalculator.getBillingDatesInMonth(sub, year: year, month: month).count
+            guard occurrences > 0 else { continue }
             let amountInTarget = ExchangeRateService.shared.convert(sub.amount, from: sub.currency, to: currency)
-
-            if sub.cycle == .weekly {
-                let dates = BillingCalculator.getWeeklyBillingDatesInMonth(sub, year: year, month: month)
-                total += Double(dates.count) * amountInTarget
-            } else if BillingCalculator.getBillingDateInMonth(sub, year: year, month: month) != nil {
-                total += amountInTarget
-            }
+            total += Double(occurrences) * amountInTarget
         }
 
         return total

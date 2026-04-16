@@ -74,6 +74,8 @@ xcodebuild build \
 
 `scripts/build-dmg.sh` 封装了本地构建 + 打 DMG 的流程,仅适合本机测试。要做对外分发,还需要 Developer ID Application 证书和 Apple 公证流程(见 Apple 文档 *Notarizing macOS Software Before Distribution*)。
 
+> **注意**:`xcodegen generate` 会从 `project.yml` 重新生成 `Suber.xcodeproj`,不会保留你在 Xcode 里选过的签名证书 / provisioning profile。重新生成之后需要再次打开 Xcode,在 **Signing & Capabilities** 里重新选团队。
+
 ## 项目结构
 
 ```

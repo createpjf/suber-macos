@@ -9,15 +9,15 @@ final class ImageCache {
     private let cacheDirectory: URL
     private let session: URLSession
     /// In-flight request dedup: prevents duplicate network fetches for the same cache key.
-    private var inFlightTasks: [String: Task<NSImage?, Never>] = []
+    private var inFlightTasks: [String: Task<NSImage?, Never>] = [:]
     private let taskLock = NSLock()
     /// Serial queue for disk cache read/write to prevent concurrent file access.
     private let diskQueue = DispatchQueue(label: "com.subreminder.diskcache", qos: .utility)
 
     private init() {
         // Setup disk cache directory
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-cacheDirectory = caches.appendingPathComponent("com.suber.favicons", isDirectory: true)
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ?? FileManager.default.temporaryDirectory
+        cacheDirectory = caches.appendingPathComponent("com.suber.favicons", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
 
         // Memory cache limits (keep lightweight for menu bar app)

@@ -21,12 +21,14 @@ struct TopBarView: View {
             // Left + Right buttons
             HStack {
                 HStack(spacing: 6) {
-                    barButton(icon: "plus.circle", action: onAdd)
-                    barButton(
+                    BarButtonView(icon: "plus.circle", action: onAdd)
+                        .keyboardShortcut("n", modifiers: .command)
+                    BarButtonView(
                         icon: currentView == .list ? "calendar" : "list.bullet.clipboard",
                         action: { currentView = currentView == .list ? .calendar : .list }
                     )
-                    barButton(
+                    .keyboardShortcut("l", modifiers: .command)
+                    BarButtonView(
                         icon: "chart.bar",
                         isActive: currentView == .dashboard,
                         action: { currentView = currentView == .dashboard ? .calendar : .dashboard }
@@ -35,35 +37,16 @@ struct TopBarView: View {
 
                 Spacer()
 
-                barButton(
+                BarButtonView(
                     icon: "gearshape",
                     isActive: currentView == .settings,
                     action: { currentView = currentView == .settings ? .calendar : .settings }
                 )
+                .keyboardShortcut(",", modifiers: .command)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
-        .background(
-            // Keyboard shortcuts (hidden buttons)
-            Group {
-                Button(action: onAdd) { EmptyView() }
-                    .keyboardShortcut("n", modifiers: .command)
-                    .hidden()
-                Button(action: { currentView = currentView == .list ? .calendar : .list }) { EmptyView() }
-                    .keyboardShortcut("l", modifiers: .command)
-                    .hidden()
-                Button(action: { currentView = currentView == .settings ? .calendar : .settings }) { EmptyView() }
-                    .keyboardShortcut(",", modifiers: .command)
-                    .hidden()
-            }
-            .frame(width: 0, height: 0)
-        )
-    }
-
-    @ViewBuilder
-    private func barButton(icon: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
-        BarButtonView(icon: icon, isActive: isActive, action: action)
     }
 }
 
