@@ -5,6 +5,8 @@ struct SettingsView: View {
     @EnvironmentObject var subscriptionStore: SubscriptionStore
     @EnvironmentObject var settingsStore: SettingsStore
 
+    var onImport: (() -> Void)? = nil
+
     @State private var showClearConfirm = false
     @State private var importError: String?
     @State private var showImportError = false
@@ -105,6 +107,12 @@ struct SettingsView: View {
                             }
                             actionButton("Import JSON", icon: "square.and.arrow.down") {
                                 importData()
+                            }
+                        }
+
+                        if let onImport = onImport {
+                            actionButton("Import from bank statement…", icon: "doc.badge.arrow.up") {
+                                onImport()
                             }
                         }
 

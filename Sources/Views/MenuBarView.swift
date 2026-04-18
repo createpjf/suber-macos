@@ -14,6 +14,7 @@ struct MenuBarView: View {
     @State private var currentView: AppView = .calendar
     @State private var showAddForm = false
     @State private var editingSubscription: Subscription?
+    @State private var showBankImport = false
 
     var body: some View {
         ZStack {
@@ -35,10 +36,13 @@ struct MenuBarView: View {
                     ListView(onEdit: { editingSubscription = $0 })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .dashboard:
-                    DashboardView(onAdd: { showAddForm = true })
+                    DashboardView(
+                        onAdd: { showAddForm = true },
+                        onImport: { showBankImport = true }
+                    )
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .settings:
-                    SettingsView()
+                    SettingsView(onImport: { showBankImport = true })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
@@ -52,6 +56,23 @@ struct MenuBarView: View {
                     } onCancel: {
                         showAddForm = false
                     }
+                }
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+
+            // Bank-statement import overlay
+            if showBankImport {
+                formOverlay {
+                    BankImportView(
+                        existingSubscriptions: subscriptionStore.subscriptions,
+                        onAdd: { forms in
+                            for data in forms {
+                                subscriptionStore.add(data)
+                            }
+                            showBankImport = false
+                        },
+                        onCancel: { showBankImport = false }
+                    )
                 }
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
@@ -76,6 +97,7 @@ struct MenuBarView: View {
         .clipped()
         .animation(.easeOut(duration: 0.2), value: showAddForm)
         .animation(.easeOut(duration: 0.2), value: editingSubscription?.id)
+        .animation(.easeOut(duration: 0.2), value: showBankImport)
     }
 
     @ViewBuilder

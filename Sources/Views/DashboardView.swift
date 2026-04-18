@@ -7,6 +7,7 @@ struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
 
     var onAdd: (() -> Void)? = nil
+    var onImport: (() -> Void)? = nil
 
     private let categoryColors: [Color] = [
         Color(hex: "6366f1"),  // indigo
@@ -78,23 +79,35 @@ struct DashboardView: View {
                     .padding(.horizontal, 20)
             }
 
-            if let onAdd = onAdd {
-                Button(action: onAdd) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text("Add subscription")
-                            .font(AppFont.medium(12))
+            VStack(spacing: 8) {
+                if let onAdd = onAdd {
+                    Button(action: onAdd) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 11, weight: .semibold))
+                            Text("Add subscription")
+                                .font(AppFont.medium(12))
+                        }
+                        .foregroundColor(Theme.bgPrimary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Theme.textPrimary)
+                        .clipShape(Capsule())
                     }
-                    .foregroundColor(Theme.bgPrimary)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Theme.textPrimary)
-                    .clipShape(Capsule())
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-                .padding(.top, 4)
+
+                if let onImport = onImport {
+                    Button(action: onImport) {
+                        Text("or import a bank statement")
+                            .font(AppFont.regular(11))
+                            .foregroundColor(Theme.textSecondary)
+                            .underline()
+                    }
+                    .buttonStyle(.plain)
+                }
             }
+            .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 32)
