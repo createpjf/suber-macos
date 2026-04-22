@@ -405,7 +405,7 @@ struct SettingsView: View {
         formatter.dateFormat = "yyyy-MM-dd"
         panel.nameFieldStringValue = "suber-backup-\(formatter.string(from: Date())).json"
 
-        if panel.runModal() == .OK, let url = panel.url {
+        if Self.runFilePanelFromPopover(panel) == .OK, let url = panel.url {
             try? data.write(to: url)
         }
     }
@@ -415,7 +415,7 @@ struct SettingsView: View {
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
 
-        if panel.runModal() == .OK, let url = panel.url {
+        if Self.runFilePanelFromPopover(panel) == .OK, let url = panel.url {
             do {
                 let data = try Data(contentsOf: url)
                 let result = try StorageService.shared.importData(from: data)
@@ -428,6 +428,21 @@ struct SettingsView: View {
                 showImportError = true
             }
         }
+    }
+
+    /// Runs a save/open panel while temporarily dropping the MenuBarExtra
+    /// popover's window level so TCC dialogs and the file picker itself can
+    /// stack above it.
+    private static func runFilePanelFromPopover(_ panel: NSSavePanel) -> NSApplication.ModalResponse {
+        let popoverWindow = NSApp.keyWindow
+        let originalLevel = popoverWindow?.level
+        popoverWindow?.level = .normal
+        NSApp.activate(ignoringOtherApps: true)
+        let response = panel.runModal()
+        if let originalLevel = originalLevel {
+            popoverWindow?.level = originalLevel
+        }
+        return response
     }
 
     private var githubLogo: some View {

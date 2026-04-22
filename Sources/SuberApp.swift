@@ -4,12 +4,16 @@ import SwiftUI
 struct SuberApp: App {
     @StateObject private var subscriptionStore = SubscriptionStore()
     @StateObject private var settingsStore = SettingsStore()
+    /// Drives the "Import" Window scene. Exposed to both the MenuBarExtra popover
+    /// (to trigger imports) and the import window (to render the right flow).
+    @StateObject private var importPresenter = ImportPresenter()
 
     var body: some Scene {
         MenuBarExtra("Suber", image: "MenuBarIcon") {
             MenuBarView()
                 .environmentObject(subscriptionStore)
                 .environmentObject(settingsStore)
+                .environmentObject(importPresenter)
                 .frame(width: 480)
                 .frame(maxHeight: 520)
                 .fixedSize(horizontal: false, vertical: true)
@@ -29,6 +33,19 @@ struct SuberApp: App {
         }
         .menuBarExtraStyle(.window)
         .handlesExternalEvents(matching: ["suber"])
+
+        // Separate Window for import flows. Running in a regular window scene
+        // (instead of an overlay inside the MenuBarExtra popover) lets TCC
+        // dialogs, file pickers, and system notifications stack above it
+        // correctly — fixes the "popover blocks everything" bug in v1.5.1.
+        Window("Import Subscriptions", id: "import") {
+            ImportWindowView()
+                .environmentObject(subscriptionStore)
+                .environmentObject(settingsStore)
+                .environmentObject(importPresenter)
+        }
+        .defaultSize(width: 620, height: 620)
+        .windowResizability(.contentMinSize)
     }
 
     private func handleURL(_ url: URL) {

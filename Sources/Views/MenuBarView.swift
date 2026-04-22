@@ -10,16 +10,18 @@ enum AppView: Hashable {
 struct MenuBarView: View {
     @EnvironmentObject var subscriptionStore: SubscriptionStore
     @EnvironmentObject var settingsStore: SettingsStore
+    @EnvironmentObject var importPresenter: ImportPresenter
+
+    /// Opens the "Import Subscriptions" Window scene declared in SuberApp.
+    /// We keep import flows in a separate window so TCC / file-picker / system
+    /// notification dialogs stack above them correctly — the MenuBarExtra
+    /// popover has a higher window level than modal alerts and would otherwise
+    /// occlude them.
+    @Environment(\.openWindow) private var openWindow
 
     @State private var currentView: AppView = .calendar
     @State private var showAddForm = false
     @State private var editingSubscription: Subscription?
-    @State private var showBankImport = false
-
-    /// Candidates from an OCR'd multi-subscription screenshot, pending review.
-    /// Setting this to non-nil displays the `ImportReviewListView` overlay;
-    /// same component used for the bank-statement import flow.
-    @State private var ocrMultiCandidates: [CandidateSubscription]?
 
     var body: some View {
         ZStack {
@@ -43,16 +45,17 @@ struct MenuBarView: View {
                 case .dashboard:
                     DashboardView(
                         onAdd: { showAddForm = true },
-                        onImport: { showBankImport = true }
+                        onImport: startBankImport
                     )
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .settings:
-                    SettingsView(onImport: { showBankImport = true })
+                    SettingsView(onImport: startBankImport)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
 
-            // Add form overlay (replaces .sheet to avoid closing the popover)
+            // Add form overlay (still in-popover — single-sub add is lightweight
+            // and doesn't touch the file system).
             if showAddForm {
                 formOverlay {
                     SubscriptionFormView(
@@ -64,44 +67,14 @@ struct MenuBarView: View {
                         onCancel: { showAddForm = false },
                         onDelete: nil,
                         onMultiResult: { parsedList in
-                            ocrMultiCandidates = parsedList.map(candidateFromParsed)
+                            // OCR'd N subscriptions from a screenshot — punt
+                            // the review flow to the separate window so
+                            // system dialogs can stack above it.
+                            let candidates = parsedList.map(candidateFromParsed)
+                            showAddForm = false
+                            importPresenter.showCandidates(candidates)
+                            openWindow(id: "import")
                         }
-                    )
-                }
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            }
-
-            // Bank-statement import overlay
-            if showBankImport {
-                formOverlay {
-                    BankImportView(
-                        existingSubscriptions: subscriptionStore.subscriptions,
-                        onAdd: { forms in
-                            for data in forms {
-                                subscriptionStore.add(data)
-                            }
-                            showBankImport = false
-                        },
-                        onCancel: { showBankImport = false }
-                    )
-                }
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            }
-
-            // OCR multi-subscription review overlay — same review UI as the
-            // bank-statement flow, populated from parsed screenshot text.
-            if let candidates = ocrMultiCandidates {
-                formOverlay {
-                    ImportReviewListView(
-                        candidates: candidates,
-                        existingSubscriptions: subscriptionStore.subscriptions,
-                        onAdd: { forms in
-                            for data in forms {
-                                subscriptionStore.add(data)
-                            }
-                            ocrMultiCandidates = nil
-                        },
-                        onCancel: { ocrMultiCandidates = nil }
                     )
                 }
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -127,8 +100,13 @@ struct MenuBarView: View {
         .clipped()
         .animation(.easeOut(duration: 0.2), value: showAddForm)
         .animation(.easeOut(duration: 0.2), value: editingSubscription?.id)
-        .animation(.easeOut(duration: 0.2), value: showBankImport)
-        .animation(.easeOut(duration: 0.2), value: ocrMultiCandidates == nil)
+    }
+
+    // MARK: - Import triggers
+
+    private func startBankImport() {
+        importPresenter.showBankStatement()
+        openWindow(id: "import")
     }
 
     @ViewBuilder

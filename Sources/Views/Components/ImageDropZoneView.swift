@@ -265,7 +265,22 @@ struct ImageDropZoneView: View {
         panel.canChooseDirectories = false
         panel.message = "Select a subscription screenshot or receipt"
 
-        if panel.runModal() == .OK, let url = panel.url, let image = NSImage(contentsOf: url) {
+        // The MenuBarExtra popover is at `popUpMenu` window level, which is higher
+        // than modal alerts. Temporarily drop the popover's level so the file
+        // picker (and any TCC dialog it triggers) renders on top and is clickable.
+        let popoverWindow = NSApp.keyWindow
+        let originalLevel = popoverWindow?.level
+        popoverWindow?.level = .normal
+
+        NSApp.activate(ignoringOtherApps: true)
+        let response = panel.runModal()
+
+        // Restore the popover level so it goes back to floating above the desktop.
+        if let originalLevel = originalLevel {
+            popoverWindow?.level = originalLevel
+        }
+
+        if response == .OK, let url = panel.url, let image = NSImage(contentsOf: url) {
             processImage(image)
         }
     }
