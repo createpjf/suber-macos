@@ -16,6 +16,11 @@ struct MenuBarView: View {
     @State private var editingSubscription: Subscription?
     @State private var showBankImport = false
 
+    /// Candidates from an OCR'd multi-subscription screenshot, pending review.
+    /// Setting this to non-nil displays the `ImportReviewListView` overlay;
+    /// same component used for the bank-statement import flow.
+    @State private var ocrMultiCandidates: [CandidateSubscription]?
+
     var body: some View {
         ZStack {
             // Main content
@@ -50,12 +55,18 @@ struct MenuBarView: View {
             // Add form overlay (replaces .sheet to avoid closing the popover)
             if showAddForm {
                 formOverlay {
-                    SubscriptionFormView(mode: .add) { data in
-                        subscriptionStore.add(data)
-                        showAddForm = false
-                    } onCancel: {
-                        showAddForm = false
-                    }
+                    SubscriptionFormView(
+                        mode: .add,
+                        onSave: { data in
+                            subscriptionStore.add(data)
+                            showAddForm = false
+                        },
+                        onCancel: { showAddForm = false },
+                        onDelete: nil,
+                        onMultiResult: { parsedList in
+                            ocrMultiCandidates = parsedList.map(candidateFromParsed)
+                        }
+                    )
                 }
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
@@ -72,6 +83,25 @@ struct MenuBarView: View {
                             showBankImport = false
                         },
                         onCancel: { showBankImport = false }
+                    )
+                }
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+
+            // OCR multi-subscription review overlay — same review UI as the
+            // bank-statement flow, populated from parsed screenshot text.
+            if let candidates = ocrMultiCandidates {
+                formOverlay {
+                    ImportReviewListView(
+                        candidates: candidates,
+                        existingSubscriptions: subscriptionStore.subscriptions,
+                        onAdd: { forms in
+                            for data in forms {
+                                subscriptionStore.add(data)
+                            }
+                            ocrMultiCandidates = nil
+                        },
+                        onCancel: { ocrMultiCandidates = nil }
                     )
                 }
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -98,6 +128,7 @@ struct MenuBarView: View {
         .animation(.easeOut(duration: 0.2), value: showAddForm)
         .animation(.easeOut(duration: 0.2), value: editingSubscription?.id)
         .animation(.easeOut(duration: 0.2), value: showBankImport)
+        .animation(.easeOut(duration: 0.2), value: ocrMultiCandidates == nil)
     }
 
     @ViewBuilder
@@ -105,5 +136,31 @@ struct MenuBarView: View {
         content()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.bgPrimary)
+    }
+
+    /// Converts a single-image parse into the CandidateSubscription shape the
+    /// review UI already speaks. Since OCR can't tell us recurrence history,
+    /// we synthesize `occurrences: 1` + `lastChargeDate: startDate` and let
+    /// `confidence` reflect whether the parse captured both name and amount.
+    private func candidateFromParsed(_ parsed: SubscriptionTextParser.ParsedSubscription) -> CandidateSubscription {
+        let name = parsed.name ?? "Untitled"
+        let amount = Double(parsed.amount ?? "0") ?? 0
+        let currency = parsed.currency ?? settingsStore.settings.primaryCurrency
+        let startDate = parsed.startDate ?? Date()
+        let hasBoth = parsed.name != nil && parsed.amount != nil
+        return CandidateSubscription(
+            name: name,
+            normalizedMerchant: MerchantNormalizer.normalize(name),
+            sampleMerchantRaw: name,
+            amount: amount,
+            currency: currency,
+            cycle: parsed.cycle ?? .monthly,
+            billingDay: Calendar.current.component(.day, from: startDate),
+            startDate: startDate,
+            lastChargeDate: startDate,
+            category: parsed.category,
+            occurrences: 1,
+            confidence: hasBoth ? .high : .medium
+        )
     }
 }

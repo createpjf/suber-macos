@@ -2,8 +2,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Image input view supporting drag-and-drop, clipboard paste, and file picker.
+///
+/// Callback semantics: `onResult` always receives at least one parsed entry.
+/// For a single-subscription screenshot (billing email / receipt) it's the
+/// classic 1-entry array; for a multi-subscription screenshot (iOS Settings >
+/// Subscriptions, Google Play list, etc.) it's N entries, and the caller is
+/// expected to route those to the multi-review flow.
 struct ImageDropZoneView: View {
-    let onResult: (SubscriptionTextParser.ParsedSubscription) -> Void
+    let onResult: ([SubscriptionTextParser.ParsedSubscription]) -> Void
     let onCancel: () -> Void
 
     @State private var isProcessing = false
@@ -290,22 +296,37 @@ struct ImageDropZoneView: View {
                     return
                 }
 
-                let parsed = SubscriptionTextParser.parse(ocrResult.fullText)
+                // Try multi-subscription parse first (fires when ≥2 renewal
+                // anchors are detected). Empty result means "not a stacked
+                // list" and we fall back to single-parse.
+                let multi = MultiSubscriptionParser.parseMultiple(ocrResult.fullText)
+                let parsedList: [SubscriptionTextParser.ParsedSubscription]
+                if !multi.isEmpty {
+                    parsedList = multi
+                } else {
+                    parsedList = [SubscriptionTextParser.parse(ocrResult.fullText)]
+                }
 
                 // Build summary
-                var parts: [String] = []
-                if let name = parsed.name { parts.append(name) }
-                if let amount = parsed.amount {
-                    let symbol = parsed.currency.flatMap { AppConstants.currencySymbols[$0] } ?? ""
-                    let cycleStr = parsed.cycle?.shortLabel ?? ""
-                    parts.append("\(symbol)\(amount)\(cycleStr)")
+                let summary: String
+                if parsedList.count > 1 {
+                    summary = "Found \(parsedList.count) subscriptions"
+                } else {
+                    let parsed = parsedList[0]
+                    var parts: [String] = []
+                    if let name = parsed.name { parts.append(name) }
+                    if let amount = parsed.amount {
+                        let symbol = parsed.currency.flatMap { AppConstants.currencySymbols[$0] } ?? ""
+                        let cycleStr = parsed.cycle?.shortLabel ?? ""
+                        parts.append("\(symbol)\(amount)\(cycleStr)")
+                    }
+                    summary = parts.isEmpty ? "Partial data recognized" : "Found: " + parts.joined(separator: ", ")
                 }
-                let summary = parts.isEmpty ? "Partial data recognized" : "Found: " + parts.joined(separator: ", ")
 
                 await MainActor.run {
                     isProcessing = false
                     resultSummary = summary
-                    onResult(parsed)
+                    onResult(parsedList)
                 }
             } catch {
                 await MainActor.run {

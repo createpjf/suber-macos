@@ -11,6 +11,11 @@ struct SubscriptionFormView: View {
     let onCancel: () -> Void
     var onDelete: (() -> Void)?
 
+    /// Called when an image drop produces MORE than one detected subscription
+    /// (e.g. a screenshot of iOS Settings > Subscriptions). Caller should
+    /// dismiss this add form and route the parses to the multi-review flow.
+    var onMultiResult: (([SubscriptionTextParser.ParsedSubscription]) -> Void)?
+
     @State private var formData: SubscriptionFormData
     @State private var showDeleteConfirm = false
     @State private var showStartDatePicker = false
@@ -19,11 +24,18 @@ struct SubscriptionFormView: View {
     @State private var showEmailInput = false
     @State private var showSplit = false
 
-    init(mode: FormMode, onSave: @escaping (SubscriptionFormData) -> Void, onCancel: @escaping () -> Void, onDelete: (() -> Void)? = nil) {
+    init(
+        mode: FormMode,
+        onSave: @escaping (SubscriptionFormData) -> Void,
+        onCancel: @escaping () -> Void,
+        onDelete: (() -> Void)? = nil,
+        onMultiResult: (([SubscriptionTextParser.ParsedSubscription]) -> Void)? = nil
+    ) {
         self.mode = mode
         self.onSave = onSave
         self.onCancel = onCancel
         self.onDelete = onDelete
+        self.onMultiResult = onMultiResult
 
         switch mode {
         case .add:
@@ -302,8 +314,15 @@ struct SubscriptionFormView: View {
         .overlay {
             if showImageInput {
                 ImageDropZoneView(
-                    onResult: { parsed in
-                        applyParsedData(parsed)
+                    onResult: { parsedList in
+                        if parsedList.count > 1, let onMultiResult = onMultiResult {
+                            // Multi-subscription screenshot — close this form
+                            // and hand off to the multi-review flow above us.
+                            showImageInput = false
+                            onMultiResult(parsedList)
+                        } else if let first = parsedList.first {
+                            applyParsedData(first)
+                        }
                     },
                     onCancel: { showImageInput = false }
                 )

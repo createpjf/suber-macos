@@ -296,6 +296,11 @@ private struct RowView: View {
         if row.alreadyAdded { return "Already in your list" }
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
+        // occurrences == 1 means this came from a one-shot OCR parse, not a
+        // multi-transaction CSV run — show a screenshot-oriented subtitle.
+        if row.candidate.occurrences == 1 {
+            return "From screenshot · renews \(formatter.string(from: row.candidate.startDate))"
+        }
         let last = formatter.string(from: row.candidate.lastChargeDate)
         return "\(row.candidate.occurrences) charges · last \(last)"
     }
