@@ -74,6 +74,10 @@ struct MenuBarView: View {
                             showAddForm = false
                             importPresenter.showCandidates(candidates)
                             openWindow(id: "import")
+                            // LSUIElement apps don't foreground automatically —
+                            // flip to .regular policy + activate so the window
+                            // actually surfaces above other apps.
+                            WindowActivationCoordinator.surface()
                         }
                     )
                 }
@@ -107,6 +111,7 @@ struct MenuBarView: View {
     private func startBankImport() {
         importPresenter.showBankStatement()
         openWindow(id: "import")
+        WindowActivationCoordinator.surface()
     }
 
     @ViewBuilder

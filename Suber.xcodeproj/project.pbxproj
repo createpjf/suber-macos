@@ -47,6 +47,7 @@
 		7CB2C3251CE4F1EAAC68B39D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A7AC8CC1CD0227DFA53914 /* Constants.swift */; };
 		7F5126E1986CCCFBC5CAAC78 /* SmallSpendWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC55B06AF3867C980C14606 /* SmallSpendWidget.swift */; };
 		831B0CF4CA3E94537DE7AEC0 /* SubscriptionFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571B4B95C71C00FB629F9AE2 /* SubscriptionFormView.swift */; };
+		84F5E759F2FE3071739A19A1 /* WindowActivationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471DEC9907484DA03DB63E07 /* WindowActivationCoordinator.swift */; };
 		8A118204837604BFB85A7200 /* StatementFormatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 710C8C5B7EB986709456F2BA /* StatementFormatTests.swift */; };
 		8F59FD8D1B742E68B3B14E52 /* RecurringChargeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A74AD0B9C94424581D207AE7 /* RecurringChargeDetectorTests.swift */; };
 		914B0934A5941B6EC284714D /* SpaceGrotesk-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 74559F651ECA00C1B694267B /* SpaceGrotesk-Bold.ttf */; };
@@ -131,6 +132,7 @@
 		3FE0E4BA6BFD2B8C8A6E2982 /* SubscriptionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStore.swift; sourceTree = "<group>"; };
 		4210FB5560508690B7ACA8A4 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		470AE0DA2DA2C0B07A1F38DD /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		471DEC9907484DA03DB63E07 /* WindowActivationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowActivationCoordinator.swift; sourceTree = "<group>"; };
 		4B95933EC5EA5987B71DD666 /* ExchangeRateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateService.swift; sourceTree = "<group>"; };
 		4F0B4CDE42E62D9BD25837E8 /* DayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailView.swift; sourceTree = "<group>"; };
 		5069CDAF60C8F38A4BE7A35F /* FilterBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterBarView.swift; sourceTree = "<group>"; };
@@ -363,6 +365,7 @@
 				7B7361A153A6794B550223DC /* SubscriptionTextParser.swift */,
 				58CE8ED2533C6CCB4B15C2D1 /* UpdateService.swift */,
 				9494532546525F7E5D6BB7B1 /* URLSchemeHandler.swift */,
+				471DEC9907484DA03DB63E07 /* WindowActivationCoordinator.swift */,
 				86489089BD15C57B894A4D18 /* BankImport */,
 			);
 			path = Services;
@@ -559,6 +562,7 @@
 				DB02F5F160A811070D1DD337 /* URLSchemeHandler.swift in Sources */,
 				2120C322D9CA0949BF357728 /* UpdateService.swift in Sources */,
 				3F94AE230B7822CA5FFCF051 /* WechatFormat.swift in Sources */,
+				84F5E759F2FE3071739A19A1 /* WindowActivationCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -614,14 +618,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 152;
+				CURRENT_PROJECT_VERSION = 153;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.2;
+				MARKETING_VERSION = 1.5.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -666,7 +670,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 152;
+				CURRENT_PROJECT_VERSION = 153;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -674,7 +678,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.2;
+				MARKETING_VERSION = 1.5.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};
@@ -743,14 +747,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 152;
+				CURRENT_PROJECT_VERSION = 153;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.2;
+				MARKETING_VERSION = 1.5.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -825,7 +829,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 152;
+				CURRENT_PROJECT_VERSION = 153;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -833,7 +837,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.2;
+				MARKETING_VERSION = 1.5.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};

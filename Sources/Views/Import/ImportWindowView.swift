@@ -15,6 +15,12 @@ struct ImportWindowView: View {
         content
             .frame(minWidth: 520, minHeight: 520)
             .background(Theme.bgPrimary)
+            .onDisappear {
+                // Covers the case where the user clicks the red title-bar
+                // close button (bypassing our in-view Cancel/Add handlers).
+                presenter.reset()
+                WindowActivationCoordinator.relinquishIfNoWindows()
+            }
     }
 
     @ViewBuilder
@@ -28,7 +34,7 @@ struct ImportWindowView: View {
                 Text("Nothing to import right now.")
                     .font(AppFont.regular(13))
                     .foregroundColor(Theme.textSecondary)
-                Button(action: { dismiss() }) {
+                Button(action: closeWindow) {
                     Text("Close")
                         .font(AppFont.medium(12))
                         .foregroundColor(Theme.textPrimary)
@@ -49,13 +55,9 @@ struct ImportWindowView: View {
                     for data in forms {
                         subscriptionStore.add(data)
                     }
-                    presenter.reset()
-                    dismiss()
+                    closeWindow()
                 },
-                onCancel: {
-                    presenter.reset()
-                    dismiss()
-                }
+                onCancel: closeWindow
             )
 
         case .reviewCandidates(let candidates):
@@ -66,14 +68,19 @@ struct ImportWindowView: View {
                     for data in forms {
                         subscriptionStore.add(data)
                     }
-                    presenter.reset()
-                    dismiss()
+                    closeWindow()
                 },
-                onCancel: {
-                    presenter.reset()
-                    dismiss()
-                }
+                onCancel: closeWindow
             )
         }
+    }
+
+    /// Reset the presenter, dismiss the window, and flip activation policy
+    /// back to `.accessory` once the window is fully gone so we stop
+    /// showing a Dock icon.
+    private func closeWindow() {
+        presenter.reset()
+        dismiss()
+        WindowActivationCoordinator.relinquishIfNoWindows()
     }
 }
