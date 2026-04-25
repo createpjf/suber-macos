@@ -1,7 +1,34 @@
 import Foundation
 
-/// Parses `suber://add?name=Netflix&amount=15.99&currency=USD&cycle=monthly` URLs.
+/// v1.6: Suber supports two URL schemes:
+///   suber://add?name=...     — single-shot subscription creation
+///   suber://changes          — open the Changes Window (v1.6 Sentinel)
+///
+/// Action surfaces:
+///   - suber://add → SuberApp.handleURL → subscriptionStore.add(data)
+///   - suber://changes → SuberApp.handleURL → importPresenter.showChanges + openWindow
+enum SuberURLAction: Equatable {
+    case add(SubscriptionFormData)
+    case openChanges
+}
+
+/// Parses `suber://add?name=Netflix&amount=15.99&currency=USD&cycle=monthly` URLs
+/// and `suber://changes` URLs.
 enum URLSchemeHandler {
+
+    /// v1.6 entry point: returns an action for the caller to dispatch.
+    static func parseAction(_ url: URL) -> SuberURLAction? {
+        guard url.scheme == "suber" else { return nil }
+        switch url.host {
+        case "changes":
+            return .openChanges
+        case "add":
+            if let data = parse(url) { return .add(data) }
+            return nil
+        default:
+            return nil
+        }
+    }
 
     /// Parse a suber:// URL and return form data. Returns nil if the URL is invalid or missing required params.
     static func parse(_ url: URL) -> SubscriptionFormData? {
