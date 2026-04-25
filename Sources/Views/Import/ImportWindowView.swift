@@ -72,6 +72,15 @@ struct ImportWindowView: View {
                 },
                 onCancel: closeWindow
             )
+
+        case .reviewChanges(let changes):
+            // v1.6 Sentinel: Changes Window for reviewing detected price rises,
+            // new subs, duplicates, and confirmed cancellations. Row actions
+            // live in ChangesListView (Accept / Ignore / Add / Open cancel page).
+            ChangesListView(
+                initialChanges: changes,
+                onDone: closeWindow
+            )
         }
     }
 

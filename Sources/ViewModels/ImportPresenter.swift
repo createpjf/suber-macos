@@ -19,6 +19,13 @@ final class ImportPresenter: ObservableObject {
         case bankStatement
         /// User dropped a screenshot that OCR'd into N subscriptions.
         case reviewCandidates([CandidateSubscription])
+        /// v1.6: Changes Window (menu-bar badge tap, "Since you were away"
+        /// banner tap, or notification tap all land here). User reviews
+        /// detected price changes, new subs, duplicates, and confirms
+        /// cancellations. The initial subset passed here represents the
+        /// unacknowledged-in-last-14-days window; the Window can filter to
+        /// show the full change history via its UI.
+        case reviewChanges([SubscriptionChange])
     }
 
     @Published var mode: Mode = .idle
@@ -31,6 +38,10 @@ final class ImportPresenter: ObservableObject {
 
     func showCandidates(_ candidates: [CandidateSubscription]) {
         mode = .reviewCandidates(candidates)
+    }
+
+    func showChanges(_ changes: [SubscriptionChange]) {
+        mode = .reviewChanges(changes)
     }
 
     func reset() {
