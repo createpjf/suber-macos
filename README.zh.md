@@ -23,7 +23,9 @@
 
 ## 简介
 
-Suber 常驻 macOS 菜单栏,帮你盯住每一笔订阅 —— Netflix、iCloud、ChatGPT、那个你早忘了的健身 App —— 续费日和月度总支出永远一眼可见。通过 iCloud 在多台 Mac 间同步,支持 20 多种货币,所有数据只存在本地和你的 iCloud 里。
+Suber 常驻 macOS 菜单栏,帮你盯住每一笔订阅 —— Netflix、iCloud、ChatGPT、那个你早忘了的健身 App —— 续费日和月度总支出永远一眼可见。通过 iCloud 在多台 Mac 间同步,支持 20+ 货币,英文 + 简体中文双语,所有数据只存在本地和你的 iCloud 里。
+
+**v1.6.0 — Autopilot** —— Suber 现在会在后台主动帮你盯着。Watch 从 Apple Mail 读取账单邮件,Sense 自动发现涨价、新订阅和重复扣款,Act 一键打开退订页面并在下个月验证扣款是否真的停了。详见下方 [Autopilot 部分](#autopilot-watch--sense--act)。
 
 <p align="center">
   <img src="Screenshots/calendar.png" width="260" alt="日历">
@@ -35,14 +37,24 @@ Suber 常驻 macOS 菜单栏,帮你盯住每一笔订阅 —— Netflix、iCloud
 
 ## 功能
 
+### Autopilot(v1.6)—— Watch · Sense · Act
+
+- **📬 邮件监听(Mail Watchdog)** —— 一次性授权后,Suber 在后台读取 Apple Mail 里的续费 / 发票 / 试用到期邮件。每天通过 `NSBackgroundActivityScheduler` 扫描一次。隐私保证:只保存金额和日期,邮件正文从不落盘。
+- **🔔 变化哨兵(Change Sentinel)** —— 自动发现涨价、新订阅、重复扣款。菜单栏图标右上角红点显示未读数,每次扫描合并成一条系统通知。决策行直接告诉你涨幅 % 和年化影响,几秒就能决定下一步。
+- **✂️ 一键退订(One-Tap Cancel)** —— 内置 40+ 服务的退订链接(Netflix、Spotify、ChatGPT、iCloud+、爱奇艺…)。Suber 在浏览器里打开退订页面,你完成取消,下个月 Suber 自动验证扣款是否停了 ——成功的话告诉你"Netflix 已取消,每年节省 $215";失败的话给你"Netflix 没取消,扣款仍在"的明确警告,而不是悄悄丢失。
+
+### 日常基本功能
+
 - **菜单栏常驻** —— 不占 Dock,一次点击即达
-- **日历视图** —— 按月显示账单日,点击日期查看当天的所有账单详情
+- **日历视图** —— 按月显示账单日,点击日期查看当天的所有账单详情,支持退订倒计时
 - **列表视图** —— 支持按名称 / 分类 / 网址 / 备注搜索,按下次账单 / 名称 / 金额 / 添加时间排序,按状态筛选
 - **Dashboard** —— 月度支出、六个月趋势图、分类占比、Top 订阅
 - **Widget** —— 小尺寸(月度支出)和中尺寸(即将到期的订阅)桌面小组件
-- **iCloud 同步** —— 通过 `NSUbiquitousKeyValueStore` 在多台 Mac 间同步订阅和设置
+- **iCloud 同步** —— 订阅、设置和 v1.6 Autopilot 变化日志在多台 Mac 间同步
 - **多币种** —— 20+ 货币,自动按汇率换算为你的主货币
 - **图片自动识别** —— 把收据或邮件截图拖进添加表单,基于 Vision 的 OCR 自动提取名称和金额
+- **银行 CSV 导入** —— 支付宝 / 微信支付 / 通用 CSV → 自动识别周期性扣款
+- **双语** —— 英文 + 简体中文(根据 macOS 偏好语言自动选择)
 - **Siri / App Intents** —— "添加一个 Netflix 订阅"、"我这个月花了多少"
 - **通知提醒** —— 账单前 1 / 2 / 3 / 5 / 7 天本地提醒,可配置
 - **JSON 导入导出** —— 本地备份与恢复,并可导入 Suber Chrome 扩展导出的数据
@@ -51,7 +63,7 @@ Suber 常驻 macOS 菜单栏,帮你盯住每一笔订阅 —— Netflix、iCloud
 
 ## 安装
 
-在 [最新 release](../../releases/latest) 下载 `Suber-1.4.0.dmg`(或更新的版本),双击挂载,把 **Suber.app** 拖进 **Applications**,然后从 Applications 启动。
+在 [最新 release](../../releases/latest) 下载最新的 `Suber-X.Y.Z.dmg`,双击挂载,把 **Suber.app** 拖进 **Applications**,然后从 Applications 启动。
 
 发布版用 Developer ID 证书签名并经 Apple 公证 —— Gatekeeper 直接放行,不用右键打开也不用命令行去 quarantine。
 

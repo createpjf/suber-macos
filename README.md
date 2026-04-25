@@ -23,7 +23,9 @@
 
 ## About
 
-Suber lives in your macOS menu bar and tracks every subscription you pay for — Netflix, iCloud, ChatGPT, that forgotten gym app — so renewal dates and total monthly spend are always one click away. Works across all your Macs with iCloud sync, speaks 20+ currencies, and doesn't send your data anywhere.
+Suber lives in your macOS menu bar and tracks every subscription you pay for — Netflix, iCloud, ChatGPT, that forgotten gym app — so renewal dates and total monthly spend are always one click away. Works across all your Macs with iCloud sync, speaks 20+ currencies, speaks English + 简体中文, and doesn't send your data anywhere.
+
+**v1.6.0 — Autopilot** — Suber now works in the background. Watch reads billing receipts from Apple Mail, Sense flags price rises and new subs you forgot about, Act opens the cancel page in one tap and confirms the cancellation actually went through. See the [Autopilot section](#autopilot-watch--sense--act) below.
 
 <p align="center">
   <img src="Screenshots/calendar.png" width="260" alt="Calendar">
@@ -35,14 +37,24 @@ Suber lives in your macOS menu bar and tracks every subscription you pay for —
 
 ## Features
 
+### Autopilot (v1.6) — Watch · Sense · Act
+
+- **📬 Mail Watchdog** — opt in once, Suber reads renewal / invoice / trial-ending emails from Apple Mail in the background. Daily scan via `NSBackgroundActivityScheduler`. Privacy: only amounts and dates persist; raw email bodies never reach disk.
+- **🔔 Change Sentinel** — flags price rises, new subs you forgot about, and duplicate charges. Menu-bar badge shows the unread count; one grouped notification per scan. Decision-prompt rows surface the delta % and annual impact so you act in seconds, not minutes.
+- **✂️ One-Tap Cancel** — built-in cancel-URL map for 40+ services (Netflix, Spotify, ChatGPT, iCloud+, 爱奇艺, …). Suber opens the cancel page in your browser, you cancel there, then Suber verifies on the next billing day and tells you "Netflix cancelled — you'll save $215/year." If the cancel didn't take, you get a clear "Netflix didn't cancel — still active" warning instead of a silent loss.
+
+### Daily-driver basics
+
 - **Menu-bar app** — always one click away, never in your Dock
-- **Calendar view** — monthly grid with billing-date indicators and per-day detail popup
+- **Calendar view** — monthly grid with billing-date indicators, per-day detail popup, pending-cancel countdown
 - **List view** — searchable across name / category / URL / notes, sortable by next bill / name / amount / date added, filterable by status
 - **Dashboard** — headline monthly spend, 6-month trend chart, category breakdown, top subscriptions
 - **Widgets** — small (monthly spend) and medium (upcoming bills) home-screen widgets
-- **iCloud sync** — subscriptions and settings stay in sync across your Macs via `NSUbiquitousKeyValueStore`
-- **Multi-currency** — 20+ currencies with automatic exchange-rate conversion to your primary currency
+- **iCloud sync** — subscriptions, settings, and the v1.6 Autopilot change log stay in sync across Macs
+- **Multi-currency** — 20+ currencies with automatic exchange-rate conversion
 - **Image auto-fill** — drop a receipt or email screenshot into the add form; Vision-based OCR extracts the name and price
+- **Bank-CSV import** — Alipay / WeChat Pay / generic CSV → recurring-charge detection
+- **Bilingual** — English + 简体中文 (auto-selects from your macOS Preferred Languages)
 - **Siri / App Intents** — "Add a Netflix subscription", "What's my monthly spend"
 - **Notifications** — local reminders 1 / 2 / 3 / 5 / 7 days before each bill, configurable
 - **JSON export / import** — local backup and restore; also imports from the Suber Chrome extension
@@ -51,7 +63,7 @@ Suber lives in your macOS menu bar and tracks every subscription you pay for —
 
 ## Install
 
-Grab `Suber-1.4.0.dmg` (or whatever is newest) from the [latest release](../../releases/latest), mount it, and drag **Suber.app** into **Applications**. Launch from Applications.
+Grab the latest `Suber-X.Y.Z.dmg` from the [latest release](../../releases/latest), mount it, and drag **Suber.app** into **Applications**. Launch from Applications.
 
 Builds are signed with a Developer ID certificate and notarized by Apple — Gatekeeper lets them open directly, no right-click-workaround needed.
 
