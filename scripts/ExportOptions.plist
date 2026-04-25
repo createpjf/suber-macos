@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ExportOptions.plist — feeds `xcodebuild -exportArchive`.
+
+  method=developer-id          → exports with Developer ID Application cert
+                                  (the standard for outside-MAS distribution).
+  signingStyle=automatic       → Xcode picks the matching Developer ID profile
+                                  managed under "Direct Distribution" in the
+                                  Apple Developer account; iCloud KVS + app
+                                  groups + Apple Events entitlements are
+                                  satisfied via that profile.
+  teamID=M2XH53X5DB            → Jinfeng Peng's team.
+  destination=export           → write the .app to disk (vs upload to Apple).
+  uploadSymbols=false          → no need; we don't symbolicate on Apple.
+-->
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>developer-id</string>
+    <key>signingStyle</key>
+    <string>automatic</string>
+    <key>teamID</key>
+    <string>M2XH53X5DB</string>
+    <key>destination</key>
+    <string>export</string>
+    <key>uploadSymbols</key>
+    <false/>
+</dict>
+</plist>
