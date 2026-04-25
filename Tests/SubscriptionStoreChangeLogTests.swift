@@ -15,6 +15,11 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        // v1.6.2: clear both AppGroupStore (new file-based path) and the
+        // legacy UserDefaults app-group suite (so test machines that ran
+        // an older build don't carry stale data into the new tests).
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-changes")
         let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
         defaults.removeObject(forKey: "suber-subscriptions")
         defaults.removeObject(forKey: "suber-changes")
@@ -22,6 +27,8 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
     }
 
     override func tearDown() {
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-changes")
         let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
         defaults.removeObject(forKey: "suber-subscriptions")
         defaults.removeObject(forKey: "suber-changes")

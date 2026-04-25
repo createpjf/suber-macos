@@ -58,8 +58,14 @@ final class AutopilotFlags: ObservableObject {
     private let defaults: UserDefaults
 
     /// Inject a UserDefaults (use `.init(suiteName:)` for tests to avoid
-    /// polluting the real app group's state).
-    init(defaults: UserDefaults = UserDefaults(suiteName: "group.com.suber.app") ?? .standard) {
+    /// polluting the real prefs).
+    ///
+    /// v1.6.2: Default switched from `UserDefaults(suiteName: "group.com.suber.app")`
+    /// to `.standard`. AutopilotFlags is purely UI-state for the main app —
+    /// the SuberWidget doesn't read these flags — so it doesn't need the
+    /// shared app-group container, which on macOS 26.4 triggers a TCC
+    /// "data from other apps" prompt via the cfprefsd regression.
+    init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
 

@@ -3,7 +3,12 @@ import Foundation
 final class StorageService {
     static let shared = StorageService()
 
-    private let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
+    // v1.6.2: Migrated off `UserDefaults(suiteName: "group.com.suber.app")`
+    // because macOS 26.4 (Tahoe) tightened cfprefsd to reject app-group
+    // suites with `kCFPreferencesAnyUser`. The fallback path triggered a
+    // user-facing `kTCCServiceSystemPolicyAppData` ("data from other apps")
+    // prompt at launch. AppGroupStore wraps `FileManager.containerURL`
+    // which bypasses cfprefsd entirely.
     private let subscriptionsKey = "suber-subscriptions"
     private let settingsKey = "suber-settings"
     private let changesKey = "suber-changes"  // v1.6: SubscriptionChange log
@@ -83,13 +88,13 @@ final class StorageService {
     // MARK: - Subscriptions
 
     func loadSubscriptions() -> [Subscription] {
-        guard let data = defaults.data(forKey: subscriptionsKey) else { return [] }
+        guard let data = AppGroupStore.data(forKey: subscriptionsKey) else { return [] }
         return (try? decoder.decode([Subscription].self, from: data)) ?? []
     }
 
     func saveSubscriptions(_ subs: [Subscription]) {
         if let data = try? encoder.encode(subs) {
-            defaults.set(data, forKey: subscriptionsKey)
+            AppGroupStore.set(data, forKey: subscriptionsKey)
             CloudSyncService.shared.pushSubscriptions(data)
         }
     }
@@ -100,7 +105,7 @@ final class StorageService {
     /// error (we'd rather show an empty Changes Window than crash on
     /// forward-compat drift).
     func loadChanges() -> [SubscriptionChange] {
-        guard let data = defaults.data(forKey: changesKey) else { return [] }
+        guard let data = AppGroupStore.data(forKey: changesKey) else { return [] }
         return (try? decoder.decode([SubscriptionChange].self, from: data)) ?? []
     }
 
@@ -112,7 +117,7 @@ final class StorageService {
     func saveChanges(_ changes: [SubscriptionChange]) {
         let pruned = Self.prune(changes)
         if let data = try? encoder.encode(pruned) {
-            defaults.set(data, forKey: changesKey)
+            AppGroupStore.set(data, forKey: changesKey)
             CloudSyncService.shared.pushChanges(data)
         }
     }
@@ -127,13 +132,13 @@ final class StorageService {
     // MARK: - Settings
 
     func loadSettings() -> AppSettings {
-        guard let data = defaults.data(forKey: settingsKey) else { return AppSettings() }
+        guard let data = AppGroupStore.data(forKey: settingsKey) else { return AppSettings() }
         return (try? decoder.decode(AppSettings.self, from: data)) ?? AppSettings()
     }
 
     func saveSettings(_ settings: AppSettings) {
         if let data = try? encoder.encode(settings) {
-            defaults.set(data, forKey: settingsKey)
+            AppGroupStore.set(data, forKey: settingsKey)
             CloudSyncService.shared.pushSettings(data)
         }
     }
@@ -194,7 +199,7 @@ final class StorageService {
     // MARK: - Clear
 
     func clearAll() {
-        defaults.removeObject(forKey: subscriptionsKey)
-        defaults.removeObject(forKey: settingsKey)
+        AppGroupStore.removeObject(forKey: subscriptionsKey)
+        AppGroupStore.removeObject(forKey: settingsKey)
     }
 }

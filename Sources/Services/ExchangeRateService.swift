@@ -7,7 +7,8 @@ import Foundation
 final class ExchangeRateService {
     static let shared = ExchangeRateService()
 
-    private let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
+    // v1.6.2: Migrated off UserDefaults(suiteName:) — see AppGroupStore.swift
+    // for the macOS 26.4 (Tahoe) cfprefsd regression that necessitated this.
     private let ratesKey = "suber-exchange-rates"
     private let updatedAtKey = "suber-rates-updated-at"
     private let refreshInterval: TimeInterval = 86400 // 24 hours
@@ -42,7 +43,7 @@ final class ExchangeRateService {
 
     private init() {
         // Load cached rates, or fall back to hardcoded
-        if let data = defaults.data(forKey: ratesKey),
+        if let data = AppGroupStore.data(forKey: ratesKey),
            let cached = try? JSONDecoder().decode([String: Double].self, from: data) {
             rates = cached
         } else {
@@ -68,7 +69,9 @@ final class ExchangeRateService {
 
     /// Fetch latest rates from API if stale (>24h since last refresh).
     func refreshIfNeeded() async {
-        let lastUpdated = defaults.object(forKey: updatedAtKey) as? Date ?? .distantPast
+        // updatedAt persisted as TimeInterval since 1970 (Double).
+        let lastUpdatedTI = AppGroupStore.double(forKey: updatedAtKey)
+        let lastUpdated = lastUpdatedTI > 0 ? Date(timeIntervalSince1970: lastUpdatedTI) : .distantPast
         guard Date().timeIntervalSince(lastUpdated) > refreshInterval else { return }
         await refreshRates()
     }
@@ -98,10 +101,10 @@ final class ExchangeRateService {
 
             rates = newRates
 
-            // Cache to UserDefaults
+            // Cache to app-group container (file-based, see AppGroupStore).
             if let encoded = try? JSONEncoder().encode(newRates) {
-                defaults.set(encoded, forKey: ratesKey)
-                defaults.set(Date(), forKey: updatedAtKey)
+                AppGroupStore.set(encoded, forKey: ratesKey)
+                AppGroupStore.set(Date().timeIntervalSince1970, forKey: updatedAtKey)
             }
         } catch {
             // Silently fail — we always have cached or fallback rates
