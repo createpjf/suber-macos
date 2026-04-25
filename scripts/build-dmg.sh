@@ -79,7 +79,10 @@ else
 fi
 
 DMG_NAME="${APP_NAME}-${VERSION}"
-APP_PATH="${BUILD_DIR}/DerivedData/Build/Products/Release/${APP_NAME}.app"
+ARCHIVE_PATH="${BUILD_DIR}/${APP_NAME}.xcarchive"
+EXPORT_DIR="${BUILD_DIR}/export"
+APP_PATH="${EXPORT_DIR}/${APP_NAME}.app"
+EXPORT_OPTIONS="${PROJECT_DIR}/scripts/ExportOptions.plist"
 DMG_DIR="${BUILD_DIR}/dmg"
 OUTPUT_DMG="${PROJECT_DIR}/${DMG_NAME}.dmg"
 
@@ -123,22 +126,34 @@ rm -f "${OUTPUT_DMG}"
 # 3. Build Release (Automatic signing handles iCloud + app-groups profile)
 # ---------------------------------------------------------------------------
 
-echo "[2/8] Building Release with Developer ID + Automatic provisioning…"
-xcodebuild build \
+echo "[2/8] Archiving Release (Automatic provisioning, iCloud + app-groups + Apple Events)…"
+xcodebuild archive \
     -project "${PROJECT_DIR}/Suber.xcodeproj" \
     -scheme "${APP_NAME}" \
     -configuration Release \
+    -archivePath "${ARCHIVE_PATH}" \
     -derivedDataPath "${BUILD_DIR}/DerivedData" \
     -destination 'platform=macOS' \
     -allowProvisioningUpdates \
-    CODE_SIGN_STYLE=Automatic \
     DEVELOPMENT_TEAM="${TEAM_ID}" \
-    CODE_SIGN_IDENTITY="${DEVELOPER_ID}" \
     OTHER_CODE_SIGN_FLAGS="--timestamp --options=runtime" \
     2>&1 | tail -8
 
+if [ ! -d "${ARCHIVE_PATH}" ]; then
+    echo "ERROR: Archive failed — ${ARCHIVE_PATH} not found" >&2
+    exit 1
+fi
+
+echo "      Exporting Developer ID .app from archive…"
+xcodebuild -exportArchive \
+    -archivePath "${ARCHIVE_PATH}" \
+    -exportPath "${EXPORT_DIR}" \
+    -exportOptionsPlist "${EXPORT_OPTIONS}" \
+    -allowProvisioningUpdates \
+    2>&1 | tail -6
+
 if [ ! -d "${APP_PATH}" ]; then
-    echo "ERROR: Build failed — ${APP_PATH} not found" >&2
+    echo "ERROR: Export failed — ${APP_PATH} not found" >&2
     exit 1
 fi
 
@@ -150,7 +165,9 @@ echo "[3/8] Verifying signature + hardened runtime on .app…"
 codesign --verify --deep --strict --verbose=2 "${APP_PATH}" 2>&1 | tail -3
 
 # Confirm the hardened runtime is enabled (notarization rejects builds without it).
-if ! codesign -d --verbose=2 "${APP_PATH}" 2>&1 | grep -q "flags=.*runtime"; then
+# Format on Xcode 15+: `flags=0x10000(runtime)` — match the parenthesized literal
+# directly so we don't trip on regex-greediness edge cases.
+if ! codesign -d --verbose=2 "${APP_PATH}" 2>&1 | grep -q "(runtime)"; then
     echo "ERROR: hardened runtime NOT enabled. notarization will reject." >&2
     exit 1
 fi
