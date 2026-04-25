@@ -12,6 +12,10 @@ struct SettingsView: View {
     @State private var showImportError = false
     @State private var updateState: UpdateCheckState = .idle
 
+    // v1.6: language override — restart prompt state.
+    @State private var pendingLanguageChoice: LanguageOverride.Choice?
+    @State private var showRestartAlert = false
+
     enum UpdateCheckState {
         case idle
         case checking
@@ -45,6 +49,44 @@ struct SettingsView: View {
                         .tint(Theme.textSecondary)
                         .frame(width: 100)
                     }
+                }
+
+                divider
+
+                // Language (v1.6 — in-app override of macOS Preferred Languages)
+                section("Language") {
+                    HStack {
+                        Text("App language")
+                            .font(AppFont.regular(13))
+                            .foregroundColor(Theme.textPrimary)
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: {
+                                LanguageOverride.Choice(rawValue: settingsStore.settings.language) ?? .system
+                            },
+                            set: { newChoice in
+                                let current = LanguageOverride.Choice(rawValue: settingsStore.settings.language) ?? .system
+                                settingsStore.update { $0.language = newChoice.rawValue }
+                                LanguageOverride.apply(newChoice)
+                                if LanguageOverride.wouldRequireRestart(currentSetting: current, newSetting: newChoice) {
+                                    pendingLanguageChoice = newChoice
+                                    showRestartAlert = true
+                                }
+                            }
+                        )) {
+                            ForEach(LanguageOverride.Choice.allCases) { choice in
+                                Text(choice.displayName).tag(choice)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(Theme.textSecondary)
+                        .frame(width: 140)
+                    }
+
+                    Text("Suber follows your macOS language by default. Override here to force English or 简体中文.")
+                        .font(AppFont.regular(11))
+                        .foregroundColor(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 divider
@@ -256,6 +298,18 @@ struct SettingsView: View {
             Button("OK") {}
         } message: {
             Text(importError ?? "Unknown error")
+        }
+        // v1.6 language switch — restart prompt.
+        .alert("Restart Suber to switch language?",
+               isPresented: $showRestartAlert) {
+            Button("Restart now") {
+                LanguageOverride.relaunch()
+            }
+            Button("Later", role: .cancel) {
+                pendingLanguageChoice = nil
+            }
+        } message: {
+            Text("Already-rendered text won't change until Suber restarts. The new language takes effect across the whole app on the next launch.")
         }
     }
 

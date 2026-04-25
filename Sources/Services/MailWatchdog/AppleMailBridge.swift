@@ -39,6 +39,32 @@ final class AppleMailBridge: MailBridge {
     private static let fieldSep = "\u{001F}"   // unit separator
     private static let recordSep = "\u{001E}"  // record separator
 
+    // MARK: - Liveness probe (TCC trigger)
+
+    /// Sends the smallest possible Apple Event to Mail — `count of accounts`.
+    /// First-time call triggers the macOS TCC prompt; subsequent calls are
+    /// instant. Used by `MailWatchdog.connectAppleMail` to detect permission
+    /// without iterating mailboxes (which is heavyweight + can time out).
+    func ping(timeout: TimeInterval) async throws -> Int {
+        let script = """
+        tell application "Mail"
+            return (count of accounts) as string
+        end tell
+        """
+        let output: String
+        do {
+            output = try await runOSAScript(script, timeout: timeout)
+        } catch let error as MailBridgeError {
+            throw error
+        } catch {
+            throw MailBridgeError.unknown(error.localizedDescription)
+        }
+        let trimmed = output.trimmingCharacters(in: .whitespacesAndNewlines)
+        return Int(trimmed) ?? 0
+    }
+
+    // MARK: - Full scan
+
     func scan(
         since: Date,
         keywords: [String],

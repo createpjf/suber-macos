@@ -58,6 +58,7 @@
 		727FDD394F54107DFC190C85 /* BankImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E412214D56178BFC7B44BE9 /* BankImportView.swift */; };
 		742342F87AEAA31942D70611 /* MenuBarBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49ECA3983F3B01D7035FD44 /* MenuBarBadgeView.swift */; };
 		7728286EBDE4BF7C0BCA2771 /* ChangeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE5C05E9D254535707B4688 /* ChangeDetectorTests.swift */; };
+		79D51850F78DA799004C7745 /* LanguageOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F80A06FCD8C72532812F8FA /* LanguageOverride.swift */; };
 		7B07B6638E3A95BDC5D58CD6 /* WidgetDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E0C166E400D17559CF1D82E /* WidgetDataProvider.swift */; };
 		7C5C7AFB7CB607528598CFDC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CDAC8795A587A3FA4901DD06 /* Assets.xcassets */; };
 		7CB2C3251CE4F1EAAC68B39D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A7AC8CC1CD0227DFA53914 /* Constants.swift */; };
@@ -217,6 +218,7 @@
 		9D3D965F67F346B9924BE9EE /* SubscriptionChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionChange.swift; sourceTree = "<group>"; };
 		9D842E31CE4535E1149BAFC0 /* OneTapCancelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapCancelService.swift; sourceTree = "<group>"; };
 		9E55FD97394E1272EA68BD1B /* ChangesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesListView.swift; sourceTree = "<group>"; };
+		9F80A06FCD8C72532812F8FA /* LanguageOverride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageOverride.swift; sourceTree = "<group>"; };
 		A0454D55BE6BC7470C7CBA1E /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		A0C0C0FFD8CE4F90A25285E2 /* SubscriptionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStoreTests.swift; sourceTree = "<group>"; };
 		A0F7EE119E0CFF9BFE44A265 /* AnnualCostTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnualCostTests.swift; sourceTree = "<group>"; };
@@ -455,6 +457,7 @@
 				4B95933EC5EA5987B71DD666 /* ExchangeRateService.swift */,
 				04F8D53742B96A524C270A8A /* ImageCache.swift */,
 				73E2F8DA8054615C97A01286 /* ImageRecognitionService.swift */,
+				9F80A06FCD8C72532812F8FA /* LanguageOverride.swift */,
 				E96C0B9AF08BEA6613B47CE1 /* MultiSubscriptionParser.swift */,
 				08D1458ABC9F1D769C48EB29 /* NotificationService.swift */,
 				9D842E31CE4535E1149BAFC0 /* OneTapCancelService.swift */,
@@ -670,6 +673,7 @@
 				6F0C3747D9E56D567CAB08E5 /* ImportReviewListView.swift in Sources */,
 				B12D8F203EB487BD7B368352 /* ImportWindowView.swift in Sources */,
 				E627DE1C6B254F83F2585A36 /* KnownServices.swift in Sources */,
+				79D51850F78DA799004C7745 /* LanguageOverride.swift in Sources */,
 				AD7E286DD287AA60189A9E86 /* ListView.swift in Sources */,
 				C36A70975270B8C071BF9B1F /* LogoView.swift in Sources */,
 				E51ED767F091D747AAD5A2F3 /* MailBridge.swift in Sources */,

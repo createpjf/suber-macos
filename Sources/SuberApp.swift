@@ -2,6 +2,15 @@ import SwiftUI
 
 @main
 struct SuberApp: App {
+    init() {
+        // v1.6: apply the user's language override BEFORE any view loads.
+        // Foundation caches NSBundle lookups very early; this needs to run
+        // before the first @Published settings read or first Text() resolve.
+        let saved = StorageService.shared.loadSettings().language
+        let choice = LanguageOverride.Choice(rawValue: saved) ?? .system
+        LanguageOverride.apply(choice)
+    }
+
     @StateObject private var subscriptionStore = SubscriptionStore()
     @StateObject private var settingsStore = SettingsStore()
     /// Drives the "Import" Window scene. Exposed to both the MenuBarExtra popover

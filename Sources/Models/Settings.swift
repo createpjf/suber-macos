@@ -6,7 +6,16 @@ struct AppSettings: Codable, Equatable {
     var enableNotifications: Bool = true
     var launchAtLogin: Bool = false
     var enableCloudSync: Bool = false
-    var language: String = "en"
+    /// v1.6: in-app language override. "system" = follow macOS Preferred
+    /// Languages (default behavior). "en" / "zh-Hans" = force that locale
+    /// via `AppleLanguages` UserDefaults override. Requires a restart of
+    /// Suber to fully take effect (NSLocalizedString-cached strings only
+    /// re-resolve at process launch).
+    ///
+    /// v1.5 default was "en"; we honor that as a coercion to "system" on
+    /// first read so existing users default to system locale. New installs
+    /// default to "system" via the AppSettings init().
+    var language: String = "system"
 
     // v1.6 Autopilot. Nested so v1.5 clients reading v1.6 payloads can ignore
     // the whole block, and v1.6 reading v1.5 gets the defaults.
@@ -28,7 +37,11 @@ struct AppSettings: Codable, Equatable {
         enableNotifications = try c.decodeIfPresent(Bool.self, forKey: .enableNotifications) ?? true
         launchAtLogin = try c.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         enableCloudSync = try c.decodeIfPresent(Bool.self, forKey: .enableCloudSync) ?? false
-        language = try c.decodeIfPresent(String.self, forKey: .language) ?? "en"
+        // Coerce v1.5's default "en" → "system" so existing users see no
+        // change in behavior. They'll opt back into forced English via the
+        // new picker if they actually want override.
+        let raw = try c.decodeIfPresent(String.self, forKey: .language) ?? "system"
+        language = (raw == "en" && !c.contains(.autopilot)) ? "system" : raw
         autopilot = try c.decodeIfPresent(AutopilotSettings.self, forKey: .autopilot) ?? AutopilotSettings()
     }
 }

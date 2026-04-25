@@ -173,6 +173,15 @@ final class StubMailBridge: MailBridge, @unchecked Sendable {
     /// concurrent-call guard). Ignored when errorToThrow is non-nil.
     var slowScanSeconds: Double = 0
 
+    /// Account count returned by ping(). Defaults to 1 so connectAppleMail
+    /// passes its TCC-probe step in tests by default.
+    var pingAccountCount: Int = 1
+
+    func ping(timeout: TimeInterval) async throws -> Int {
+        if let err = errorToThrow { throw err }
+        return pingAccountCount
+    }
+
     func scan(since: Date, keywords: [String], timeout: TimeInterval) async throws -> [MailMessage] {
         if let err = errorToThrow { throw err }
         if slowScanSeconds > 0 {

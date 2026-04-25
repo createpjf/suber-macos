@@ -219,9 +219,16 @@ struct AutopilotSettingsSection: View {
     private var lastScanText: String {
         switch watchdog.state {
         case .scanning(_, let seen):
-            return "Scanning… \(seen) messages"
+            return seen > 0 ? "Scanning… \(seen) messages" : "Scanning…"
         case .requestingPermission:
-            return "Waiting for permission…"
+            // First-run TCC prompt is up. Make it crystal clear what to do —
+            // the previous "Waiting for permission…" copy left users staring
+            // at a blank label while the macOS dialog blocked osascript.
+            return "Look for the macOS permission dialog and click OK."
+        case .error(let message):
+            // Surface the error directly. Errors include the actionable next
+            // step (e.g. "Connection timed out. Make sure Mail.app is open").
+            return message
         default:
             break
         }

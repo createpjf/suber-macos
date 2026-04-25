@@ -112,20 +112,29 @@ final class MailWatchdog: ObservableObject {
     // MARK: - First-run path
 
     /// Called when user flips the Watch Apple Mail toggle ON + confirms the
-    /// consent sheet. Fires the TCC prompt on the user's next scanNow() call
-    /// (osascript triggers it on first Apple Events use). We just transition
-    /// state here; the actual prompt happens inside the first scan.
+    /// consent sheet. Triggers the macOS TCC permission prompt on the first
+    /// Apple Event Suber sends; subsequent calls return instantly.
+    ///
+    /// ⚠️ Uses a 60-second probe timeout, NOT the per-scan 60s budget. The
+    /// macOS TCC prompt blocks osascript synchronously while the user reads
+    /// and decides — humans take time. A 10s probe will kill the osascript
+    /// process mid-prompt; the user sees it disappear without granting and
+    /// thinks the connection failed. 60s is generous for the human in the
+    /// loop without being insulting.
+    ///
+    /// On success → kick off the initial scan (which uses its own 60s budget
+    /// per the `perScanTimeout` constant). On failure → map to specific state
+    /// so the Settings banner can guide the user (.permissionDenied,
+    /// .error("Mail not running"), or generic error).
     func connectAppleMail() async {
         state = .requestingPermission
         do {
-            // Trigger the prompt by running a tiny probe scan (no-op scan over
-            // a zero-keyword set doesn't trigger TCC; use a minimal real query).
-            _ = try await bridge.scan(
-                since: Date().addingTimeInterval(-60),    // last 60 seconds
-                keywords: MailScanKeywords.all,
-                timeout: 10
-            )
-            // If we got here, permission was granted. Kick off the initial scan.
+            // Lightweight probe: just `count of accounts`. First time triggers
+            // TCC; subsequent calls are instant. NOT an iterate-all-mailboxes
+            // scan (which is heavyweight and can time out on large inboxes).
+            _ = try await bridge.ping(timeout: 60)
+
+            // Permission granted. Kick off the initial scan.
             state = .idle
             do {
                 _ = try await scanNow()
@@ -135,7 +144,11 @@ final class MailWatchdog: ObservableObject {
         } catch MailBridgeError.permissionDenied {
             state = .permissionDenied
         } catch MailBridgeError.mailNotRunning {
-            state = .error("Mail not running")
+            state = .error("Mail not running — open Mail.app once, then tap Scan now.")
+        } catch MailBridgeError.timeout {
+            // TCC prompt was up but timed out — user took too long, OR Mail
+            // isn't responding. Either way the right next step is "try again".
+            state = .error("Connection timed out. Make sure Mail.app is open and try again.")
         } catch {
             state = .error(humanMessage(from: error))
         }

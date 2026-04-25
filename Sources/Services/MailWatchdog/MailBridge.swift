@@ -62,6 +62,21 @@ enum MailBridgeError: Error, Equatable {
 /// Protocol boundary. Implementers see subject-line keywords only — no body
 /// scanning at the bridge level. Body scanning belongs to the extractor.
 protocol MailBridge {
+    /// Lightweight liveness check. Sends the smallest possible Apple Event
+    /// to Mail (`count of accounts`) — used by `MailWatchdog.connectAppleMail`
+    /// to trigger the macOS TCC permission prompt without iterating mailboxes.
+    ///
+    /// The TCC prompt blocks osascript synchronously while the user reads it,
+    /// so callers should pass a generous timeout (60s+) — humans take time to
+    /// read + decide. A short timeout will kill the prompt mid-read and the
+    /// user will see it disappear without granting.
+    ///
+    /// - Returns: number of configured Mail accounts (0+). Doesn't matter
+    ///   semantically — we use the call's success/failure to detect TCC state.
+    /// - Throws: `.permissionDenied` if user denied; `.mailNotRunning` if Mail
+    ///   isn't reachable; `.timeout` if it took too long; `.unknown` otherwise.
+    func ping(timeout: TimeInterval) async throws -> Int
+
     /// Scan Mail for messages matching subject keywords since `since`.
     ///
     /// - Parameters:

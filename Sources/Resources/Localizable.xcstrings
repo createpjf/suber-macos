@@ -771,6 +771,138 @@
       }
     },
 
+    "Language" : {
+      "comment" : "Settings section header for in-app language override.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
+          }
+        }
+      }
+    },
+
+    "App language" : {
+      "comment" : "Language picker label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用语言"
+          }
+        }
+      }
+    },
+
+    "System default" : {
+      "comment" : "Language picker option — follow macOS Preferred Languages.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        }
+      }
+    },
+
+    "Suber follows your macOS language by default. Override here to force English or 简体中文." : {
+      "comment" : "Language picker helper text.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 默认跟随 macOS 系统语言。在此可强制设为英文或简体中文。"
+          }
+        }
+      }
+    },
+
+    "Restart Suber to switch language?" : {
+      "comment" : "Language change confirm-restart alert title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重启 Suber 以切换语言?"
+          }
+        }
+      }
+    },
+
+    "Already-rendered text won't change until Suber restarts. The new language takes effect across the whole app on the next launch." : {
+      "comment" : "Language change confirm-restart alert body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已渲染的界面文字要等 Suber 重启后才会变更。重启后整个应用都会使用新语言。"
+          }
+        }
+      }
+    },
+
+    "Restart now" : {
+      "comment" : "Language change confirm-restart alert primary button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即重启"
+          }
+        }
+      }
+    },
+
+    "Later" : {
+      "comment" : "Language change confirm-restart alert dismiss button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "稍后"
+          }
+        }
+      }
+    },
+
+    "Look for the macOS permission dialog and click OK." : {
+      "comment" : "Settings → Autopilot status while TCC prompt is up. Replaces the previous opaque 'Waiting for permission…' copy that left users staring at a blank label while macOS blocked osascript.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在 macOS 弹出的授权对话框中点击「好」。"
+          }
+        }
+      }
+    },
+
+    "Connection timed out. Make sure Mail.app is open and try again." : {
+      "comment" : "Watchdog state error after probe times out (TCC prompt sat unattended too long, or Mail not responding).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接超时。请确保 Mail.app 已打开,然后再试一次。"
+          }
+        }
+      }
+    },
+
+    "Mail not running — open Mail.app once, then tap Scan now." : {
+      "comment" : "Watchdog state error when Mail.app isn't reachable.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mail 未运行 —— 请先打开一次 Mail.app,然后点击「立即扫描」。"
+          }
+        }
+      }
+    },
+
     "Suber — no unread changes" : {
       "comment" : "Menu-bar icon VoiceOver label when unreadChangeCount == 0.",
       "localizations" : {
