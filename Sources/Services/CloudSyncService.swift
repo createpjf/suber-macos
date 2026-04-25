@@ -7,9 +7,12 @@ final class CloudSyncService {
     private let kvStore = NSUbiquitousKeyValueStore.default
     private let subscriptionsKey = "suber-subscriptions"
     private let settingsKey = "suber-settings"
+    private let changesKey = "suber-changes"  // v1.6: SubscriptionChange log
 
-    /// Called when remote data arrives. Passes (subscriptions Data?, settings Data?).
-    var onRemoteChange: ((Data?, Data?) -> Void)?
+    /// Called when remote data arrives. Passes (subscriptions Data?, settings Data?, changes Data?).
+    /// v1.6: added `changes` Data? parameter. Existing v1.5 call sites passing
+    /// only 2 args should be migrated; keep old symbol for source compat.
+    var onRemoteChange: ((Data?, Data?, Data?) -> Void)?
 
     private var observing = false
 
@@ -57,6 +60,14 @@ final class CloudSyncService {
         kvStore.synchronize()
     }
 
+    /// v1.6: push the SubscriptionChange log. H5 prune already applied
+    /// upstream in StorageService.saveChanges.
+    func pushChanges(_ data: Data) {
+        guard observing else { return }
+        kvStore.set(data, forKey: changesKey)
+        kvStore.synchronize()
+    }
+
     // MARK: - Read
 
     func pullSubscriptions() -> Data? {
@@ -65,6 +76,10 @@ final class CloudSyncService {
 
     func pullSettings() -> Data? {
         kvStore.data(forKey: settingsKey)
+    }
+
+    func pullChanges() -> Data? {
+        kvStore.data(forKey: changesKey)
     }
 
     // MARK: - Remote Change Handler
@@ -81,8 +96,9 @@ final class CloudSyncService {
              NSUbiquitousKeyValueStoreInitialSyncChange:
             let subsData = kvStore.data(forKey: subscriptionsKey)
             let settingsData = kvStore.data(forKey: settingsKey)
+            let changesData = kvStore.data(forKey: changesKey)  // v1.6
             DispatchQueue.main.async { [weak self] in
-                self?.onRemoteChange?(subsData, settingsData)
+                self?.onRemoteChange?(subsData, settingsData, changesData)
             }
         default:
             break

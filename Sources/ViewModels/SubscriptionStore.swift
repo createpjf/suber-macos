@@ -6,8 +6,37 @@ import WidgetKit
 final class SubscriptionStore: ObservableObject {
     @Published var subscriptions: [Subscription] = []
 
+    // MARK: - v1.6 Change log (Sentinel)
+    //
+    // The log drives:
+    //   - Changes Window (.reviewChanges mode)
+    //   - Menu-bar badge (unreadChangeCount — count of unacknowledged changes
+    //     within the last 14 days)
+    //   - SinceYouWereAwayBanner (same count + once-per-day gate)
+    //   - FirstCatchBanner (gated by AutopilotFlags.hasSeenFirstCatch)
+    //   - CancellationSuccessBanner (reads cancellationConfirmed entries)
+    //
+    // Write path: recordAndPersist(changes:) is the one entry point. It
+    // dedups against the existing log via SubscriptionChange.dedupHash,
+    // appends new ones, and calls StorageService.saveChanges (which applies
+    // H5 prune-on-write before persisting + syncing to iCloud).
+    @Published var changes: [SubscriptionChange] = []
+
+    /// Menu-bar badge source of truth. Count of unacknowledged changes within
+    /// the last 14 days. Older unacknowledged changes remain in `changes` for
+    /// historical review but don't count toward the badge.
+    ///
+    /// Computed, not stored, so it stays in sync with any mutation to
+    /// `changes` without manual bookkeeping. @Published via `objectWillChange`
+    /// propagation from the `changes` setter.
+    var unreadChangeCount: Int {
+        let threshold = Calendar.current.date(byAdding: .day, value: -14, to: Date())!
+        return changes.filter { !$0.acknowledged && $0.detectedAt >= threshold }.count
+    }
+
     init() {
         subscriptions = StorageService.shared.loadSubscriptions()
+        changes = StorageService.shared.loadChanges()
     }
 
     func add(_ data: SubscriptionFormData) {
@@ -83,4 +112,109 @@ final class SubscriptionStore: ObservableObject {
         StorageService.shared.saveSubscriptions(subscriptions)
         WidgetCenter.shared.reloadAllTimelines()
     }
+
+    // MARK: - Change log (v1.6 Sentinel)
+
+    /// Append new changes to the log, dedup'd by `SubscriptionChange.dedupHash`.
+    /// Persists via StorageService (which applies H5 prune-on-write) and syncs
+    /// to iCloud.
+    ///
+    /// Same-day re-scans produce identical hashes → silently dropped.
+    /// Cross-device duplicates (detected on Mac A and Mac B same day) → also dropped.
+    ///
+    /// First scan completion also flips `AutopilotFlags.hasSeenFirstScan = true`
+    /// so the Changes Window stops showing the first-run empty state.
+    func recordAndPersist(
+        changes newChanges: [SubscriptionChange],
+        flags injectedFlags: AutopilotFlags? = nil
+    ) {
+        // Must build inside the @MainActor body; AutopilotFlags.init is
+        // MainActor-isolated and can't be called as a default argument value.
+        let flags = injectedFlags ?? AutopilotFlags()
+
+        guard !newChanges.isEmpty else {
+            // First scan with zero findings still flips the flag — user sees
+            // "You're all caught up" instead of first-run copy next time.
+            if !flags.hasSeenFirstScan { flags.hasSeenFirstScan = true }
+            return
+        }
+
+        let existingHashes = Set(changes.map { $0.dedupHash })
+        let fresh = newChanges.filter { !existingHashes.contains($0.dedupHash) }
+        guard !fresh.isEmpty else {
+            if !flags.hasSeenFirstScan { flags.hasSeenFirstScan = true }
+            return
+        }
+
+        changes.append(contentsOf: fresh)
+        if !flags.hasSeenFirstScan { flags.hasSeenFirstScan = true }
+        StorageService.shared.saveChanges(changes)
+        // Keep in-memory state in sync with what we just persisted
+        // (saveChanges applies H5 prune-on-write). Otherwise UI would show
+        // > 200 entries until app restart.
+        changes = StorageService.prune(changes)
+    }
+
+    /// Mark a change as read. Called when the user acts on a row (Accept /
+    /// Ignore / Add / Open cancel page) in the Changes Window.
+    func markChangeAcknowledged(id: UUID) {
+        guard let index = changes.firstIndex(where: { $0.id == id }) else { return }
+        guard !changes[index].acknowledged else { return }
+        changes[index].acknowledged = true
+        StorageService.shared.saveChanges(changes)
+    }
+
+    /// Mark ALL changes as acknowledged. Used when the user opens the Changes
+    /// Window via the menu-bar badge tap — clears the unread count.
+    func markAllChangesAcknowledged() {
+        var mutated = false
+        for i in changes.indices where !changes[i].acknowledged {
+            changes[i].acknowledged = true
+            mutated = true
+        }
+        if mutated { StorageService.shared.saveChanges(changes) }
+    }
+
+    /// v1.6 One-Tap Cancel state transition.
+    ///
+    /// D5 (eng review iter-1) idempotency: if the sub is already in
+    /// `.pendingCancellation`, do NOT reset `pendingCancellationSetAt` —
+    /// keeps the D4 auto-transition anchor stable so re-taps of "Open cancel
+    /// page" don't move the verification window.
+    func markPendingCancellation(id: UUID, now: Date = Date()) {
+        guard let index = subscriptions.firstIndex(where: { $0.id == id }) else { return }
+        if subscriptions[index].status == .pendingCancellation {
+            // Re-tap: URL already opened from the view layer; DO NOT mutate anchor.
+            return
+        }
+        subscriptions[index].status = .pendingCancellation
+        subscriptions[index].pendingCancellationSetAt = now
+        subscriptions[index].updatedAt = now
+        save()
+    }
+
+    /// iCloud-merge path. Called by SuberApp's CloudSync.onRemoteChange when
+    /// another device pushes a newer change log. Dedups by `dedupHash` so the
+    /// "same change" detected locally and remotely doesn't double-count.
+    func mergeRemoteChanges(_ remote: [SubscriptionChange]) {
+        let existingHashes = Set(changes.map { $0.dedupHash })
+        let fresh = remote.filter { !existingHashes.contains($0.dedupHash) }
+        guard !fresh.isEmpty else { return }
+        changes.append(contentsOf: fresh)
+        // Don't re-push: the remote already has its own copy. Just persist
+        // locally so next app launch sees the merged state.
+        if let data = try? JSONEncoder.suberEncoder.encode(changes) {
+            UserDefaults(suiteName: "group.com.suber.app")?.set(data, forKey: "suber-changes")
+        }
+    }
+}
+
+// MARK: - Shared Encoder (matches StorageService.encoder)
+
+extension JSONEncoder {
+    static let suberEncoder: JSONEncoder = {
+        let e = JSONEncoder()
+        e.dateEncodingStrategy = .iso8601
+        return e
+    }()
 }

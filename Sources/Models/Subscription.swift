@@ -30,15 +30,68 @@ enum BillingCycle: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+// ┌───────────── Status transitions (v1.6) ─────────────────────────┐
+// │                                                                 │
+// │     ┌─────────┐   toggle    ┌────────┐                          │
+// │     │ active  │◄───────────►│ paused │                          │
+// │     └────┬────┘             └────────┘                          │
+// │          │ trial period ends                                    │
+// │     ┌────▼────┐                                                 │
+// │     │  trial  │                                                 │
+// │     └────┬────┘                                                 │
+// │          │ user taps "Open cancel page…"                        │
+// │     ┌────▼─────────────────┐                                    │
+// │     │ pendingCancellation  │                                    │
+// │     └──┬───────────────┬───┘                                    │
+// │        │ charge seen   │ no charge in window (data-source gated)│
+// │        │ in window     │                                        │
+// │     ┌──▼──────┐     ┌──▼────────┐                               │
+// │     │ active  │     │ cancelled │                               │
+// │     │ +Failed │     └───────────┘                               │
+// │     └─────────┘                                                 │
+// │                                                                 │
+// │ D7 (CEO) fallback: unknown raw case → decodes to .active        │
+// │ (forward-compat for iCloud sync from v1.7+ clients)             │
+// └─────────────────────────────────────────────────────────────────┘
 enum SubscriptionStatus: String, Codable, CaseIterable, Identifiable {
     case active
     case paused
     case cancelled
     case trial
+    /// v1.6: user tapped "Open cancel page…"; awaiting verification via Mail scan
+    /// or CSV import. Transitions to .cancelled (no charge) or back to .active
+    /// (charge detected) per D4 auto-transition logic, gated on data-source
+    /// availability per eng re-review A4.
+    case pendingCancellation = "pending_cancellation"
 
     var id: String { rawValue }
 
-    var label: String { rawValue.capitalized }
+    var label: String {
+        switch self {
+        case .pendingCancellation: return "Pending cancel"
+        default: return rawValue.capitalized
+        }
+    }
+
+    // MARK: Codable (D7 manual fallback)
+    // Unknown raw values decode to .active with a warning log. Keeps v1.5.x
+    // clients non-crashing if an iCloud sync ever delivers a future status
+    // case they don't know about. Overrides the synthesized init(from:) that
+    // would throw on unknown cases.
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        if let match = SubscriptionStatus(rawValue: raw) {
+            self = match
+        } else {
+            NSLog("Suber: unknown SubscriptionStatus '\(raw)' → falling back to .active")
+            self = .active
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
 }
 
 struct Subscription: Identifiable, Codable, Equatable {
@@ -59,22 +112,41 @@ struct Subscription: Identifiable, Codable, Equatable {
     var createdAt: Date
     var updatedAt: Date
 
+    /// v1.6: user-overrideable cancel URL. If nil, falls back to
+    /// `KnownServices.cancellationURL(for: name)`, then DuckDuckGo search.
+    var cancellationURL: String?
+
+    /// v1.6: timestamp set when status transitions to `.pendingCancellation`.
+    /// D5 (eng review): re-tapping "Open cancel page" on an already-pending
+    /// sub does NOT reset this — anchor stays pinned to the original tap so
+    /// D4's auto-transition window doesn't move.
+    /// A4 (eng re-review): auto-transition from pending only fires when the
+    /// period between pendingCancellationSetAt and now is covered by at least
+    /// one data source (Mail scan OR CSV import) — prevents false-positive
+    /// cancellation confirmation for v1.5-style manual-only users.
+    var pendingCancellationSetAt: Date?
+
     /// The per-person amount after splitting.
     var effectiveAmount: Double {
         amount / Double(max(splitCount, 1))
     }
 
-    // Custom Codable to default splitCount to 1 for backward compat
+    // Custom Codable to default splitCount to 1 for backward compat.
+    // cancellationURL + pendingCancellationSetAt are both optional/nil-defaulting
+    // so v1.5 clients reading v1.6 data ignore them, and v1.6 reading v1.5 data
+    // gets nil (the expected default).
     enum CodingKeys: String, CodingKey {
         case id, name, url, logo, amount, currency, cycle, billingDay, startDate
         case trialEndDate, category, status, notes, splitCount, createdAt, updatedAt
+        case cancellationURL, pendingCancellationSetAt
     }
 
     init(id: UUID, name: String, url: String? = nil, logo: String? = nil,
          amount: Double, currency: String, cycle: BillingCycle, billingDay: Int,
          startDate: Date, trialEndDate: Date? = nil, category: String,
          status: SubscriptionStatus, notes: String? = nil, splitCount: Int = 1,
-         createdAt: Date, updatedAt: Date) {
+         createdAt: Date, updatedAt: Date,
+         cancellationURL: String? = nil, pendingCancellationSetAt: Date? = nil) {
         self.id = id; self.name = name; self.url = url; self.logo = logo
         self.amount = amount; self.currency = currency; self.cycle = cycle
         self.billingDay = billingDay; self.startDate = startDate
@@ -82,6 +154,8 @@ struct Subscription: Identifiable, Codable, Equatable {
         self.status = status; self.notes = notes
         self.splitCount = max(splitCount, 1)
         self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.cancellationURL = cancellationURL
+        self.pendingCancellationSetAt = pendingCancellationSetAt
     }
 
     init(from decoder: Decoder) throws {
@@ -102,6 +176,8 @@ struct Subscription: Identifiable, Codable, Equatable {
         splitCount = try c.decodeIfPresent(Int.self, forKey: .splitCount) ?? 1
         createdAt = try c.decode(Date.self, forKey: .createdAt)
         updatedAt = try c.decode(Date.self, forKey: .updatedAt)
+        cancellationURL = try c.decodeIfPresent(String.self, forKey: .cancellationURL)
+        pendingCancellationSetAt = try c.decodeIfPresent(Date.self, forKey: .pendingCancellationSetAt)
     }
 }
 

@@ -6,6 +6,22 @@ final class StorageService {
     private let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
     private let subscriptionsKey = "suber-subscriptions"
     private let settingsKey = "suber-settings"
+    private let changesKey = "suber-changes"  // v1.6: SubscriptionChange log
+
+    // MARK: - H5 (eng re-review) prune policy
+    //
+    // Prune on WRITE, not on read. Prevents iCloud KVS blowout when a user
+    // with a noisy inbox goes weeks without opening the Changes Window.
+    //
+    // HARD CAP at 200 most-recent entries. Anything beyond gets dropped,
+    // regardless of age. Storage-safety first: KVS budget is 1MB total, and
+    // 200 entries × ~500 bytes/entry = ~100KB leaves room for subs + settings.
+    //
+    // The 14-day UNREAD window is a separate policy — it lives in
+    // SubscriptionStore.unreadChangeCount (badge count), NOT here.
+    // Historical entries that are acknowledged still appear in the Changes
+    // Window for review; they just don't count toward the badge.
+    static let changeLogMaxEntries = 200
 
     private let encoder: JSONEncoder = {
         let e = JSONEncoder()
@@ -76,6 +92,36 @@ final class StorageService {
             defaults.set(data, forKey: subscriptionsKey)
             CloudSyncService.shared.pushSubscriptions(data)
         }
+    }
+
+    // MARK: - Changes log (v1.6)
+
+    /// Load the SubscriptionChange log. Gracefully returns [] on any decode
+    /// error (we'd rather show an empty Changes Window than crash on
+    /// forward-compat drift).
+    func loadChanges() -> [SubscriptionChange] {
+        guard let data = defaults.data(forKey: changesKey) else { return [] }
+        return (try? decoder.decode([SubscriptionChange].self, from: data)) ?? []
+    }
+
+    /// Persist the change log, applying H5 prune-on-write BEFORE save.
+    ///
+    /// Prune rule: keep any entry that is (within the last 14 days OR among
+    /// the 200 most-recent). Sorted newest-first so the view doesn't need
+    /// to re-sort on every render.
+    func saveChanges(_ changes: [SubscriptionChange]) {
+        let pruned = Self.prune(changes)
+        if let data = try? encoder.encode(pruned) {
+            defaults.set(data, forKey: changesKey)
+            CloudSyncService.shared.pushChanges(data)
+        }
+    }
+
+    /// Exposed for unit tests of the prune policy.
+    /// Hard cap: 200 most-recent entries. Anything beyond gets dropped.
+    static func prune(_ changes: [SubscriptionChange], now: Date = Date()) -> [SubscriptionChange] {
+        let sorted = changes.sorted { $0.detectedAt > $1.detectedAt }
+        return Array(sorted.prefix(changeLogMaxEntries))
     }
 
     // MARK: - Settings
