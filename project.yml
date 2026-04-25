@@ -23,8 +23,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app
-        MARKETING_VERSION: "1.5.3"
-        CURRENT_PROJECT_VERSION: "153"
+        MARKETING_VERSION: "1.6.0"
+        CURRENT_PROJECT_VERSION: "160"
         INFOPLIST_FILE: Sources/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: false
@@ -45,8 +45,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app.widget
-        MARKETING_VERSION: "1.5.3"
-        CURRENT_PROJECT_VERSION: "153"
+        MARKETING_VERSION: "1.6.0"
+        CURRENT_PROJECT_VERSION: "160"
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
         CODE_SIGN_ENTITLEMENTS: SuberWidget/SuberWidget.entitlements

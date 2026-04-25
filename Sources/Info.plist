@@ -41,5 +41,10 @@
 			</array>
 		</dict>
 	</array>
+	<!-- v1.6.0 Mail Watchdog: user-facing string shown in the macOS TCC permission
+	     prompt when Suber first asks to control Mail. Keep it specific and honest;
+	     the in-app consent modal does the heavier trust-scaffolding before this fires. -->
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Suber reads billing receipts from Apple Mail so you never miss a price change or a subscription you forgot about. Only renewal and invoice emails are read. Nothing leaves your Mac.</string>
 </dict>
 </plist>

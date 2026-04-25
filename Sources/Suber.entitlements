@@ -8,5 +8,12 @@
 	<array>
 		<string>group.com.suber.app</string>
 	</array>
+	<!-- v1.6.0 Mail Watchdog: scoped Apple Events access to Mail.app only.
+	     User additionally sees the macOS TCC prompt when MailWatchdog.connectAppleMail()
+	     fires osascript for the first time. -->
+	<key>com.apple.security.temporary-exception.apple-events</key>
+	<array>
+		<string>com.apple.mail</string>
+	</array>
 </dict>
 </plist>
