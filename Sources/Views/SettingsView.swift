@@ -49,6 +49,13 @@ struct SettingsView: View {
 
                 divider
 
+                // Autopilot (v1.6 — Watch / Sense / Act)
+                section("Autopilot") {
+                    AutopilotSettingsSection()
+                }
+
+                divider
+
                 // Notifications
                 section("Notifications") {
                     ToggleRow(label: "Enable notifications", isOn: Binding(

@@ -7,29 +7,30 @@ struct SuberApp: App {
     /// Drives the "Import" Window scene. Exposed to both the MenuBarExtra popover
     /// (to trigger imports) and the import window (to render the right flow).
     @StateObject private var importPresenter = ImportPresenter()
+    /// v1.6 Watchdog — Mail scan state machine, daily scheduler, scan-cursor
+    /// persistence. Wired to subscriptionStore via onScanComplete callback
+    /// (set up in init so the closure captures the store reference once).
+    @StateObject private var mailWatchdog = MailWatchdog()
 
     var body: some Scene {
-        MenuBarExtra("Suber", image: "MenuBarIcon") {
-            MenuBarView()
-                .environmentObject(subscriptionStore)
-                .environmentObject(settingsStore)
-                .environmentObject(importPresenter)
-                .frame(width: 480)
-                .frame(maxHeight: 520)
-                .fixedSize(horizontal: false, vertical: true)
-                .background(Theme.bgPrimary)
-                .onAppear {
-                    setupCloudSync()
-                    Task { await ExchangeRateService.shared.refreshIfNeeded() }
-                }
-                .onOpenURL { url in handleURL(url) }
-                .onReceive(settingsStore.$settings) { settings in
-                    if settings.enableCloudSync {
-                        CloudSyncService.shared.startSync()
-                    } else {
-                        CloudSyncService.shared.stopSync()
-                    }
-                }
+        // v1.6: `label:` closure replaces the `image:` arg so we can overlay
+        // the unread-changes badge. Plan-as-written uses the SwiftUI overlay
+        // (MenuBarBadgeView); if notarized-build QA reveals template-mode
+        // strips the red fill, swap to `MenuBarBadgeFallback.render(count:)`.
+        MenuBarExtra {
+            // Wrap in a View so we can access @Environment(\.openWindow) for
+            // suber://changes URL routing (Slice 4h).
+            MenuBarContainerView(
+                subscriptionStore: subscriptionStore,
+                settingsStore: settingsStore,
+                importPresenter: importPresenter,
+                mailWatchdog: mailWatchdog,
+                setupCloudSync: setupCloudSync,
+                setupWatchdog: setupWatchdog,
+                handleURL: handleURL
+            )
+        } label: {
+            MenuBarBadgeView(count: subscriptionStore.unreadChangeCount)
         }
         .menuBarExtraStyle(.window)
         .handlesExternalEvents(matching: ["suber"])
@@ -43,14 +44,99 @@ struct SuberApp: App {
                 .environmentObject(subscriptionStore)
                 .environmentObject(settingsStore)
                 .environmentObject(importPresenter)
+                .environmentObject(mailWatchdog)
         }
         .defaultSize(width: 620, height: 620)
         .windowResizability(.contentMinSize)
     }
 
-    private func handleURL(_ url: URL) {
-        guard let data = URLSchemeHandler.parse(url) else { return }
-        subscriptionStore.add(data)
+    // MARK: - Watchdog wiring (v1.6 Sentinel loop)
+
+    /// Called from MenuBarContainerView.onAppear (once per app launch).
+    /// Wires the onScanComplete callback so scans route through the Sentinel
+    /// loop: recordAndPersist (dedup + prune) → grouped notification → badge.
+    /// Also restarts the daily scheduler if Watch is enabled.
+    private func setupWatchdog() {
+        // The callback captures subscriptionStore + settings by reference.
+        // Runs on MainActor because MailWatchdog is MainActor-isolated.
+        mailWatchdog.loadExistingSubscriptions = { [weak subscriptionStore] in
+            subscriptionStore?.subscriptions ?? []
+        }
+        mailWatchdog.onScanComplete = { [weak subscriptionStore, weak settingsStore] summary, changes in
+            guard let store = subscriptionStore, let settings = settingsStore else { return }
+
+            // Filter changes by user's alert preferences (D6).
+            let filtered = changes.filter { change in
+                switch change.type {
+                case .priceChange:
+                    return settings.settings.autopilot.alertOnPriceChanges
+                case .newCharge:
+                    return settings.settings.autopilot.alertOnNewSubscriptions
+                case .duplicate:
+                    return settings.settings.autopilot.alertOnDuplicates
+                // Trials + cancellation-related changes always surface
+                // (they're actionable regardless of alert prefs).
+                case .trialExpiring, .cancellationConfirmed, .cancellationFailed:
+                    return true
+                }
+            }
+
+            // Dedup + prune + persist.
+            store.recordAndPersist(changes: filtered)
+
+            // Fire a single grouped notification if there's anything to say.
+            if !filtered.isEmpty, settings.settings.enableNotifications {
+                let (title, body) = NotificationService.composeChangesBody(from: filtered)
+                NotificationService.shared.scheduleImmediate(title: title, body: body)
+            }
+
+            // P1 (eng re-review): fold auto-transition check into scan-completion.
+            // The Watchdog scan IS the data source that covers the window for
+            // users with Watchdog enabled. We don't have StatementTransaction
+            // here (Watchdog yields SubscriptionChange), so we synthesize a
+            // "transactions" view by reading the .newCharge + .priceChange
+            // candidates' pendingSubscriptionData — each one represents a real
+            // incoming charge the bridge saw.
+            let syntheticTxns = filtered.compactMap { change -> StatementTransaction? in
+                // Only .priceChange and .newCharge represent real seen charges.
+                guard change.type == .priceChange || change.type == .newCharge else { return nil }
+                guard let form = change.pendingSubscriptionData,
+                      let amount = Double(form.amount) else { return nil }
+                return StatementTransaction(
+                    date: change.detectedAt,
+                    merchantRaw: form.name,
+                    amount: amount,
+                    currency: form.currency
+                )
+            }
+            store.checkPendingCancellationTransitions(
+                transactions: syntheticTxns,
+                dataSourceCoversWindow: true,   // Watchdog ran → window covered
+                now: summary.completedAt
+            )
+        }
+
+        // Resume the daily scheduler if Watch is enabled.
+        if settingsStore.settings.autopilot.watchAppleMail {
+            mailWatchdog.scheduleDailyScan()
+        }
+    }
+
+    /// `openWindow` is a SwiftUI Environment value and must be captured inside
+    /// a View — the caller (MenuBarContainerView) passes it through.
+    private func handleURL(_ url: URL, openWindow: OpenWindowAction) {
+        guard let action = URLSchemeHandler.parseAction(url) else { return }
+        switch action {
+        case .add(let data):
+            subscriptionStore.add(data)
+        case .openChanges:
+            // v1.6 Sentinel: route from menubar badge / grouped notification /
+            // "Since you were away" banner straight to the Changes Window.
+            // Snapshot the current unread log so the Window opens with data.
+            importPresenter.showChanges(subscriptionStore.changes)
+            WindowActivationCoordinator.surface()
+            openWindow(id: "import")
+        }
     }
 
     private func setupCloudSync() {
@@ -58,7 +144,7 @@ struct SuberApp: App {
 
         CloudSyncService.shared.startSync()
 
-        CloudSyncService.shared.onRemoteChange = { [weak subscriptionStore, weak settingsStore] subsData, settingsData in
+        CloudSyncService.shared.onRemoteChange = { [weak subscriptionStore, weak settingsStore] subsData, settingsData, changesData in
             if let data = subsData,
                let subs = try? JSONDecoder.suberDecoder.decode([Subscription].self, from: data) {
                 subscriptionStore?.importSubscriptions(subs)
@@ -66,6 +152,13 @@ struct SuberApp: App {
             if let data = settingsData,
                let settings = try? JSONDecoder.suberDecoder.decode(AppSettings.self, from: data) {
                 settingsStore?.update { $0 = settings }
+            }
+            // v1.6: SubscriptionChange log sync. Merge-by-id with local log;
+            // the dedup hash in SubscriptionStore.recordAndPersist handles
+            // cross-device duplicates (same change detected on 2 Macs).
+            if let data = changesData,
+               let remoteChanges = try? JSONDecoder.suberDecoder.decode([SubscriptionChange].self, from: data) {
+                subscriptionStore?.mergeRemoteChanges(remoteChanges)
             }
         }
     }
@@ -102,4 +195,47 @@ extension JSONDecoder {
         }
         return d
     }()
+}
+
+// MARK: - MenuBar container
+
+/// Thin wrapper so the MenuBarExtra content has access to SwiftUI Environment
+/// values (notably `openWindow` for URL-scheme routing to the Changes Window).
+/// Can't live on the App type directly; Environment values only bind inside
+/// View hierarchies.
+private struct MenuBarContainerView: View {
+    let subscriptionStore: SubscriptionStore
+    let settingsStore: SettingsStore
+    let importPresenter: ImportPresenter
+    let mailWatchdog: MailWatchdog
+    let setupCloudSync: () -> Void
+    let setupWatchdog: () -> Void
+    let handleURL: (URL, OpenWindowAction) -> Void
+
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        MenuBarView()
+            .environmentObject(subscriptionStore)
+            .environmentObject(settingsStore)
+            .environmentObject(importPresenter)
+            .environmentObject(mailWatchdog)
+            .frame(width: 480)
+            .frame(maxHeight: 520)
+            .fixedSize(horizontal: false, vertical: true)
+            .background(Theme.bgPrimary)
+            .onAppear {
+                setupCloudSync()
+                setupWatchdog()
+                Task { await ExchangeRateService.shared.refreshIfNeeded() }
+            }
+            .onOpenURL { url in handleURL(url, openWindow) }
+            .onReceive(settingsStore.$settings) { settings in
+                if settings.enableCloudSync {
+                    CloudSyncService.shared.startSync()
+                } else {
+                    CloudSyncService.shared.stopSync()
+                }
+            }
+    }
 }
