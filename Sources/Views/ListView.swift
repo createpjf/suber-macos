@@ -11,11 +11,15 @@ enum SortBy: String, CaseIterable, Identifiable {
 
 struct ListView: View {
     @EnvironmentObject var subscriptionStore: SubscriptionStore
+    @EnvironmentObject var settingsStore: SettingsStore
     let onEdit: (Subscription) -> Void
 
     @State private var searchText = ""
     @State private var statusFilter = "all"
     @State private var sortBy: SortBy = .nextBilling
+
+    // v1.6: pending-cancel confirmation sheet state.
+    @State private var pendingCancelSub: Subscription?
 
     var body: some View {
         VStack(spacing: 6) {
@@ -75,8 +79,12 @@ struct ListView: View {
                 ScrollView {
                     LazyVStack(spacing: 6) {
                         ForEach(filteredSubscriptions) { sub in
-                            SubCardView(subscription: sub)
-                                .onTapGesture { onEdit(sub) }
+                            SubCardView(
+                                subscription: sub,
+                                onOpenCancelPage: { pendingCancelSub = sub }
+                            )
+                            .environmentObject(subscriptionStore)
+                            .onTapGesture { onEdit(sub) }
                         }
                     }
                     .padding(.horizontal, 16)
@@ -84,6 +92,41 @@ struct ListView: View {
                 }
             }
         }
+        // v1.6 One-Tap Cancel confirmation sheet (D10).
+        .sheet(item: $pendingCancelSub) { sub in
+            CancelConfirmationSheet(
+                subscription: sub,
+                hasDataSource: hasDataSource,
+                onOpenCancelPage: {
+                    pendingCancelSub = nil
+                    subscriptionStore.markPendingCancellation(id: sub.id)
+                    OneTapCancelService.openCancelPage(for: sub)
+                },
+                onMarkCancelledManually: {
+                    pendingCancelSub = nil
+                    markSubscriptionCancelledManually(sub)
+                },
+                onCancel: { pendingCancelSub = nil }
+            )
+        }
+    }
+
+    /// A4: true if Suber has a data source that can verify an auto-transition.
+    /// Drives the confirmation sheet's honesty — we only promise "Suber will
+    /// check next month" when we actually can.
+    private var hasDataSource: Bool {
+        if settingsStore.settings.autopilot.watchAppleMail { return true }
+        // CSV-only user: if they've ever imported one, the next import will
+        // cover the window. Heuristic: any change sourced from csvImport in
+        // the last 90 days → yes, they use CSV.
+        let threshold = Calendar.current.date(byAdding: .day, value: -90, to: Date())!
+        return subscriptionStore.changes.contains { change in
+            change.source == .csvImport && change.detectedAt >= threshold
+        }
+    }
+
+    private func markSubscriptionCancelledManually(_ sub: Subscription) {
+        subscriptionStore.markCancelledManually(id: sub.id)
     }
 
     private var filteredSubscriptions: [Subscription] {

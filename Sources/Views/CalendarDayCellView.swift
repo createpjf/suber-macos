@@ -40,6 +40,16 @@ struct CalendarDayCellView: View {
             .background(cellBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(cellOverlay)
+            .overlay(alignment: .topTrailing) {
+                // v1.6: compact "Nd" countdown badge for pending-cancel
+                // subs whose billing day is today or near-future. Only
+                // one badge per cell — if multiple pending subs fall on
+                // this day, show the soonest.
+                if let d = soonestPendingCountdown {
+                    PendingCancellationIndicator.tileCountdownBadge(daysLeft: d)
+                        .padding(2)
+                }
+            }
         }
         .buttonStyle(.plain)
         .disabled(!isCurrentMonth)
@@ -60,7 +70,13 @@ struct CalendarDayCellView: View {
 
     @ViewBuilder
     private var cellOverlay: some View {
-        if isSelected {
+        // v1.6: if any sub on this day is pending-cancel, show the dashed
+        // orange border. Priority: pending-cancel > selected > today.
+        // Dashed pattern still communicates "this day has a pending action"
+        // even when the tile is selected.
+        if hasPendingCancellationSub {
+            PendingCancellationIndicator.dashedBorder(tier: .tile)
+        } else if isSelected {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Theme.textPrimary.opacity(0.6), lineWidth: 1.5)
         } else if isToday {
@@ -69,5 +85,23 @@ struct CalendarDayCellView: View {
         } else {
             EmptyView()
         }
+    }
+
+    // MARK: - v1.6 pending-cancel derivation
+
+    private var hasPendingCancellationSub: Bool {
+        subscriptions.contains(where: { $0.status == .pendingCancellation })
+    }
+
+    /// Days until next billing for the soonest pending-cancel sub on this
+    /// day. Nil if no pending-cancel sub, or if the cell date is already
+    /// past the billing window (overdue — handled in DayDetail).
+    private var soonestPendingCountdown: Int? {
+        let pending = subscriptions.filter { $0.status == .pendingCancellation }
+        guard !pending.isEmpty else { return nil }
+        let now = Date()
+        let daysFromNow = Calendar.current.dateComponents([.day], from: now, to: date).day ?? 0
+        guard daysFromNow >= 0 else { return nil }  // past dates get no badge
+        return daysFromNow
     }
 }

@@ -175,6 +175,32 @@ final class SubscriptionStore: ObservableObject {
         if mutated { StorageService.shared.saveChanges(changes) }
     }
 
+    /// A4 manual cancel path for v1.5-style users (no data source) who've
+    /// cancelled elsewhere and want to tell Suber. Transitions to `.cancelled`
+    /// and logs a `cancellationConfirmed` change so the celebration banner
+    /// can fire.
+    func markCancelledManually(id: UUID, now: Date = Date()) {
+        guard let index = subscriptions.firstIndex(where: { $0.id == id }) else { return }
+        let sub = subscriptions[index]
+        guard sub.status != .cancelled else { return }
+
+        subscriptions[index].status = .cancelled
+        subscriptions[index].pendingCancellationSetAt = nil
+        subscriptions[index].updatedAt = now
+        save()
+
+        let change = SubscriptionChange(
+            subscriptionID: sub.id,
+            type: .cancellationConfirmed,
+            detectedAt: now,
+            previousValue: sub.status.rawValue,
+            newValue: "cancelled",
+            source: .backgroundCheck,    // user action, but logged as verification
+            newBaseAmount: sub.amount
+        )
+        recordAndPersist(changes: [change])
+    }
+
     /// v1.6 One-Tap Cancel state transition.
     ///
     /// D5 (eng review iter-1) idempotency: if the sub is already in
@@ -191,6 +217,125 @@ final class SubscriptionStore: ObservableObject {
         subscriptions[index].pendingCancellationSetAt = now
         subscriptions[index].updatedAt = now
         save()
+    }
+
+    // MARK: - Auto-transition (A4 + P1)
+
+    /// Check every `.pendingCancellation` sub against incoming transactions in
+    /// its verification window. Called from:
+    ///   (a) App launch (SuberApp.setupWatchdog)
+    ///   (b) End of MailWatchdog.scanNow (P1: fold into scan-completion hook)
+    ///   (c) End of CSV import (ImportPresenter)
+    ///
+    /// Logic (D4 + A4):
+    ///   - For each `.pendingCancellation` sub:
+    ///     - Zero matching charges in window AND window is data-source-covered
+    ///       → transition to `.cancelled`, log `cancellationConfirmed`
+    ///     - One or more matching charges in window
+    ///       → transition back to `.active`, log `cancellationFailed`
+    ///     - No data source covers the window
+    ///       → stay `.pendingCancellation`, do nothing (UI nudges the user
+    ///         to "Mark as cancelled manually" if they want)
+    ///
+    /// - Parameters:
+    ///   - transactions: fresh incoming transactions from this scan/import.
+    ///     Pass [] for the "no data source" case.
+    ///   - dataSourceCoversWindow: true if we can be confident a charge in
+    ///     the pending window would have been captured. False for manual-
+    ///     only v1.5-style users.
+    ///   - now: injectable for tests.
+    func checkPendingCancellationTransitions(
+        transactions: [StatementTransaction] = [],
+        dataSourceCoversWindow: Bool,
+        now: Date = Date()
+    ) {
+        var detectedChanges: [SubscriptionChange] = []
+
+        for index in subscriptions.indices {
+            let sub = subscriptions[index]
+            guard sub.status == .pendingCancellation,
+                  let setAt = sub.pendingCancellationSetAt else { continue }
+
+            // Only evaluate once the billing day in the pending window has
+            // passed — too early and we'd fire "cancellationConfirmed" before
+            // the charge could even have dropped.
+            let billingDue = computeBillingDue(after: setAt, billingDay: sub.billingDay)
+            guard now >= billingDue else { continue }
+
+            // A4 gate: must have a data source that covered this window.
+            guard dataSourceCoversWindow else {
+                // Stay pending. DayDetail surfaces the manual nudge.
+                continue
+            }
+
+            // Did any incoming transaction match this sub in the window?
+            let merchantKey = MerchantNormalizer.normalize(sub.name)
+            let matches = transactions.contains { txn in
+                txn.date >= setAt &&
+                txn.date <= now &&
+                MerchantNormalizer.normalize(txn.merchantRaw) == merchantKey
+            }
+
+            if matches {
+                // cancellationFailed — roll back to .active.
+                subscriptions[index].status = .active
+                subscriptions[index].pendingCancellationSetAt = nil
+                subscriptions[index].updatedAt = now
+
+                let change = SubscriptionChange(
+                    subscriptionID: sub.id,
+                    type: .cancellationFailed,
+                    detectedAt: now,
+                    previousValue: "pending_cancellation",
+                    newValue: "active",
+                    source: .backgroundCheck,
+                    newBaseAmount: sub.amount
+                )
+                detectedChanges.append(change)
+            } else {
+                // cancellationConfirmed — transition to .cancelled.
+                subscriptions[index].status = .cancelled
+                subscriptions[index].pendingCancellationSetAt = nil
+                subscriptions[index].updatedAt = now
+
+                let change = SubscriptionChange(
+                    subscriptionID: sub.id,
+                    type: .cancellationConfirmed,
+                    detectedAt: now,
+                    previousValue: "pending_cancellation",
+                    newValue: "cancelled",
+                    source: .backgroundCheck,
+                    newBaseAmount: sub.amount
+                )
+                detectedChanges.append(change)
+            }
+        }
+
+        if !detectedChanges.isEmpty {
+            save()  // persist status mutations
+            recordAndPersist(changes: detectedChanges)
+        }
+    }
+
+    /// The first billing-due date at-or-after `setAt`. Used to gate the
+    /// auto-transition evaluation — we only check AFTER the expected billing
+    /// day has passed.
+    ///
+    /// Example: pending set 2026-03-10, billingDay=15 → returns 2026-03-15.
+    /// Pending set 2026-03-20, billingDay=15 → returns 2026-04-15 (next month).
+    private func computeBillingDue(after setAt: Date, billingDay: Int) -> Date {
+        let cal = Calendar.current
+        var components = cal.dateComponents([.year, .month], from: setAt)
+        components.day = billingDay
+
+        guard let thisMonth = cal.date(from: components) else { return setAt }
+
+        // If billing day in the current month is already past `setAt`, use it.
+        // Otherwise use next month's billing day.
+        if thisMonth >= setAt {
+            return thisMonth
+        }
+        return cal.date(byAdding: .month, value: 1, to: thisMonth) ?? setAt
     }
 
     /// iCloud-merge path. Called by SuberApp's CloudSync.onRemoteChange when
