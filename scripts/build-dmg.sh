@@ -165,12 +165,19 @@ echo "[3/8] Verifying signature + hardened runtime on .app…"
 codesign --verify --deep --strict --verbose=2 "${APP_PATH}" 2>&1 | tail -3
 
 # Confirm the hardened runtime is enabled (notarization rejects builds without it).
-# Format on Xcode 15+: `flags=0x10000(runtime)` — match the parenthesized literal
-# directly so we don't trip on regex-greediness edge cases.
-if ! codesign -d --verbose=2 "${APP_PATH}" 2>&1 | grep -q "(runtime)"; then
+# Format on Xcode 15+: `flags=0x10000(runtime)`. Write codesign output to a temp
+# file first, then grep — the inline `codesign | grep -q` pipeline behaves
+# inconsistently under `set -o pipefail` when codesign streams to stderr.
+CS_OUT=$(mktemp)
+codesign -d --verbose=2 "${APP_PATH}" >"${CS_OUT}" 2>&1 || true
+if ! grep -q "(runtime)" "${CS_OUT}"; then
     echo "ERROR: hardened runtime NOT enabled. notarization will reject." >&2
+    echo "       codesign output below for diagnosis:" >&2
+    cat "${CS_OUT}" >&2
+    rm -f "${CS_OUT}"
     exit 1
 fi
+rm -f "${CS_OUT}"
 
 # ---------------------------------------------------------------------------
 # 5. Build the DMG
