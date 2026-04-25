@@ -100,7 +100,13 @@ final class MailWatchdog: ObservableObject {
 
     init(
         bridge: MailBridge = AppleMailBridge(),
-        defaults: UserDefaults = UserDefaults(suiteName: "group.com.suber.app") ?? .standard
+        // v1.6.2: Switched from `UserDefaults(suiteName: "group.com.suber.app")`
+        // to `.standard` because the suite-name path triggered the macOS 26.4
+        // (Tahoe) cfprefsd regression that fires `kTCCServiceSystemPolicyAppData`
+        // ("data from other apps") prompt at launch. MailWatchdog cursors are
+        // internal — the widget doesn't read them — so they don't need the
+        // shared app-group container.
+        defaults: UserDefaults = .standard
     ) {
         self.bridge = bridge
         self.defaults = defaults

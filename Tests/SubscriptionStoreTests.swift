@@ -7,6 +7,11 @@ final class SubscriptionStoreTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        // v1.6.2: clear AppGroupStore (file-based) + legacy UserDefaults
+        // so a fresh store reads empty state.
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-settings")
+        AppGroupStore.removeObject(forKey: "suber-changes")
         let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
         defaults.removeObject(forKey: "suber-subscriptions")
         defaults.removeObject(forKey: "suber-settings")

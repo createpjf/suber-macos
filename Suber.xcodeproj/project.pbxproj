@@ -33,6 +33,7 @@
 		3862E57C14A41C6C2BD2CE8E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A7AC8CC1CD0227DFA53914 /* Constants.swift */; };
 		3A2BF3BEE84D0FD7CAC4DCA8 /* MailWatchdog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3EF60CEE41FB8E2131FA2A /* MailWatchdog.swift */; };
 		3A7C1FF1C1628CBB869A4C49 /* IMAPAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */; };
+		3CE50577B993B5B433259A3A /* AppGroupStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB05319D182A1924458613C /* AppGroupStore.swift */; };
 		3E6ED4C05077BFBB32B4BCEF /* EmailParseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678AF1F6B7A12245A7CFFA3F /* EmailParseView.swift */; };
 		3F94AE230B7822CA5FFCF051 /* WechatFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B6D109BF2E9C8E46FD4D9F /* WechatFormat.swift */; };
 		40232C51EE6B6EFDBC274BD4 /* IMAPAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */; };
@@ -101,6 +102,7 @@
 		B23BA62822953FE092ADCE44 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A512477B345143864C5A965 /* DashboardViewModel.swift */; };
 		B26EBBA887CA22B0E7677C07 /* IMAPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A43CCBC3C62AE998DBF20 /* IMAPClient.swift */; };
 		B342A78C8D455F9A251A827C /* SpaceGrotesk-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B164702B8BBDB3C53F4A508C /* SpaceGrotesk-Light.ttf */; };
+		B403E3C02CDF91ED471FA03C /* AppGroupStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB05319D182A1924458613C /* AppGroupStore.swift */; };
 		B53903E38AAA2813CD8C0F33 /* AppleMailBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FBE138F15A7A99F79E9897 /* AppleMailBridge.swift */; };
 		B687EFB47F6319B2381BF188 /* SpaceGrotesk-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EB1223103BFC8FB8758674A1 /* SpaceGrotesk-Regular.ttf */; };
 		B953B2DBA9DA4E716BE44676 /* GenericFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A357FF4A3DB412696F03934 /* GenericFormat.swift */; };
@@ -222,6 +224,7 @@
 		7C81ACEA916E4FF6BD31ED08 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		8933138C06CE2532ED860557 /* SuberWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SuberWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		896C0AD6C100D4D350597033 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
+		8AB05319D182A1924458613C /* AppGroupStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupStore.swift; sourceTree = "<group>"; };
 		8C481B2B5AAE8544299D2485 /* PendingCancellationIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCancellationIndicator.swift; sourceTree = "<group>"; };
 		8DA53D89C607C630B60617D4 /* SubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubCardView.swift; sourceTree = "<group>"; };
 		8DF337F3C6EE7378914BE990 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -473,6 +476,7 @@
 			isa = PBXGroup;
 			children = (
 				CEAC8B5E77F4D2620E811E8A /* AnnualCost.swift */,
+				8AB05319D182A1924458613C /* AppGroupStore.swift */,
 				D9DEE6DA508FFB14AEE7124E /* BillingCalculator.swift */,
 				58AFAFCE33C8D26875CDE9D1 /* ChangeDetector.swift */,
 				D952CCBFC2EBFD4611E9143E /* CloudSyncService.swift */,
@@ -660,6 +664,7 @@
 				CBBB981AD8890CA2E4803ED5 /* AddSubscriptionIntent.swift in Sources */,
 				7012AE4EBFA408990890BA70 /* AlipayFormat.swift in Sources */,
 				8DA21033FB13A668B59F7FBA /* AnnualCost.swift in Sources */,
+				3CE50577B993B5B433259A3A /* AppGroupStore.swift in Sources */,
 				B53903E38AAA2813CD8C0F33 /* AppleMailBridge.swift in Sources */,
 				F003237A8C6C902803690669 /* AutopilotBannerView.swift in Sources */,
 				72785625A74ABBE47CCFCBE1 /* AutopilotConsentSheet.swift in Sources */,
@@ -771,6 +776,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B403E3C02CDF91ED471FA03C /* AppGroupStore.swift in Sources */,
 				ACFE9828B1163E4E7F2BC6C2 /* BillingCalculator.swift in Sources */,
 				3862E57C14A41C6C2BD2CE8E /* Constants.swift in Sources */,
 				34ABE7BF700D089EDC95A7A9 /* CurrencyFormatter.swift in Sources */,

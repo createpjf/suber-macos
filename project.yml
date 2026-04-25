@@ -47,6 +47,10 @@ targets:
       - path: Sources/Models/Settings.swift
       - path: Sources/Services/BillingCalculator.swift
       - path: Sources/Utilities/CurrencyFormatter.swift
+      # v1.6.2: AppGroupStore replaces UserDefaults(suiteName:) for app-group
+      # data sharing — see that file's header for the macOS 26.4 cfprefsd
+      # regression. Widget needs to read what main app writes.
+      - path: Sources/Services/AppGroupStore.swift
       # v1.7: IMAP types are referenced by Settings.swift (AutopilotSettings.imapAccount
       # field). Widget never instantiates them — they're just data — but the Codable +
       # Equatable synthesis on AutopilotSettings needs the types in scope.

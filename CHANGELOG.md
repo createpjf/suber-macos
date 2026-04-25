@@ -2,9 +2,48 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
-## [1.6.1] — 2026-04-25 — Fix launch-time permission prompt on macOS Sequoia/Tahoe
+## [1.6.2] — 2026-04-25 — Fix the actual launch-time permission prompt on macOS Tahoe
+
+v1.6.1 misdiagnosed the macOS 26.4 (Tahoe) "Suber.app would like to access data from other apps" prompt as the Apple Events temporary-exception entitlement. Removing that was correct cleanup but not the root cause — the prompt still fires on v1.6.1.
+
+Real root cause, found by reading the live system log on a stuck v1.6.1 install:
+
+```
+[User Defaults] Couldn't read values in CFPrefsPlistSource
+  (Domain: group.com.suber.app, User: kCFPreferencesAnyUser, ...):
+  Using kCFPreferencesAnyUser with a container is only allowed for
+  System Containers, detaching from cfprefsd
+[TCC] AUTHREQ_PROMPTING: service=kTCCServiceSystemPolicyAppData,
+  subject=com.suber.app
+```
+
+macOS 26.4 tightened cfprefsd: `UserDefaults(suiteName: "group.com.suber.app")` can no longer use `kCFPreferencesAnyUser` for non-system containers. cfprefsd detaches, UserDefaults falls back to a path the OS classifies as "cross-app data access," and `kTCCServiceSystemPolicyAppData` fires — that's the prompt. Combined with the menu-bar popover sitting on top of the system dialog, the UI looks frozen because the user can't reach the Allow / Don't Allow buttons.
+
+### Fixed
+- New `Sources/Services/AppGroupStore.swift` — file-based read/write to the app-group container via `FileManager.containerURL(forSecurityApplicationGroupIdentifier:)`. Bypasses cfprefsd entirely, so the kCFPreferencesAnyUser regression no longer applies and `kTCCServiceSystemPolicyAppData` is never requested.
+- All 5 main-app call sites of `UserDefaults(suiteName: "group.com.suber.app")` migrated:
+  - `StorageService` (subscriptions, settings, change log) → `AppGroupStore`
+  - `ExchangeRateService` (rates cache, last-updated timestamp) → `AppGroupStore`
+  - `SubscriptionStore.mergeRemoteChanges` (iCloud sync write-back) → `AppGroupStore`
+  - `MailWatchdog` (scan cursors, lastScanDate) → `UserDefaults.standard` (own-bundle prefs; widget doesn't read these)
+  - `AutopilotFlags` (UI state flags) → `UserDefaults.standard` (widget doesn't read these)
+- `SuberWidget/WidgetDataProvider` migrated to read via the same `AppGroupStore` (file added to `SuberWidget` target via `project.yml`). Widget continues to display upcoming subscriptions and monthly spend; the read path just changes from cfprefsd to filesystem.
+- Test fixtures updated to clear both `AppGroupStore` and legacy `UserDefaults(suiteName:)` between tests.
+
+### Notes
+- **Settings, subscriptions, and change-log data on existing v1.6.0/v1.6.1 installs:** persisted to the UserDefaults app-group store. v1.6.2 reads from `AppGroupStore` (file path) and won't see the old data on first launch. iCloud sync (NSUbiquitousKeyValueStore) re-populates subscriptions and settings on first launch if the user has sync enabled. Users without iCloud sync will see an empty state and need to re-enter (one-time). Trade-off accepted to ship the fix immediately on macOS Tahoe.
+- The `com.apple.security.application-groups` entitlement stays — it's still required for the widget to share container data with the main app. The OS-level prompt was never about the entitlement itself; it was about the access pattern UserDefaults(suiteName:) used.
+
+### Engineering
+- 184/184 tests green after migration.
+
+---
+
+## [1.6.1] — 2026-04-25 — Fix launch-time permission prompt on macOS Sequoia/Tahoe (incomplete fix)
 
 Same-day patch for v1.6.0. Users on macOS 15+ saw an unexpected "Suber.app would like to access data from other apps" system prompt the first time they opened the app — even before they'd toggled Watch Apple Mail on. The popover-vs-system-dialog z-order made it look like the app was stuck.
+
+**This release misdiagnosed the trigger.** The Apple Events entitlement removal was correct cleanup but not the root cause; v1.6.2 has the real fix. v1.6.1 users will still see the prompt on macOS 26.4.
 
 ### Fixed
 - Removed the `com.apple.security.temporary-exception.apple-events` entitlement scoped to `com.apple.mail`. This entitlement is sandbox-only — it lets a sandboxed app bypass its sandbox to send Apple Events to a specific target. Suber is **not** sandboxed (Developer ID, no `com.apple.security.app-sandbox` entitlement), so it was dead weight that did nothing functionally. macOS Sequoia / Tahoe added a proactive "this app declares Apple Events control" launch-time prompt that fires for every app declaring this entitlement, regardless of whether the entitlement actually does anything for that app. Removing it eliminates the bonus prompt.

@@ -348,8 +348,10 @@ final class SubscriptionStore: ObservableObject {
         changes.append(contentsOf: fresh)
         // Don't re-push: the remote already has its own copy. Just persist
         // locally so next app launch sees the merged state.
+        // v1.6.2: file-based via AppGroupStore (see that file's header for
+        // the macOS 26.4 cfprefsd regression context).
         if let data = try? JSONEncoder.suberEncoder.encode(changes) {
-            UserDefaults(suiteName: "group.com.suber.app")?.set(data, forKey: "suber-changes")
+            AppGroupStore.set(data, forKey: "suber-changes")
         }
     }
 }

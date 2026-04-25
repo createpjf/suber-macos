@@ -4,10 +4,16 @@ import XCTest
 final class StorageServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
-        // Clear test data from both standard and App Group defaults
-        let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-settings")
+        // v1.6.2: StorageService persists via AppGroupStore (file-based) now.
+        // Clear test data from BOTH the new file path AND legacy
+        // UserDefaults so a test machine's pre-migration leftovers don't
+        // contaminate fresh-state assertions like testLoadEmptyReturnsDefaults.
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-settings")
+        AppGroupStore.removeObject(forKey: "suber-changes")
+        let legacyDefaults = UserDefaults(suiteName: "group.com.suber.app")
+        legacyDefaults?.removeObject(forKey: "suber-subscriptions")
+        legacyDefaults?.removeObject(forKey: "suber-settings")
         UserDefaults.standard.removeObject(forKey: "suber-subscriptions")
         UserDefaults.standard.removeObject(forKey: "suber-settings")
     }
