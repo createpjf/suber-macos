@@ -8,12 +8,19 @@
 	<array>
 		<string>group.com.suber.app</string>
 	</array>
-	<!-- v1.6.0 Mail Watchdog: scoped Apple Events access to Mail.app only.
-	     User additionally sees the macOS TCC prompt when MailWatchdog.connectAppleMail()
-	     fires osascript for the first time. -->
-	<key>com.apple.security.temporary-exception.apple-events</key>
-	<array>
-		<string>com.apple.mail</string>
-	</array>
+	<!-- v1.6.1: REMOVED `com.apple.security.temporary-exception.apple-events`.
+	     This entitlement is sandbox-only — it lets a sandboxed app bypass the
+	     sandbox to send Apple Events to a specific target. Suber is NOT
+	     sandboxed (Developer-ID, no `com.apple.security.app-sandbox`), so the
+	     entitlement was dead weight. Worse: on macOS Sequoia/Tahoe (15+),
+	     declaring it triggers a launch-time "Suber would like to access data
+	     from other apps" prompt before the user has even toggled Watch ON,
+	     because the OS warns proactively about apps that DECLARE Apple-Events
+	     control of other apps regardless of whether they actually use it.
+
+	     The standard TCC prompt for Mail control still fires the first time
+	     MailWatchdog.connectAppleMail() spawns osascript — gated by
+	     NSAppleEventsUsageDescription in Info.plist. The user-visible flow
+	     is unchanged from v1.6.0 except the launch-time bonus prompt is gone. -->
 </dict>
 </plist>

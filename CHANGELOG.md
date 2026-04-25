@@ -2,6 +2,20 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.6.1] — 2026-04-25 — Fix launch-time permission prompt on macOS Sequoia/Tahoe
+
+Same-day patch for v1.6.0. Users on macOS 15+ saw an unexpected "Suber.app would like to access data from other apps" system prompt the first time they opened the app — even before they'd toggled Watch Apple Mail on. The popover-vs-system-dialog z-order made it look like the app was stuck.
+
+### Fixed
+- Removed the `com.apple.security.temporary-exception.apple-events` entitlement scoped to `com.apple.mail`. This entitlement is sandbox-only — it lets a sandboxed app bypass its sandbox to send Apple Events to a specific target. Suber is **not** sandboxed (Developer ID, no `com.apple.security.app-sandbox` entitlement), so it was dead weight that did nothing functionally. macOS Sequoia / Tahoe added a proactive "this app declares Apple Events control" launch-time prompt that fires for every app declaring this entitlement, regardless of whether the entitlement actually does anything for that app. Removing it eliminates the bonus prompt.
+- The standard "Suber wants to control Mail" TCC permission flow is unchanged. It still fires the first time the user toggles Watch Apple Mail ON, gated by `NSAppleEventsUsageDescription` in Info.plist. No regression in Mail Watchdog functionality.
+
+### Notes for v1.6.0 upgraders
+- If you'd already clicked Allow on the v1.6.0 launch-time prompt, your TCC permissions carry forward. Watchdog continues to work without re-prompting.
+- If you'd clicked Don't Allow, install v1.6.1 and the prompt simply won't return on launch. The standard Mail-control prompt will fire normally when you turn Watch Apple Mail on.
+
+---
+
 ## [1.6.0] — 2026-04-25 — **Autopilot**
 
 The first release where Suber works in the background. Three features ship together as **Autopilot — Watch · Sense · Act**, plus the app speaks 简体中文 alongside English from this version on.
