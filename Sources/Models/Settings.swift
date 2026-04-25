@@ -57,9 +57,35 @@ struct AutopilotSettings: Codable, Equatable {
     /// the TCC permission prompt via MailWatchdog.connectAppleMail().
     var watchAppleMail: Bool = false
 
+    /// v1.7 (post-v1.6): direct IMAP account for users who don't use Mail.app.
+    /// Single account in v1; multi-account is v1.7.1 candidate. Coexists with
+    /// `watchAppleMail`: composite bridge fans out to BOTH sources and merges
+    /// results. App Password lives in Keychain (NEVER syncs via iCloud KVS),
+    /// only the public config (provider/email/host/port) syncs.
+    var imapAccount: IMAPAccount?
+
     // "Alert me about" toggles. What the Change Sentinel surfaces to the user.
     var alertOnPriceChanges: Bool = true
     var alertOnNewSubscriptions: Bool = true
     /// Default OFF per D6 — "can be noisy; leave off unless you've seen dupes."
     var alertOnDuplicates: Bool = false
+
+    enum CodingKeys: String, CodingKey {
+        case watchAppleMail, imapAccount
+        case alertOnPriceChanges, alertOnNewSubscriptions, alertOnDuplicates
+    }
+
+    init() {}
+
+    /// Forward-compat decoder: v1.6.0 payloads (no imapAccount field) decode
+    /// cleanly with imapAccount = nil. v1.5 payloads (no autopilot block at all)
+    /// already get default-AutopilotSettings via AppSettings.init(from:).
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        watchAppleMail = try c.decodeIfPresent(Bool.self, forKey: .watchAppleMail) ?? false
+        imapAccount = try c.decodeIfPresent(IMAPAccount.self, forKey: .imapAccount)
+        alertOnPriceChanges = try c.decodeIfPresent(Bool.self, forKey: .alertOnPriceChanges) ?? true
+        alertOnNewSubscriptions = try c.decodeIfPresent(Bool.self, forKey: .alertOnNewSubscriptions) ?? true
+        alertOnDuplicates = try c.decodeIfPresent(Bool.self, forKey: .alertOnDuplicates) ?? false
+    }
 }

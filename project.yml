@@ -47,6 +47,11 @@ targets:
       - path: Sources/Models/Settings.swift
       - path: Sources/Services/BillingCalculator.swift
       - path: Sources/Utilities/CurrencyFormatter.swift
+      # v1.7: IMAP types are referenced by Settings.swift (AutopilotSettings.imapAccount
+      # field). Widget never instantiates them — they're just data — but the Codable +
+      # Equatable synthesis on AutopilotSettings needs the types in scope.
+      - path: Sources/Services/MailWatchdog/IMAPProvider.swift
+      - path: Sources/Services/MailWatchdog/IMAPAccount.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app.widget

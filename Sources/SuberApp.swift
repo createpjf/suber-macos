@@ -36,6 +36,7 @@ struct SuberApp: App {
                 mailWatchdog: mailWatchdog,
                 setupCloudSync: setupCloudSync,
                 setupWatchdog: setupWatchdog,
+                rebuildBridge: { mailWatchdog.setBridge(buildBridge()) },
                 handleURL: handleURL
             )
         } label: {
@@ -61,11 +62,31 @@ struct SuberApp: App {
 
     // MARK: - Watchdog wiring (v1.6 Sentinel loop)
 
+    /// Build the active bridge from current settings. v1.7 IMAP support:
+    /// composes [AppleMailBridge?, GenericIMAPBridge?] into a CompositeMailBridge
+    /// so MailWatchdog sees ONE bridge regardless of how many sources the
+    /// user has configured. Apple Mail is always included (Watch toggle
+    /// gates whether scans actually use it inside ChangeDetector flow);
+    /// GenericIMAPBridge is added only if the user configured an IMAP
+    /// account in Settings → Autopilot.
+    private func buildBridge() -> MailBridge {
+        var bridges: [MailBridge] = [AppleMailBridge()]
+        if let account = settingsStore.settings.autopilot.imapAccount {
+            bridges.append(GenericIMAPBridge(account: account))
+        }
+        return bridges.count == 1 ? bridges[0] : CompositeMailBridge(bridges: bridges)
+    }
+
     /// Called from MenuBarContainerView.onAppear (once per app launch).
     /// Wires the onScanComplete callback so scans route through the Sentinel
     /// loop: recordAndPersist (dedup + prune) → grouped notification → badge.
     /// Also restarts the daily scheduler if Watch is enabled.
     private func setupWatchdog() {
+        // v1.7 IMAP: build the initial bridge composition from settings.
+        // Subscribe to settings changes to rebuild whenever the user adds
+        // or removes an IMAP account (so the swap takes effect without
+        // an app restart).
+        mailWatchdog.setBridge(buildBridge())
         // The callback captures subscriptionStore + settings by reference.
         // Runs on MainActor because MailWatchdog is MainActor-isolated.
         mailWatchdog.loadExistingSubscriptions = { [weak subscriptionStore] in
@@ -219,9 +240,16 @@ private struct MenuBarContainerView: View {
     let mailWatchdog: MailWatchdog
     let setupCloudSync: () -> Void
     let setupWatchdog: () -> Void
+    /// v1.7 IMAP: rebuilds the MailBridge composition when settings change.
+    /// Called from .onReceive when imapAccount adds/removes; passes the new
+    /// bridge to MailWatchdog.setBridge() so the next scan picks it up.
+    let rebuildBridge: () -> Void
     let handleURL: (URL, OpenWindowAction) -> Void
 
     @Environment(\.openWindow) private var openWindow
+    /// Track the previous imapAccount so we only rebuild on actual transitions
+    /// (not every settings tweak).
+    @State private var lastIMAPAccountID: String?
 
     var body: some View {
         MenuBarView()
@@ -236,6 +264,7 @@ private struct MenuBarContainerView: View {
             .onAppear {
                 setupCloudSync()
                 setupWatchdog()
+                lastIMAPAccountID = settingsStore.settings.autopilot.imapAccount?.id
                 Task { await ExchangeRateService.shared.refreshIfNeeded() }
             }
             .onOpenURL { url in handleURL(url, openWindow) }
@@ -244,6 +273,14 @@ private struct MenuBarContainerView: View {
                     CloudSyncService.shared.startSync()
                 } else {
                     CloudSyncService.shared.stopSync()
+                }
+                // v1.7: rebuild the MailBridge composition if the IMAP
+                // account membership changed (added, removed, or swapped
+                // for a different one).
+                let newID = settings.autopilot.imapAccount?.id
+                if newID != lastIMAPAccountID {
+                    lastIMAPAccountID = newID
+                    rebuildBridge()
                 }
             }
     }

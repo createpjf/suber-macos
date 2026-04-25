@@ -64,7 +64,10 @@ final class MailWatchdog: ObservableObject {
 
     // MARK: - Dependencies (injected)
 
-    private let bridge: MailBridge
+    /// Swappable so the SuberApp wiring layer can rebuild a CompositeMailBridge
+    /// when the user adds/removes an IMAP account, without tearing down the
+    /// MailWatchdog @StateObject instance.
+    private var bridge: MailBridge
     private let defaults: UserDefaults
 
     /// Called on a successful scan. Owner (SuberApp) uses this to:
@@ -107,6 +110,14 @@ final class MailWatchdog: ObservableObject {
            raw > 0 {
             self.lastCompletedAt = Date(timeIntervalSince1970: raw)
         }
+    }
+
+    /// Replace the active bridge. SuberApp calls this when the user adds/removes
+    /// an IMAP account so the next scan picks up the new composition without
+    /// requiring an app restart. Safe to call mid-session; existing scan tasks
+    /// (if any) finish against the old bridge before the swap takes effect.
+    func setBridge(_ newBridge: MailBridge) {
+        self.bridge = newBridge
     }
 
     // MARK: - First-run path

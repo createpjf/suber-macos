@@ -32,8 +32,10 @@
 		34ADF1397FF485789C90DD2C /* SubscriptionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C0C0FFD8CE4F90A25285E2 /* SubscriptionStoreTests.swift */; };
 		3862E57C14A41C6C2BD2CE8E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A7AC8CC1CD0227DFA53914 /* Constants.swift */; };
 		3A2BF3BEE84D0FD7CAC4DCA8 /* MailWatchdog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3EF60CEE41FB8E2131FA2A /* MailWatchdog.swift */; };
+		3A7C1FF1C1628CBB869A4C49 /* IMAPAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */; };
 		3E6ED4C05077BFBB32B4BCEF /* EmailParseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678AF1F6B7A12245A7CFFA3F /* EmailParseView.swift */; };
 		3F94AE230B7822CA5FFCF051 /* WechatFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B6D109BF2E9C8E46FD4D9F /* WechatFormat.swift */; };
+		40232C51EE6B6EFDBC274BD4 /* IMAPAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */; };
 		4122F89E76234D4B21FA2D15 /* FilterBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5069CDAF60C8F38A4BE7A35F /* FilterBarView.swift */; };
 		41B379BEEFDC480C8CFD51EE /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95E1E8A0A8A918AEE314F47 /* Settings.swift */; };
 		4D0497DB013B20EE9B037FAE /* MailSubscriptionExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A780748A5409A58B8D1BEA5 /* MailSubscriptionExtractorTests.swift */; };
@@ -69,9 +71,12 @@
 		8655B0DC5E55869CAA1BAA4E /* BannerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1E821D6971485CE4FBFD93 /* BannerCoordinatorTests.swift */; };
 		87791A9426C296FE605F75F7 /* NotificationServiceGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACE89D6AEAA19D0A333A93AE /* NotificationServiceGroupingTests.swift */; };
 		8A118204837604BFB85A7200 /* StatementFormatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 710C8C5B7EB986709456F2BA /* StatementFormatTests.swift */; };
+		8D97ED4EC14347B7BB223E5D /* IMAPAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D28C83FE3B25F940423559C /* IMAPAccountSheet.swift */; };
 		8DA21033FB13A668B59F7FBA /* AnnualCost.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEAC8B5E77F4D2620E811E8A /* AnnualCost.swift */; };
+		8DB65FA910912C7306716DDB /* IMAPProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E1CAAF04A7EFB52FBC9BAC /* IMAPProvider.swift */; };
 		8F59FD8D1B742E68B3B14E52 /* RecurringChargeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A74AD0B9C94424581D207AE7 /* RecurringChargeDetectorTests.swift */; };
 		914B0934A5941B6EC284714D /* SpaceGrotesk-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 74559F651ECA00C1B694267B /* SpaceGrotesk-Bold.ttf */; };
+		92C3A1155EC5018E5A01EC7E /* CompositeMailBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A46006E6A7CE376515A75 /* CompositeMailBridge.swift */; };
 		931D7C89FFEBCFA63CC761C7 /* MailWatchdogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0549283494AC1A1D1AA75CFD /* MailWatchdogTests.swift */; };
 		93A1553751A0FC61ABA38397 /* AutopilotFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75578260382F26AFEB2A56EF /* AutopilotFlags.swift */; };
 		94A48FF6C12519A6A8177E26 /* AnnualCostTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F7EE119E0CFF9BFE44A265 /* AnnualCostTests.swift */; };
@@ -92,17 +97,21 @@
 		B0886311D6E746360DDBD6D0 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC79AF98975C727773BF90D /* SettingsStore.swift */; };
 		B0C5EA6829D03FDA74743D2B /* DayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0B4CDE42E62D9BD25837E8 /* DayDetailView.swift */; };
 		B12D8F203EB487BD7B368352 /* ImportWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDA2B04E110F3934DD3DA1D /* ImportWindowView.swift */; };
+		B1E3E27C3941602509CB483D /* GenericIMAPBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F05BB0B47D4EBC87A69FC6 /* GenericIMAPBridge.swift */; };
 		B23BA62822953FE092ADCE44 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A512477B345143864C5A965 /* DashboardViewModel.swift */; };
+		B26EBBA887CA22B0E7677C07 /* IMAPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A43CCBC3C62AE998DBF20 /* IMAPClient.swift */; };
 		B342A78C8D455F9A251A827C /* SpaceGrotesk-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B164702B8BBDB3C53F4A508C /* SpaceGrotesk-Light.ttf */; };
 		B53903E38AAA2813CD8C0F33 /* AppleMailBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FBE138F15A7A99F79E9897 /* AppleMailBridge.swift */; };
 		B687EFB47F6319B2381BF188 /* SpaceGrotesk-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EB1223103BFC8FB8758674A1 /* SpaceGrotesk-Regular.ttf */; };
 		B953B2DBA9DA4E716BE44676 /* GenericFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A357FF4A3DB412696F03934 /* GenericFormat.swift */; };
 		B9F6949EFA6CE7BAD07E973E /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95E1E8A0A8A918AEE314F47 /* Settings.swift */; };
 		BA307A2402DF93588B40BCAE /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17945992911E41D26F5E5AD9 /* MenuBarView.swift */; };
+		BB7D7AFD4FA91243E8FDD174 /* IMAPBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B21B26BD686A93391FA814 /* IMAPBridgeTests.swift */; };
 		BB99E3E20950FE60CF22D4BE /* MailSubscriptionExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D132E690B69FBA4D1BDBA159 /* MailSubscriptionExtractor.swift */; };
 		BCC922CABD01E72950A8E9F6 /* OneTapCancelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D842E31CE4535E1149BAFC0 /* OneTapCancelService.swift */; };
 		C36A70975270B8C071BF9B1F /* LogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764FF5CAD135727ADA6AB331 /* LogoView.swift */; };
 		CBBB981AD8890CA2E4803ED5 /* AddSubscriptionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEA595179B4649C16DFFF52 /* AddSubscriptionIntent.swift */; };
+		D374AB9D4C3C94C82D60A844 /* IMAPProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E1CAAF04A7EFB52FBC9BAC /* IMAPProvider.swift */; };
 		D84F1BEF23B1AAFD31A0B072 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F222D3227042408ED0A4BE33 /* StorageService.swift */; };
 		DB02F5F160A811070D1DD337 /* URLSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9494532546525F7E5D6BB7B1 /* URLSchemeHandler.swift */; };
 		E2FA681D88A75FF12258C9AC /* LocalizationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBDA04692F6565D7250F5D0F /* LocalizationCatalogTests.swift */; };
@@ -165,15 +174,20 @@
 		18065EDD0D3D7EE36F35A9E8 /* AutopilotSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutopilotSettingsSection.swift; sourceTree = "<group>"; };
 		183A814B71ED77466457F6AF /* ImportPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPresenter.swift; sourceTree = "<group>"; };
 		1940BFFEDDC7D2FB96D14DF0 /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
+		1F5A43CCBC3C62AE998DBF20 /* IMAPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPClient.swift; sourceTree = "<group>"; };
+		229A46006E6A7CE376515A75 /* CompositeMailBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeMailBridge.swift; sourceTree = "<group>"; };
+		23B21B26BD686A93391FA814 /* IMAPBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPBridgeTests.swift; sourceTree = "<group>"; };
 		2411E068CF7C174BBCD0B2AF /* CancellationSuccessBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellationSuccessBanner.swift; sourceTree = "<group>"; };
 		2D83DC4E345DBAD3FCB44EBC /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		37092FCF2F9AFAF9DD8051FF /* FirstCatchBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstCatchBanner.swift; sourceTree = "<group>"; };
 		383426E9B3D27CA01CACD7C8 /* AlipayFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlipayFormat.swift; sourceTree = "<group>"; };
 		396C1DAB6F51C22A3FFB3E1A /* MultiSubscriptionParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSubscriptionParserTests.swift; sourceTree = "<group>"; };
+		3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPAccount.swift; sourceTree = "<group>"; };
 		3E0C166E400D17559CF1D82E /* WidgetDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataProvider.swift; sourceTree = "<group>"; };
 		3FE0E4BA6BFD2B8C8A6E2982 /* SubscriptionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStore.swift; sourceTree = "<group>"; };
 		4210FB5560508690B7ACA8A4 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		42FE36E9302209D4C1E2EEBC /* BannerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerCoordinator.swift; sourceTree = "<group>"; };
+		44F05BB0B47D4EBC87A69FC6 /* GenericIMAPBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericIMAPBridge.swift; sourceTree = "<group>"; };
 		470AE0DA2DA2C0B07A1F38DD /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		471DEC9907484DA03DB63E07 /* WindowActivationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowActivationCoordinator.swift; sourceTree = "<group>"; };
 		4A780748A5409A58B8D1BEA5 /* MailSubscriptionExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSubscriptionExtractorTests.swift; sourceTree = "<group>"; };
@@ -185,6 +199,7 @@
 		58AFAFCE33C8D26875CDE9D1 /* ChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeDetector.swift; sourceTree = "<group>"; };
 		58CE8ED2533C6CCB4B15C2D1 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
 		594CF40103D1C97D41305BD8 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		5D28C83FE3B25F940423559C /* IMAPAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPAccountSheet.swift; sourceTree = "<group>"; };
 		5DC55B06AF3867C980C14606 /* SmallSpendWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallSpendWidget.swift; sourceTree = "<group>"; };
 		5FE2031B0FC251517244D5F0 /* BillingCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingCalculatorTests.swift; sourceTree = "<group>"; };
 		610ECBE70A09B5EE4BCA90B5 /* AutopilotBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutopilotBannerView.swift; sourceTree = "<group>"; };
@@ -234,6 +249,7 @@
 		C0E563FB584E7EFA2E26DB8F /* ChangeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeRowView.swift; sourceTree = "<group>"; };
 		C2B6D109BF2E9C8E46FD4D9F /* WechatFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WechatFormat.swift; sourceTree = "<group>"; };
 		C2FD05C46F250AA34B65EDCE /* GetSpendIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetSpendIntent.swift; sourceTree = "<group>"; };
+		C4E1CAAF04A7EFB52FBC9BAC /* IMAPProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPProvider.swift; sourceTree = "<group>"; };
 		C52C9C7D711B0DD8A72A4EBC /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarView.swift; sourceTree = "<group>"; };
 		C710E69D775063187F3F0D25 /* RecurringChargeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringChargeDetector.swift; sourceTree = "<group>"; };
 		CA7D04C3E47C8D540466D741 /* CalendarDayCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayCellView.swift; sourceTree = "<group>"; };
@@ -266,6 +282,11 @@
 			isa = PBXGroup;
 			children = (
 				F9FBE138F15A7A99F79E9897 /* AppleMailBridge.swift */,
+				229A46006E6A7CE376515A75 /* CompositeMailBridge.swift */,
+				44F05BB0B47D4EBC87A69FC6 /* GenericIMAPBridge.swift */,
+				3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */,
+				1F5A43CCBC3C62AE998DBF20 /* IMAPClient.swift */,
+				C4E1CAAF04A7EFB52FBC9BAC /* IMAPProvider.swift */,
 				925BFC4914A32B15DD40AC88 /* MailBridge.swift */,
 				D132E690B69FBA4D1BDBA159 /* MailSubscriptionExtractor.swift */,
 				6E3EF60CEE41FB8E2131FA2A /* MailWatchdog.swift */,
@@ -282,6 +303,7 @@
 				AB1E821D6971485CE4FBFD93 /* BannerCoordinatorTests.swift */,
 				5FE2031B0FC251517244D5F0 /* BillingCalculatorTests.swift */,
 				0BE5C05E9D254535707B4688 /* ChangeDetectorTests.swift */,
+				23B21B26BD686A93391FA814 /* IMAPBridgeTests.swift */,
 				DBDA04692F6565D7250F5D0F /* LocalizationCatalogTests.swift */,
 				4A780748A5409A58B8D1BEA5 /* MailSubscriptionExtractorTests.swift */,
 				0549283494AC1A1D1AA75CFD /* MailWatchdogTests.swift */,
@@ -493,6 +515,7 @@
 				C0E563FB584E7EFA2E26DB8F /* ChangeRowView.swift */,
 				9E55FD97394E1272EA68BD1B /* ChangesListView.swift */,
 				37092FCF2F9AFAF9DD8051FF /* FirstCatchBanner.swift */,
+				5D28C83FE3B25F940423559C /* IMAPAccountSheet.swift */,
 				A49ECA3983F3B01D7035FD44 /* MenuBarBadgeView.swift */,
 				8C481B2B5AAE8544299D2485 /* PendingCancellationIndicator.swift */,
 				6B707619D73A06E718A123EE /* SinceYouWereAwayBanner.swift */,
@@ -654,6 +677,7 @@
 				232DE77BA2995E6008A4C385 /* ChangeRowView.swift in Sources */,
 				0DFCE195BD1B46BAB7C8F8D7 /* ChangesListView.swift in Sources */,
 				65D393B749FEFB0A0F356F8E /* CloudSyncService.swift in Sources */,
+				92C3A1155EC5018E5A01EC7E /* CompositeMailBridge.swift in Sources */,
 				7CB2C3251CE4F1EAAC68B39D /* Constants.swift in Sources */,
 				02726321F61517F6D33C5396 /* CurrencyFormatter.swift in Sources */,
 				25C58D28202228CAE8703633 /* DashboardView.swift in Sources */,
@@ -665,7 +689,12 @@
 				4122F89E76234D4B21FA2D15 /* FilterBarView.swift in Sources */,
 				298698B0728870668994307F /* FirstCatchBanner.swift in Sources */,
 				B953B2DBA9DA4E716BE44676 /* GenericFormat.swift in Sources */,
+				B1E3E27C3941602509CB483D /* GenericIMAPBridge.swift in Sources */,
 				FDD396EF7D7047E4B8BA8F64 /* GetSpendIntent.swift in Sources */,
+				40232C51EE6B6EFDBC274BD4 /* IMAPAccount.swift in Sources */,
+				8D97ED4EC14347B7BB223E5D /* IMAPAccountSheet.swift in Sources */,
+				B26EBBA887CA22B0E7677C07 /* IMAPClient.swift in Sources */,
+				D374AB9D4C3C94C82D60A844 /* IMAPProvider.swift in Sources */,
 				F652D608B4F8FA4F455831BB /* ImageCache.swift in Sources */,
 				31184A543C3D8C6CB6BF998C /* ImageDropZoneView.swift in Sources */,
 				045525EB96DE2C44F5557513 /* ImageRecognitionService.swift in Sources */,
@@ -721,6 +750,7 @@
 				8655B0DC5E55869CAA1BAA4E /* BannerCoordinatorTests.swift in Sources */,
 				6171C5B8DB5487C757F4707E /* BillingCalculatorTests.swift in Sources */,
 				7728286EBDE4BF7C0BCA2771 /* ChangeDetectorTests.swift in Sources */,
+				BB7D7AFD4FA91243E8FDD174 /* IMAPBridgeTests.swift in Sources */,
 				E2FA681D88A75FF12258C9AC /* LocalizationCatalogTests.swift in Sources */,
 				4D0497DB013B20EE9B037FAE /* MailSubscriptionExtractorTests.swift in Sources */,
 				931D7C89FFEBCFA63CC761C7 /* MailWatchdogTests.swift in Sources */,
@@ -744,6 +774,8 @@
 				ACFE9828B1163E4E7F2BC6C2 /* BillingCalculator.swift in Sources */,
 				3862E57C14A41C6C2BD2CE8E /* Constants.swift in Sources */,
 				34ABE7BF700D089EDC95A7A9 /* CurrencyFormatter.swift in Sources */,
+				3A7C1FF1C1628CBB869A4C49 /* IMAPAccount.swift in Sources */,
+				8DB65FA910912C7306716DDB /* IMAPProvider.swift in Sources */,
 				E7398E8B77F4D1B31443D44D /* MediumUpcomingWidget.swift in Sources */,
 				41B379BEEFDC480C8CFD51EE /* Settings.swift in Sources */,
 				7F5126E1986CCCFBC5CAAC78 /* SmallSpendWidget.swift in Sources */,

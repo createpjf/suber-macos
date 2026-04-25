@@ -26,6 +26,9 @@ struct AutopilotSettingsSection: View {
     @EnvironmentObject var watchdog: MailWatchdog
 
     @State private var showConsentSheet = false
+    /// v1.7 IMAP: state for the add/edit account modal.
+    @State private var showIMAPSheet = false
+    @State private var imapAccountBeingEdited: IMAPAccount?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -74,7 +77,26 @@ struct AutopilotSettingsSection: View {
 
             Divider().background(Theme.border)
 
-            // MARK: Group 2 — Alert me about (behavior)
+            // MARK: Group 2 — Other email accounts (IMAP, v1.7)
+
+            groupHeader("Other email accounts")
+
+            VStack(alignment: .leading, spacing: 10) {
+                if let account = settingsStore.settings.autopilot.imapAccount {
+                    imapAccountRow(account)
+                } else {
+                    addIMAPAccountButton
+                }
+
+                Text("Connect Gmail, Outlook, Yahoo, Fastmail, or any IMAP server directly. Useful when the account isn't in macOS Mail.app, or you don't run Mail.app at all. App password lives in your local Keychain.")
+                    .font(AppFont.regular(11))
+                    .foregroundColor(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Divider().background(Theme.border)
+
+            // MARK: Group 3 — Alert me about (behavior)
 
             groupHeader("Alert me about")
 
@@ -128,6 +150,84 @@ struct AutopilotSettingsSection: View {
                 }
             )
         }
+        // v1.7 IMAP: add/edit account modal.
+        .sheet(isPresented: $showIMAPSheet) {
+            IMAPAccountSheet(
+                existing: imapAccountBeingEdited,
+                onSave: { account, password in
+                    // Save credential to Keychain FIRST so the bridge has it
+                    // before settings.imapAccount triggers the rebuild.
+                    IMAPCredentialStore.save(password: password, for: account.email)
+                    settingsStore.update { $0.autopilot.imapAccount = account }
+                    showIMAPSheet = false
+                    imapAccountBeingEdited = nil
+                },
+                onCancel: {
+                    showIMAPSheet = false
+                    imapAccountBeingEdited = nil
+                }
+            )
+        }
+    }
+
+    // MARK: - IMAP UI helpers (v1.7)
+
+    @ViewBuilder
+    private var addIMAPAccountButton: some View {
+        Button {
+            imapAccountBeingEdited = nil
+            showIMAPSheet = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "plus.circle")
+                Text("Add IMAP account…")
+            }
+            .font(AppFont.regular(12))
+            .foregroundColor(Theme.accent)
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func imapAccountRow(_ account: IMAPAccount) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "envelope.arrow.triangle.branch")
+                .font(.system(size: 16))
+                .foregroundColor(Theme.accent)
+                .frame(width: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(account.displayName)
+                    .font(AppFont.medium(12))
+                    .foregroundColor(Theme.textPrimary)
+                Text("\(account.host):\(String(account.port))")
+                    .font(AppFont.regular(10))
+                    .foregroundColor(Theme.textSecondary)
+            }
+
+            Spacer()
+
+            Button("Edit") {
+                imapAccountBeingEdited = account
+                showIMAPSheet = true
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+
+            Button {
+                IMAPCredentialStore.delete(email: account.email)
+                settingsStore.update { $0.autopilot.imapAccount = nil }
+            } label: {
+                Image(systemName: "trash")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help("Remove account and delete password from Keychain")
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 6).fill(Theme.bgCell)
+        )
     }
 
     // MARK: - Toggle handler

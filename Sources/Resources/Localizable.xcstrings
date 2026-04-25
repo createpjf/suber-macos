@@ -231,6 +231,246 @@
       }
     },
 
+    "Other email accounts" : {
+      "comment" : "v1.7 Settings Autopilot group 2 header (IMAP accounts).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他邮箱账号"
+          }
+        }
+      }
+    },
+
+    "Add IMAP account…" : {
+      "comment" : "v1.7 button to open the add-IMAP-account sheet.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 IMAP 账号…"
+          }
+        }
+      }
+    },
+
+    "Connect Gmail, Outlook, Yahoo, Fastmail, or any IMAP server directly. Useful when the account isn't in macOS Mail.app, or you don't run Mail.app at all. App password lives in your local Keychain." : {
+      "comment" : "v1.7 IMAP section helper text.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接连接 Gmail、Outlook、Yahoo、Fastmail 或任何 IMAP 服务器。适用于账号不在 macOS Mail.app 中,或你根本不用 Mail.app 的场景。App password 存放在本机 Keychain 中。"
+          }
+        }
+      }
+    },
+
+    "Add IMAP account" : {
+      "comment" : "v1.7 IMAP add-account sheet title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 IMAP 账号"
+          }
+        }
+      }
+    },
+
+    "Edit IMAP account" : {
+      "comment" : "v1.7 IMAP edit-account sheet title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑 IMAP 账号"
+          }
+        }
+      }
+    },
+
+    "Suber connects directly via IMAP — useful when you don't run macOS Mail.app, or have an account that's not in Mail." : {
+      "comment" : "v1.7 IMAP add-account sheet subtitle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 通过 IMAP 直接连接 —— 适用于你不用 macOS Mail.app,或某个账号没加在 Mail.app 里的情况。"
+          }
+        }
+      }
+    },
+
+    "Provider" : {
+      "comment" : "v1.7 IMAP add-account sheet field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务商"
+          }
+        }
+      }
+    },
+
+    "Email" : {
+      "comment" : "v1.7 IMAP add-account sheet field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮箱"
+          }
+        }
+      }
+    },
+
+    "App password" : {
+      "comment" : "v1.7 IMAP add-account sheet field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 密码"
+          }
+        }
+      }
+    },
+
+    "App password (not your account password)" : {
+      "comment" : "v1.7 IMAP add-account sheet password placeholder.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 密码(不是你的账号登录密码)"
+          }
+        }
+      }
+    },
+
+    "IMAP host" : {
+      "comment" : "v1.7 IMAP add-account sheet field label (Generic provider only).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMAP 服务器"
+          }
+        }
+      }
+    },
+
+    "Port" : {
+      "comment" : "v1.7 IMAP add-account sheet field label (Generic provider only).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "端口"
+          }
+        }
+      }
+    },
+
+    "Test connection" : {
+      "comment" : "v1.7 IMAP add-account sheet button — runs ping() against entered config.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "测试连接"
+          }
+        }
+      }
+    },
+
+    "Testing…" : {
+      "comment" : "v1.7 IMAP test-connection button label while in flight.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "测试中…"
+          }
+        }
+      }
+    },
+
+    "Add account" : {
+      "comment" : "v1.7 IMAP add-account sheet primary button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加账号"
+          }
+        }
+      }
+    },
+
+    "Save" : {
+      "comment" : "v1.7 IMAP edit-account sheet primary button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+
+    "Authentication failed. Check the email and app password." : {
+      "comment" : "v1.7 IMAP test-connection failure: bad credentials.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录失败。请检查邮箱和 App 密码。"
+          }
+        }
+      }
+    },
+
+    "Connection timed out. Check the host and port." : {
+      "comment" : "v1.7 IMAP test-connection failure: server unreachable.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接超时。请检查服务器地址和端口。"
+          }
+        }
+      }
+    },
+
+    "Edit" : {
+      "comment" : "v1.7 IMAP account row — edit button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑"
+          }
+        }
+      }
+    },
+
+    "Remove account and delete password from Keychain" : {
+      "comment" : "v1.7 IMAP account row — trash button tooltip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除账号并从 Keychain 删除密码"
+          }
+        }
+      }
+    },
+
     "Alert me about" : {
       "comment" : "Settings Autopilot group 2 header.",
       "localizations" : {
