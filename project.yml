@@ -20,6 +20,11 @@ targets:
     resources:
       - path: Sources/Resources/Fonts
         buildPhase: resources
+      # v1.6 Slice 8: String Catalog (Xcode 15+). Single file for all locales
+      # — Xcode auto-compiles into per-locale .strings inside the app bundle.
+      # Contains EN + zh-Hans translations for v1.6 Autopilot UI.
+      - path: Sources/Resources/Localizable.xcstrings
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app

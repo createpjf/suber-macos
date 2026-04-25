@@ -1,0 +1,822 @@
+{
+  "sourceLanguage" : "en",
+  "version" : "1.0",
+  "strings" : {
+
+    "Let Suber watch Apple Mail for billing receipts" : {
+      "comment" : "Consent modal title (D9). Highest-stakes copy in v1.6 — shown before macOS TCC prompt.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让 Suber 监听 Apple Mail 的账单邮件"
+          }
+        }
+      }
+    },
+
+    "So you never miss a price rise, a new sub, or a duplicate charge." : {
+      "comment" : "Consent modal subtitle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这样你就不会错过涨价、新订阅或重复扣款。"
+          }
+        }
+      }
+    },
+
+    "Only reads receipts" : {
+      "comment" : "Consent modal trust bullet 1 title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只读账单邮件"
+          }
+        }
+      }
+    },
+
+    "Renewals, invoices, trial endings. Suber ignores everything else." : {
+      "comment" : "Consent modal trust bullet 1 body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "续费、发票、试用到期。其他邮件 Suber 一概不看。"
+          }
+        }
+      }
+    },
+
+    "Stays on this Mac" : {
+      "comment" : "Consent modal trust bullet 2 title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只留在这台 Mac 上"
+          }
+        }
+      }
+    },
+
+    "Amounts and dates are saved. Nothing leaves your machine." : {
+      "comment" : "Consent modal trust bullet 2 body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只保存金额和日期。任何内容都不会离开你的电脑。"
+          }
+        }
+      }
+    },
+
+    "Turn off any time" : {
+      "comment" : "Consent modal trust bullet 3 title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "随时可关闭"
+          }
+        }
+      }
+    },
+
+    "Settings → Autopilot. Or revoke in System Settings → Privacy → Automation." : {
+      "comment" : "Consent modal trust bullet 3 body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在「设置 → Autopilot」里关闭,或在「系统设置 → 隐私与安全性 → 自动化」中撤销授权。"
+          }
+        }
+      }
+    },
+
+    "Next, macOS will ask you to allow Suber to control Mail. Click OK in that dialog to continue." : {
+      "comment" : "Consent modal footnote priming the TCC prompt.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接下来,macOS 会弹出一个对话框,询问是否允许 Suber 控制 Mail。点击「好」继续。"
+          }
+        }
+      }
+    },
+
+    "Connect Apple Mail" : {
+      "comment" : "Consent modal primary button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接 Apple Mail"
+          }
+        }
+      }
+    },
+
+    "Cancel" : {
+      "comment" : "Generic cancel button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+
+    "Not now" : {
+      "comment" : "Cancel confirmation sheet secondary button (D10).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂不"
+          }
+        }
+      }
+    },
+
+    "Open cancel page" : {
+      "comment" : "Cancel confirmation sheet primary button (D10). Button label matches menu action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开退订页面"
+          }
+        }
+      }
+    },
+
+    "Open cancel page…" : {
+      "comment" : "Context menu / list action. Ellipsis signals 'opens a dialog'.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开退订页面…"
+          }
+        }
+      }
+    },
+
+    "Open cancel page again" : {
+      "comment" : "DayDetail button when sub already in pendingCancellation (D5 idempotent re-open).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再次打开退订页面"
+          }
+        }
+      }
+    },
+
+    "Find cancel page…" : {
+      "comment" : "Fallback when no direct URL known — opens DuckDuckGo search.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索退订页面…"
+          }
+        }
+      }
+    },
+
+    "Mark as cancelled" : {
+      "comment" : "CancelConfirmationSheet tertiary link and A4 manual-confirm nudge.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标记为已取消"
+          }
+        }
+      }
+    },
+
+    "Autopilot" : {
+      "comment" : "Settings section header + feature name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autopilot"
+          }
+        }
+      }
+    },
+
+    "Apple Mail" : {
+      "comment" : "Settings Autopilot group 1 header.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Mail"
+          }
+        }
+      }
+    },
+
+    "Alert me about" : {
+      "comment" : "Settings Autopilot group 2 header.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知我"
+          }
+        }
+      }
+    },
+
+    "Watch Apple Mail" : {
+      "comment" : "Master toggle in Settings → Autopilot.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "监听 Apple Mail"
+          }
+        }
+      }
+    },
+
+    "Reads billing receipts (renewals, invoices, trials) once a day. Nothing is stored except amounts and dates." : {
+      "comment" : "Settings Autopilot watch-toggle helper text.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天扫描一次账单邮件(续费、发票、试用)。只保存金额和日期,不保存其他内容。"
+          }
+        }
+      }
+    },
+
+    "Scan now" : {
+      "comment" : "Settings Autopilot manual scan button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即扫描"
+          }
+        }
+      }
+    },
+
+    "Price changes" : {
+      "comment" : "Settings Autopilot alert toggle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "涨价提醒"
+          }
+        }
+      }
+    },
+
+    "e.g. Netflix raised from $15.99 to $22.99" : {
+      "comment" : "Settings Autopilot price-change toggle sublabel.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如:Netflix 从 $15.99 涨到 $22.99"
+          }
+        }
+      }
+    },
+
+    "New subscriptions" : {
+      "comment" : "Settings Autopilot alert toggle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新订阅"
+          }
+        }
+      }
+    },
+
+    "When a receipt matches a service you don't already track" : {
+      "comment" : "Settings Autopilot new-subs toggle sublabel.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫到一个你还没记录过的订阅时"
+          }
+        }
+      }
+    },
+
+    "Duplicate charges" : {
+      "comment" : "Settings Autopilot alert toggle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重复扣款"
+          }
+        }
+      }
+    },
+
+    "When the same service charges twice in one day. Can be noisy — leave off unless you've seen duplicates." : {
+      "comment" : "Settings Autopilot duplicates toggle sublabel (design review D6 default-off rationale).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同一个服务一天内被扣款两次。可能有点吵,除非你真的遇到过重复扣款,否则建议保持关闭。"
+          }
+        }
+      }
+    },
+
+    "Suber can't access Mail." : {
+      "comment" : "Settings Autopilot permission-denied banner title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 无法访问 Mail。"
+          }
+        }
+      }
+    },
+
+    "Open System Settings → Privacy & Security → Automation and allow Suber to control Mail." : {
+      "comment" : "Settings Autopilot permission-denied banner body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在「系统设置 → 隐私与安全性 → 自动化」中允许 Suber 控制 Mail。"
+          }
+        }
+      }
+    },
+
+    "Open System Settings →" : {
+      "comment" : "Settings Autopilot permission-denied banner button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开系统设置 →"
+          }
+        }
+      }
+    },
+
+    "Never scanned yet" : {
+      "comment" : "Settings Autopilot last-scan state when enabled but no scan has run.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未扫描"
+          }
+        }
+      }
+    },
+
+    "Off" : {
+      "comment" : "Settings Autopilot last-scan placeholder when feature disabled.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已关闭"
+          }
+        }
+      }
+    },
+
+    "Waiting for permission…" : {
+      "comment" : "Settings Autopilot last-scan state during TCC prompt.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等待授权中…"
+          }
+        }
+      }
+    },
+
+    "Review" : {
+      "comment" : "SinceYouWereAwayBanner primary button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看"
+          }
+        }
+      }
+    },
+
+    "Suber caught your first change." : {
+      "comment" : "FirstCatchBanner title (D8 once-forever).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 发现了第一条变化。"
+          }
+        }
+      }
+    },
+
+    "Tap a row to review." : {
+      "comment" : "FirstCatchBanner subtitle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击任意一条查看详情。"
+          }
+        }
+      }
+    },
+
+    "Dismiss banner" : {
+      "comment" : "Accessibility label for the ✕ button on all Autopilot banners.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭横幅"
+          }
+        }
+      }
+    },
+
+    "Autopilot is on watch." : {
+      "comment" : "Changes Window first-run empty-state title (D7).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autopilot 正在监听中。"
+          }
+        }
+      }
+    },
+
+    "Suber is scanning Apple Mail for billing receipts. You'll see price changes, new subscriptions, and duplicate charges here as they're detected." : {
+      "comment" : "Changes Window first-run empty-state body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 正在扫描 Apple Mail 中的账单邮件。一旦发现涨价、新订阅或重复扣款,会出现在这里。"
+          }
+        }
+      }
+    },
+
+    "You're all caught up." : {
+      "comment" : "Changes Window returning-user empty-state title (D7).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一切都处理完了。"
+          }
+        }
+      }
+    },
+
+    "Last scan found nothing new. Suber will check again tomorrow." : {
+      "comment" : "Changes Window returning-user empty-state body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次扫描没有发现新变化。Suber 明天会再检查一次。"
+          }
+        }
+      }
+    },
+
+    "No changes to review" : {
+      "comment" : "ChangesListView placeholder empty state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有需要查看的变化"
+          }
+        }
+      }
+    },
+
+    "Show full history" : {
+      "comment" : "ChangesListView filter toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示全部历史"
+          }
+        }
+      }
+    },
+
+    "Done" : {
+      "comment" : "Changes Window toolbar primary action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        }
+      }
+    },
+
+    "Ignore" : {
+      "comment" : "ChangeRowView dismiss action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "忽略"
+          }
+        }
+      }
+    },
+
+    "Accept" : {
+      "comment" : "ChangeRowView accept-new-price action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接受"
+          }
+        }
+      }
+    },
+
+    "Add subscription" : {
+      "comment" : "ChangeRowView newCharge primary action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加订阅"
+          }
+        }
+      }
+    },
+
+    "Dismiss" : {
+      "comment" : "ChangeRowView duplicate row action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "忽略"
+          }
+        }
+      }
+    },
+
+    "Keep" : {
+      "comment" : "ChangeRowView trialExpiring secondary action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留"
+          }
+        }
+      }
+    },
+
+    "Try again" : {
+      "comment" : "ChangeRowView cancellationFailed primary action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再试一次"
+          }
+        }
+      }
+    },
+
+    "Mark cancelled manually" : {
+      "comment" : "ChangeRowView cancellationFailed secondary action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手动标记已取消"
+          }
+        }
+      }
+    },
+
+    "Possible duplicate charge" : {
+      "comment" : "ChangeRowView duplicate row title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可能的重复扣款"
+          }
+        }
+      }
+    },
+
+    "Pending cancel" : {
+      "comment" : "PendingCancellationIndicator label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退订中"
+          }
+        }
+      }
+    },
+
+    "Pending cancellation" : {
+      "comment" : "PendingCancellationIndicator detail-tier title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在取消中"
+          }
+        }
+      }
+    },
+
+    "Suber is watching for the next charge." : {
+      "comment" : "PendingCancellationIndicator detail-tier body when due-date unknown.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 正在等下一次扣款来确认结果。"
+          }
+        }
+      }
+    },
+
+    "Made by %@ · github.com/createpjf/suber-macos" : {
+      "comment" : "Consent modal developer attribution. %@ = developer name (never translated).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由 %@ 制作 · github.com/createpjf/suber-macos"
+          }
+        }
+      }
+    },
+
+    "Open %@'s cancel page" : {
+      "comment" : "CancelConfirmationSheet title. %@ = service name (Netflix, Spotify, etc.).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 %@ 的退订页面"
+          }
+        }
+      }
+    },
+
+    "Suber will open %@'s cancellation page in your browser. You'll cancel there. Suber will check next month and confirm when the charges stop." : {
+      "comment" : "CancelConfirmationSheet body with data source. %@ = service name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 会在浏览器中打开 %@ 的退订页面。你在那里完成取消。下个月 Suber 会自动检查,确认扣款已经停止。"
+          }
+        }
+      }
+    },
+
+    "Suber will open %@'s cancellation page in your browser. You'll cancel there. Suber can't verify automatically — tap Mark as cancelled below when you're done." : {
+      "comment" : "CancelConfirmationSheet body A4 no-data-source variant. %@ = service name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 会在浏览器中打开 %@ 的退订页面。你在那里完成取消。Suber 暂时无法自动验证 —— 完成后请点下方的「标记为已取消」。"
+          }
+        }
+      }
+    },
+
+    "Already cancelled on %@?" : {
+      "comment" : "CancelConfirmationSheet tertiary prompt. %@ = service name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已经在 %@ 上取消过了?"
+          }
+        }
+      }
+    },
+
+    "Mark %@ as cancelled?" : {
+      "comment" : "CancelConfirmationSheet two-step manual-mark confirm alert. %@ = service name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把 %@ 标记为已取消?"
+          }
+        }
+      }
+    },
+
+    "Suber will stop tracking charges for %@. If you haven't actually cancelled, you'll see the next bill on your card and can undo this." : {
+      "comment" : "CancelConfirmationSheet manual-mark alert body. %@ = service name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 将不再追踪 %@ 的扣款。如果实际上并未取消,下次账单还是会出现在你的信用卡上,届时可以撤销此操作。"
+          }
+        }
+      }
+    },
+
+    "Suber — no unread changes" : {
+      "comment" : "Menu-bar icon VoiceOver label when unreadChangeCount == 0.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber — 没有未读变化"
+          }
+        }
+      }
+    },
+
+    "Suber — 1 unread change" : {
+      "comment" : "Menu-bar icon VoiceOver label — singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber — 1 条未读变化"
+          }
+        }
+      }
+    },
+
+    "Suber — %lld unread changes" : {
+      "comment" : "Menu-bar icon VoiceOver label — plural. %lld is the unread count.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber — %lld 条未读变化"
+          }
+        }
+      }
+    },
+
+    "Learn what Suber reads and how to revoke access →" : {
+      "comment" : "Settings Autopilot footer link.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解 Suber 会读取什么,以及如何撤销访问 →"
+          }
+        }
+      }
+    }
+  }
+}

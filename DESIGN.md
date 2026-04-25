@@ -365,7 +365,76 @@ Pass 1 cons: when unsure, apply subtraction — if deleting 30% of a surface's t
 
 ---
 
-## 14. When to update this doc
+## 14. Internationalization (i18n)
+
+### 14.1 Source of truth
+
+All user-facing strings live in `Sources/Resources/Localizable.xcstrings` (Xcode 15+ String Catalog format). v1.6 ships **English + Simplified Chinese (zh-Hans)**.
+
+The catalog is a single JSON file that Xcode compiles per-locale at build time. Translators can edit it directly in Xcode's catalog editor (side-by-side languages, machine-translation-draft button, visual completeness indicator).
+
+### 14.2 Authoring rules
+
+**Use the right extraction hook per surface:**
+
+- `Text("…")` — auto-extracted (`Text` initializer takes `LocalizedStringKey`)
+- `Button("…") { }` / `Toggle("…", isOn: $x)` — auto-extracted
+- `String(localized: "…")` — auto-extracted (use for programmatic strings that don't live inside a `Text`)
+- `.accessibilityLabel(Text("…"))` — auto-extracted ✓
+- `.accessibilityLabel(LocalizedStringKey("…"))` — auto-extracted ✓
+- `.accessibilityLabel("raw string")` — **NOT EXTRACTED** ✗ (H2 lint catches this)
+
+**Interpolation:** use positional specifiers so translators can reorder:
+
+```swift
+Text("Open \(serviceName)'s cancel page")           // auto-extracted with %@
+String(localized: "Suber — \(count) unread changes") // auto-extracted with %lld
+```
+
+### 14.3 What must NEVER be localized
+
+Matching heuristics used by `MailSubscriptionExtractor` / `MailScanKeywords`. Translators who localized `"receipt"` → `"reçu"` would break the English-Netflix-receipt match. These constants carry the sentinel `// NSLocalizedString ignore` comment and are declared as Swift `let` constants (not `Text(…)`), so Xcode's auto-extractor leaves them alone.
+
+`LocalizationCatalogTests.testExtractorKeywordsAreNotInCatalog` asserts no such keyword ever lands in `Localizable.xcstrings`.
+
+### 14.4 zh-Hans translation rules
+
+- Address the user as `你` (informal), not `您` (formal). Suber is a personal utility, not a corporate product.
+- No spaces between Chinese characters and half-width punctuation: use `打开退订页面。` not `打开退订页面 。`.
+- Keep `Suber` untranslated.
+- Keep domain names (`github.com/createpjf/suber-macos`) untranslated.
+- Service names that ship bilingually (爱奇艺, 网易云音乐) stay in CJK.
+- Currency symbols: keep the user's display currency. Don't "convert" `$` to `¥` in a translation — the actual number is the user's data.
+- Use `%@` positional interpolation for names, `%lld` for integer counts, `%1$@` / `%2$@` when reordering.
+
+### 14.5 Pseudo-locale testing
+
+Before shipping, run Apple's accented pseudolanguage (`en_XA`) to catch layout overflow:
+
+```bash
+./scripts/pseudo-locale-test.sh en_XA
+```
+
+The script launches Suber with `AppleLanguages=(en_XA)` set. Every string expands ~40% and wraps in brackets. Surfaces to check:
+
+1. Consent modal (fixed 540pt width) — trust bullets must not truncate
+2. Settings → Autopilot toggle labels + helper copy
+3. Changes Window decision-prompt rows — ensure hero line wraps gracefully
+4. Banner rhythm — 56pt height must hold under expansion
+
+Fix overflow by either (a) shortening source copy, or (b) adding `.fixedSize(horizontal: false, vertical: true)` + `.lineLimit(nil)` so labels wrap.
+
+### 14.6 Adding a locale in v1.7+
+
+1. Add locale code to `CFBundleLocalizations` in `Sources/Info.plist`
+2. Open `Localizable.xcstrings` in Xcode; click "+" in the language column
+3. Translate every key (Xcode's completeness indicator stays red until 100%)
+4. Run `LocalizationCatalogTests` — it'll fail until every key has a translation in the new locale
+5. Pseudo-locale-test and manual QA before release
+
+---
+
+## 15. When to update this doc
 
 Update DESIGN.md in the same PR as:
 
@@ -375,5 +444,6 @@ Update DESIGN.md in the same PR as:
 - New ChangeType or banner kind (extend §6, §7, §8)
 - New Autopilot `autopilot.*` UserDefaults key (§12)
 - Changes to the anti-AI-slop blacklist (§13) — additions only; removals require design-review approval
+- New locale (extend §14: `CFBundleLocalizations` + full catalog translation + pseudo-locale QA)
 
 Stale specs in this doc mislead contributors. Keep it honest.
