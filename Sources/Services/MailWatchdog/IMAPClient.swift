@@ -80,26 +80,24 @@ actor IMAPClient {
         let conn = NWConnection(to: endpoint, using: parameters)
         connection = conn
 
-        // Wait for ready state.
+        // Wait for ready state. v1.7: IMAPContinuationGuard provides the
+        // race-safe one-shot resume primitive (see that file for context).
+        // RES-01: clear stateUpdateHandler on success so the captured closure
+        //         doesn't outlive the connect() return.
+        // IMAP-03: cancel the NWConnection in the timeout branch so a stuck
+        //          TLS handshake doesn't leave a zombie socket behind.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            var resumed = false
-            let resume: (Result<Void, Error>) -> Void = { result in
-                guard !resumed else { return }
-                resumed = true
-                switch result {
-                case .success: continuation.resume()
-                case .failure(let e): continuation.resume(throwing: e)
-                }
-            }
+            let guarded = IMAPContinuationGuard(continuation)
 
-            conn.stateUpdateHandler = { state in
+            conn.stateUpdateHandler = { [weak conn] state in
                 switch state {
                 case .ready:
-                    resume(.success(()))
+                    conn?.stateUpdateHandler = nil   // RES-01
+                    guarded.resumeSuccess()
                 case .failed(let error):
-                    resume(.failure(MailBridgeError.unknown("IMAP connect failed: \(error.localizedDescription)")))
+                    guarded.resume(throwing: MailBridgeError.unknown("IMAP connect failed: \(error.localizedDescription)"))
                 case .cancelled:
-                    resume(.failure(MailBridgeError.unknown("IMAP connection cancelled")))
+                    guarded.resume(throwing: MailBridgeError.unknown("IMAP connection cancelled"))
                 default:
                     break
                 }
@@ -108,8 +106,9 @@ actor IMAPClient {
             conn.start(queue: .global(qos: .utility))
 
             // Hard wall-clock timeout.
-            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
-                resume(.failure(MailBridgeError.timeout(resumeToken: [:])))
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) { [weak conn] in
+                conn?.cancel()                       // IMAP-03
+                guarded.resume(throwing: MailBridgeError.timeout(resumeToken: [:]))
             }
         }
 
@@ -249,15 +248,22 @@ actor IMAPClient {
         nextTagNumber += 1
         let line = "\(tag) \(command)\r\n"
 
-        // Send.
+        // Send. IMAP-02: a half-open or blackholed connection can leave the
+        // completion callback hanging forever, which leaves the wrapping Task
+        // permanently suspended (the caller's wall-clock loop guards reads,
+        // not sends). Add a wall-clock timeout matching the read budget.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let guarded = IMAPContinuationGuard(continuation)
             conn.send(content: Data(line.utf8), completion: .contentProcessed { error in
                 if let error = error {
-                    continuation.resume(throwing: MailBridgeError.unknown(error.localizedDescription))
+                    guarded.resume(throwing: MailBridgeError.unknown(error.localizedDescription))
                 } else {
-                    continuation.resume()
+                    guarded.resumeSuccess()
                 }
             })
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                guarded.resume(throwing: MailBridgeError.timeout(resumeToken: [:]))
+            }
         }
 
         guard expectingResponse else {
@@ -400,39 +406,35 @@ actor IMAPClient {
         guard let conn = connection else {
             throw MailBridgeError.unknown("not connected")
         }
+        // RECV-01: flatten the previously-nested Task + double `[weak self]`.
+        // Resume happens directly from the receive callback for the error /
+        // EOF / empty paths; only the buffer-append path needs to hop into
+        // actor isolation (Task) before resuming. The guard is thread-safe
+        // so it's fine to call from either context.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            var resumed = false
-            let resume: (Result<Void, Error>) -> Void = { result in
-                guard !resumed else { return }
-                resumed = true
-                switch result {
-                case .success: continuation.resume()
-                case .failure(let e): continuation.resume(throwing: e)
-                }
-            }
+            let guarded = IMAPContinuationGuard(continuation)
 
             conn.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { [weak self] data, _, isComplete, error in
-                Task { [weak self] in
-                    guard let self = self else { resume(.success(())); return }
-                    if let error = error {
-                        resume(.failure(MailBridgeError.unknown("recv: \(error.localizedDescription)")))
-                        return
-                    }
-                    if let data = data, !data.isEmpty {
-                        await self.appendToBuffer(data)
-                        resume(.success(()))
-                        return
-                    }
-                    if isComplete {
-                        resume(.failure(MailBridgeError.unknown("server closed connection")))
-                        return
-                    }
-                    resume(.success(()))
+                if let error = error {
+                    guarded.resume(throwing: MailBridgeError.unknown("recv: \(error.localizedDescription)"))
+                    return
                 }
+                if let data = data, !data.isEmpty {
+                    Task { [weak self] in
+                        await self?.appendToBuffer(data)
+                        guarded.resumeSuccess()
+                    }
+                    return
+                }
+                if isComplete {
+                    guarded.resume(throwing: MailBridgeError.unknown("server closed connection"))
+                    return
+                }
+                guarded.resumeSuccess()
             }
 
             DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
-                resume(.failure(MailBridgeError.timeout(resumeToken: [:])))
+                guarded.resume(throwing: MailBridgeError.timeout(resumeToken: [:]))
             }
         }
     }

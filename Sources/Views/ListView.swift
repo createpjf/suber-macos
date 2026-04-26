@@ -155,9 +155,12 @@ struct ListView: View {
         case .amount:
             subs.sort { $0.amount > $1.amount }
         case .nextBilling:
-            // Pre-compute billing dates to avoid O(2N log N) redundant calculations
+            // Pre-compute billing dates to avoid O(2N log N) redundant calculations.
+            // SAFETY-01: dictionary contains every sub.id by construction, but
+            // nil-coalesce defends against future filtering between the
+            // Dictionary build and the sort closure.
             let billingDates = Dictionary(uniqueKeysWithValues: subs.map { ($0.id, BillingCalculator.getNextBillingDate($0)) })
-            subs.sort { billingDates[$0.id]! < billingDates[$1.id]! }
+            subs.sort { (billingDates[$0.id] ?? .distantFuture) < (billingDates[$1.id] ?? .distantFuture) }
         case .dateAdded:
             subs.sort { $0.createdAt > $1.createdAt }
         }

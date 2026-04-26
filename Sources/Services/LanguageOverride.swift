@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 // ┌───────────── LanguageOverride — v1.6 in-app language switcher ─────────────┐
 // │                                                                            │
@@ -95,8 +96,17 @@ enum LanguageOverride {
             NSLog("Suber: relaunch failed: \(error.localizedDescription)")
             return
         }
-        // Hand control back to AppKit for graceful shutdown. The shell helper
-        // is detached and will fire after we exit.
-        exit(0)
+        // v1.7 (LANG-01): NSApp.terminate replaces the previous `exit(0)`.
+        // exit(0) skipped applicationWillTerminate, which meant Scene
+        // cleanup didn't run AND CloudSyncService's in-flight
+        // NSUbiquitousKeyValueStore.synchronize() got cut off mid-RPC —
+        // a settings flip the user just made could be lost when iCloud
+        // re-syncs from another device. NSApp.terminate gives AppKit the
+        // chance to drain those tasks. The shell helper above busy-loops
+        // on `kill -0 PID` so it waits until macOS actually finishes our
+        // shutdown — the user-visible relaunch timing is unchanged.
+        DispatchQueue.main.async {
+            NSApplication.shared.terminate(nil)
+        }
     }
 }

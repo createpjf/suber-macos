@@ -98,8 +98,12 @@ enum RecurringChargeDetector {
         // Currency: most common in the group
         let currency = mostCommonCurrency(txs)
 
-        let lastDate = sortedTxs.last!.date
-        let firstDate = sortedTxs.first!.date
+        // SAFETY-01: `intervals` non-empty (line 63 guard) implies sortedTxs
+        // has ≥ 2 elements, so .first/.last are safe — but explicit guard
+        // makes the precondition self-documenting and survives refactors.
+        guard let lastDate = sortedTxs.last?.date,
+              let firstDate = sortedTxs.first?.date
+        else { return nil }
         let billingDay = cal.component(.day, from: lastDate)
 
         // Name / category

@@ -38,8 +38,13 @@ enum DateHelpers {
         guard let monthInterval = cal.dateInterval(of: .month, for: month) else { return [] }
 
         let firstDayOfMonth = monthInterval.start
-        let lastDayOfMonth = cal.date(byAdding: .day, value: -1,
-            to: cal.date(byAdding: .month, value: 1, to: firstDayOfMonth)!)!
+        // v1.7 (SAFETY-01): Calendar.date returns Optional. For a Gregorian
+        // calendar + valid Date, the failure path is unreachable in practice,
+        // but force-unwrapping bakes that guarantee in — guard let lets the
+        // safety self-document and survives future refactors.
+        guard let nextMonth = cal.date(byAdding: .month, value: 1, to: firstDayOfMonth),
+              let lastDayOfMonth = cal.date(byAdding: .day, value: -1, to: nextMonth)
+        else { return [] }
 
         // Find the Monday on or before the first day of the month
         let weekday = cal.component(.weekday, from: firstDayOfMonth)
@@ -48,8 +53,10 @@ enum DateHelpers {
             return []
         }
 
-        // Calculate how many weeks needed: find what row the last day falls in
-        let daysFromStart = cal.dateComponents([.day], from: gridStart, to: lastDayOfMonth).day! + 1
+        // Calculate how many weeks needed: find what row the last day falls in.
+        // SAFETY-01: .day is populated when explicitly requested but nil-coalesce
+        // is cheaper than future regression risk.
+        let daysFromStart = (cal.dateComponents([.day], from: gridStart, to: lastDayOfMonth).day ?? 0) + 1
         let weeksNeeded = Int(ceil(Double(daysFromStart) / 7.0))
         let totalDays = weeksNeeded * 7
 
