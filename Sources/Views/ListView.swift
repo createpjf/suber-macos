@@ -93,7 +93,10 @@ struct ListView: View {
             }
         }
         // v1.6 One-Tap Cancel confirmation sheet (D10).
-        .sheet(item: $pendingCancelSub) { sub in
+        // v1.7.1: `.sheet(item:)` → `.popoverOverlay(item:)` because we live
+        // inside the MenuBarExtra popover. See PopoverOverlay.swift header
+        // for why `.sheet` dies on popover key-loss.
+        .popoverOverlay(item: $pendingCancelSub) { sub in
             CancelConfirmationSheet(
                 subscription: sub,
                 hasDataSource: hasDataSource,

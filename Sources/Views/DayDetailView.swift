@@ -127,7 +127,9 @@ struct DayDetailView: View {
                 }
         )
         // v1.6 One-Tap Cancel confirmation sheet (D10).
-        .sheet(item: $pendingCancelSub) { sub in
+        // v1.7.1: `.sheet(item:)` → `.popoverOverlay(item:)` — see
+        // PopoverOverlay.swift header for the popover key-loss bug.
+        .popoverOverlay(item: $pendingCancelSub) { sub in
             CancelConfirmationSheet(
                 subscription: sub,
                 hasDataSource: hasDataSource,

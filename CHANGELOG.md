@@ -2,6 +2,30 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.7.1] — 2026-04-26 — Fix sheet dismissal inside menubar popover
+
+Same-day hotfix for v1.7.0. Reported within the hour of release: clicking the **App Password** field in "Add IMAP account" made the entire sheet vanish. Same root cause also broke the "Watch Apple Mail" consent sheet and the "Open cancel page" confirmation sheet — anywhere v1.6/v1.7 used `.sheet(...)` from inside the menubar popover.
+
+### Root cause
+Suber is a menu-bar-only app (`LSUIElement=true`, `MenuBarExtra(.window)`). When a SwiftUI `.sheet(isPresented:)` is attached to a view inside the popover, the sheet's NSWindow is a child of the popover's NSWindow. The moment the popover loses key-window status — which happens trivially when SecureField hands focus to macOS's `SecureInputServer`, when AppKit reorders for an osascript spawn, etc. — the popover auto-closes and the sheet dies with it. This is the **same architectural problem** Suber fixed in v1.5.1 for the Import flow by promoting it to a separate `Window` scene; v1.6/v1.7 reintroduced the bug for new sheets without considering popover key-loss.
+
+### Fixed
+- New `Sources/Views/PopoverOverlay.swift` — reusable `.popoverOverlay(isPresented:)` and `.popoverOverlay(item:)` modifiers that render the modal as an in-popover overlay (same view hierarchy, popover stays key) instead of as a child sheet. Lifts the existing `MenuBarView.formOverlay` pattern (battle-tested since v1.5 for the Add Subscription form) into a reusable shape.
+- **`IMAPAccountSheet`** (`AutopilotSettingsSection.swift`) — `.sheet` → `.popoverOverlay`. Clicking App Password no longer dismisses the modal. SecureInputServer's focus grab is now harmless because there's no separate sheet window to lose.
+- **`AutopilotConsentSheet`** — same swap. "Watch Apple Mail" toggle now reliably presents the consent panel; Confirm/Cancel work as designed.
+- **`CancelConfirmationSheet`** in both `ListView` and `DayDetailView` — `.sheet(item:)` → `.popoverOverlay(item:)`. "Open cancel page" confirmation no longer disappears mid-flow.
+
+### Notes
+- `.alert(...)` and `.confirmationDialog(...)` are NOT affected — those are backed by `NSAlert`, which lives at the `.modalPanel` window level, independent of the popover. So the "Restart Suber to switch language?" alert, "Mark X as cancelled?" alert, and "Import Error" alert continue to work as before.
+- Workflows that need to coexist with system dialogs (file picker, NSSavePanel, multi-step Import) still use the separate `Window("import")` scene + `WindowActivationCoordinator` — that pattern is unchanged and remains the right answer for those cases. `PopoverOverlay` is the lighter pattern for popover-internal modals.
+- 206/206 tests still green (no logic changed, only the sheet→overlay modifier swap).
+
+### Notes for v1.7.0 upgraders
+- v1.7.0 IMAP direct connection feature was effectively unusable due to the SecureField bug. v1.7.1 makes it work as documented.
+- No data migration. Existing Settings, IMAP account (if any was saved before the bug), subscriptions, change log all carry forward.
+
+---
+
 ## [1.7.0] — 2026-04-26 — **IMAP direct connection**
 
 v1.6 Mail Watchdog only saw what Apple Mail.app saw. If you route Gmail through web/mobile and never set it up in Mail.app, those receipts were invisible to Suber. v1.7 adds an IMAP bridge that talks to imap.gmail.com (and Outlook, iCloud, Yahoo, Fastmail, Generic) directly, in parallel with AppleMailBridge — results merge and dedup by RFC 5322 Message-ID.

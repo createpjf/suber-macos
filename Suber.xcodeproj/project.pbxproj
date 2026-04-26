@@ -118,6 +118,7 @@
 		D374AB9D4C3C94C82D60A844 /* IMAPProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E1CAAF04A7EFB52FBC9BAC /* IMAPProvider.swift */; };
 		D84F1BEF23B1AAFD31A0B072 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F222D3227042408ED0A4BE33 /* StorageService.swift */; };
 		DB02F5F160A811070D1DD337 /* URLSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9494532546525F7E5D6BB7B1 /* URLSchemeHandler.swift */; };
+		DF7A3ED1D6A64F6FEFF7C961 /* PopoverOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E571EF5EC887CC7A7046CA7 /* PopoverOverlay.swift */; };
 		E2FA681D88A75FF12258C9AC /* LocalizationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBDA04692F6565D7250F5D0F /* LocalizationCatalogTests.swift */; };
 		E51ED767F091D747AAD5A2F3 /* MailBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925BFC4914A32B15DD40AC88 /* MailBridge.swift */; };
 		E57DB005D0BD43FF3E776C17 /* StatementFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3652D50DFEDF3A2A86AA63 /* StatementFormat.swift */; };
@@ -214,6 +215,7 @@
 		6B707619D73A06E718A123EE /* SinceYouWereAwayBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinceYouWereAwayBanner.swift; sourceTree = "<group>"; };
 		6BDB41C2E87465ED973C954E /* AutopilotConsentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutopilotConsentSheet.swift; sourceTree = "<group>"; };
 		6E3EF60CEE41FB8E2131FA2A /* MailWatchdog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailWatchdog.swift; sourceTree = "<group>"; };
+		6E571EF5EC887CC7A7046CA7 /* PopoverOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverOverlay.swift; sourceTree = "<group>"; };
 		710C8C5B7EB986709456F2BA /* StatementFormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatementFormatTests.swift; sourceTree = "<group>"; };
 		73E2F8DA8054615C97A01286 /* ImageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRecognitionService.swift; sourceTree = "<group>"; };
 		74559F651ECA00C1B694267B /* SpaceGrotesk-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Bold.ttf"; sourceTree = "<group>"; };
@@ -377,6 +379,7 @@
 				4F0B4CDE42E62D9BD25837E8 /* DayDetailView.swift */,
 				1940BFFEDDC7D2FB96D14DF0 /* ListView.swift */,
 				17945992911E41D26F5E5AD9 /* MenuBarView.swift */,
+				6E571EF5EC887CC7A7046CA7 /* PopoverOverlay.swift */,
 				CC38E43B69A9ECBEF1994F0D /* SettingsView.swift */,
 				8DA53D89C607C630B60617D4 /* SubCardView.swift */,
 				571B4B95C71C00FB629F9AE2 /* SubscriptionFormView.swift */,
@@ -727,6 +730,7 @@
 				A4BF81F28F48055C53BB2B8E /* NotificationService.swift in Sources */,
 				BCC922CABD01E72950A8E9F6 /* OneTapCancelService.swift in Sources */,
 				4EE7B34CC8AFEA017AEAC347 /* PendingCancellationIndicator.swift in Sources */,
+				DF7A3ED1D6A64F6FEFF7C961 /* PopoverOverlay.swift in Sources */,
 				0C9C64B501095EB3655839BC /* RecurringChargeDetector.swift in Sources */,
 				6DF7E00971222505E899A6D3 /* SearchBarView.swift in Sources */,
 				B9F6949EFA6CE7BAD07E973E /* Settings.swift in Sources */,
@@ -821,14 +825,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 170;
+				CURRENT_PROJECT_VERSION = 171;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -873,7 +877,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 170;
+				CURRENT_PROJECT_VERSION = 171;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -881,7 +885,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};
@@ -950,14 +954,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 170;
+				CURRENT_PROJECT_VERSION = 171;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -1032,7 +1036,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 170;
+				CURRENT_PROJECT_VERSION = 171;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1040,7 +1044,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};

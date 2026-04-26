@@ -127,7 +127,13 @@ struct AutopilotSettingsSection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .sheet(isPresented: $showConsentSheet) {
+        // v1.7.1: switched from `.sheet` → `.popoverOverlay` because the
+        // MenuBarExtra popover loses key-window status whenever a sheet
+        // attached to it triggers system focus changes (TCC prompt being
+        // staged, AppKit reordering for "Watch Apple Mail" → osascript, etc.).
+        // When the popover loses key, the sheet dies with it. The overlay
+        // pattern keeps the modal inside the popover view tree → safe.
+        .popoverOverlay(isPresented: $showConsentSheet) {
             AutopilotConsentSheet(
                 onConfirm: {
                     showConsentSheet = false
@@ -151,7 +157,11 @@ struct AutopilotSettingsSection: View {
             )
         }
         // v1.7 IMAP: add/edit account modal.
-        .sheet(isPresented: $showIMAPSheet) {
+        // v1.7.1: `.sheet` → `.popoverOverlay`. The IMAPAccountSheet's
+        // SecureField for App Password is the killer here — clicking it
+        // hands focus to macOS's SecureInputServer, the popover loses key,
+        // and the sheet vanished mid-typing. Overlay pattern fixes this.
+        .popoverOverlay(isPresented: $showIMAPSheet) {
             IMAPAccountSheet(
                 existing: imapAccountBeingEdited,
                 onSave: { account, password in
