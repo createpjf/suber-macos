@@ -130,3 +130,80 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
         }
     }
 }
+
+// ┌───────────── QuickLink — v1.8.2 一键跳转设置页 ───────────────────────────┐
+// │                                                                            │
+// │  v1.8.1 的 setupHint 文字里埋了 URL（mail.google.com /                    │
+// │  myaccount.google.com/apppasswords 等），但是纯文本，用户必须手动复制     │
+// │  到浏览器，UX 不好。v1.8.2 在 setupHint 下加一排可点击按钮，每个按钮    │
+// │  对应一个最关键的设置页，点 → NSWorkspace.shared.open(url) → 浏览器       │
+// │  直接打开，用户在那边完成操作（启用 IMAP / 创建 App Password）后切回      │
+// │  Suber 粘贴。                                                              │
+// │                                                                            │
+// │  Empty for `.generic` — 用户自填 host，没有 canonical 设置页。           │
+// │                                                                            │
+// └────────────────────────────────────────────────────────────────────────────┘
+
+struct QuickLink: Identifiable {
+    let id = UUID()
+    let label: String           // 短按钮文字 (e.g. "Enable IMAP")
+    let url: URL                // 直链
+    let symbol: String          // SF Symbol 名 (e.g. "envelope.badge")
+}
+
+extension IMAPProvider {
+    /// Per-provider deep links to the most-needed setup pages. Renders as
+    /// a row of small bordered buttons under setupHint. Each click opens
+    /// the URL in the user's default browser via NSWorkspace.shared.open.
+    var setupQuickLinks: [QuickLink] {
+        switch self {
+        case .gmail:
+            return [
+                QuickLink(
+                    label: "Enable IMAP",
+                    url: URL(string: "https://mail.google.com/mail/u/0/#settings/fwdandpop")!,
+                    symbol: "envelope.badge"
+                ),
+                QuickLink(
+                    label: "Create App Password",
+                    url: URL(string: "https://myaccount.google.com/apppasswords")!,
+                    symbol: "key.fill"
+                ),
+            ]
+        case .icloud:
+            return [
+                QuickLink(
+                    label: "Apple ID Sign-In and Security",
+                    url: URL(string: "https://appleid.apple.com/account/manage")!,
+                    symbol: "key.fill"
+                ),
+            ]
+        case .outlook:
+            return [
+                QuickLink(
+                    label: "Microsoft Account Security",
+                    url: URL(string: "https://account.microsoft.com/security")!,
+                    symbol: "key.fill"
+                ),
+            ]
+        case .yahoo:
+            return [
+                QuickLink(
+                    label: "Yahoo Account Security",
+                    url: URL(string: "https://login.yahoo.com/account/security")!,
+                    symbol: "key.fill"
+                ),
+            ]
+        case .fastmail:
+            return [
+                QuickLink(
+                    label: "Fastmail App Passwords",
+                    url: URL(string: "https://app.fastmail.com/settings/security/integrations")!,
+                    symbol: "key.fill"
+                ),
+            ]
+        case .generic:
+            return []   // 用户自填 host，没有 canonical 页
+        }
+    }
+}

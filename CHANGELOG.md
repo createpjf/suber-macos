@@ -2,6 +2,27 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.8.2] — 2026-04-26 — IMAP setup 一键跳转
+
+v1.8.1 同日小升级。setupHint 里的 URL 现在是可点击按钮，不用再手动复制到浏览器。
+
+### Added
+
+- **IMAP provider 设置页一键跳转按钮** — 在 setupHint 文字下加一排带 SF Symbol 的小按钮，点一下浏览器直接打开对应设置页：
+  - **Gmail**: "Enable IMAP"（→ mail.google.com 的 IMAP 启用页）+ "Create App Password"（→ myaccount.google.com/apppasswords 直链）
+  - **iCloud**: "Apple ID Sign-In and Security"（→ appleid.apple.com）
+  - **Outlook**: "Microsoft Account Security"（→ account.microsoft.com/security）
+  - **Yahoo**: "Yahoo Account Security"（→ login.yahoo.com/account/security）
+  - **Fastmail**: "Fastmail App Passwords"（→ app.fastmail.com 的 App passwords 设置页）
+  - **Generic**: 无（用户自填 host，无 canonical 设置页）
+
+### Notes
+
+- v1.8.1 用户**应用内一键升级**到 v1.8.2（Settings → Updates → Check for updates → Install）— **首次完整实测 Sparkle pipeline**。
+- 210/210 tests 全绿（纯 UI 加法 + 数据扩展，零逻辑变更）。
+
+---
+
 ## [1.8.1] — 2026-04-26 — Gmail 跑通 + consent 布局 + IMAP 错误显示
 
 v1.8.0 同日 hotfix。修核心问题：Gmail 用户哪怕输对了 App Password 也常常连不上，加上 v1.8.0 弹窗布局漏修一处 + IMAP 错误信息被截。

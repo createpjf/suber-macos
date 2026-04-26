@@ -181,10 +181,54 @@ struct IMAPAccountSheet: View {
     }
 
     private var hint: some View {
-        Text(provider.setupHint)
-            .font(AppFont.regular(11))
-            .foregroundColor(Theme.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(provider.setupHint)
+                .font(AppFont.regular(11))
+                .foregroundColor(Theme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            // v1.8.2: 一键跳转按钮，省去用户复制 URL 到浏览器的步骤
+            if !provider.setupQuickLinks.isEmpty {
+                quickLinksRow
+            }
+        }
+    }
+
+    /// v1.8.2: row of small bordered buttons that open each setupQuickLink
+    /// in the user's default browser via NSWorkspace.shared.open.
+    /// HStack works because providers currently have ≤ 2 links each;
+    /// future > 3 links would need FlowLayout / LazyVGrid wrapping.
+    @ViewBuilder
+    private var quickLinksRow: some View {
+        HStack(spacing: 8) {
+            ForEach(provider.setupQuickLinks) { link in
+                Button {
+                    NSWorkspace.shared.open(link.url)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: link.symbol)
+                            .font(.system(size: 10))
+                        Text(link.label)
+                            .font(AppFont.medium(11))
+                        Image(systemName: "arrow.up.right")
+                            .font(.system(size: 9))
+                    }
+                    .foregroundColor(Theme.accent)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(Theme.bgCell)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Theme.border, lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer(minLength: 0)
+        }
     }
 
     private var testRow: some View {
