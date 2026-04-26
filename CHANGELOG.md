@@ -2,6 +2,50 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.7.0] — 2026-04-26 — **IMAP direct connection**
+
+v1.6 Mail Watchdog only saw what Apple Mail.app saw. If you route Gmail through web/mobile and never set it up in Mail.app, those receipts were invisible to Suber. v1.7 adds an IMAP bridge that talks to imap.gmail.com (and Outlook, iCloud, Yahoo, Fastmail, Generic) directly, in parallel with AppleMailBridge — results merge and dedup by RFC 5322 Message-ID.
+
+### Added
+
+#### 📧 IMAP direct connection (Settings → Other email accounts)
+- Provider presets: Gmail / Outlook / iCloud / Yahoo / Fastmail / Generic. Each preset auto-fills host + port (993 TLS) + scan mailbox + per-provider App Password setup hint copy.
+- App Password authentication (no OAuth — avoids 6-8 week Google security review). All five major providers + most self-hosted IMAP servers support App Passwords.
+- "Test connection" button before save: lightweight `LOGIN` + `LOGOUT` round-trip in 1-2s tells you whether host/port/credentials are valid before you commit anything to Settings.
+- Hand-rolled ~500-line IMAP4rev1 client (`actor IMAPClient` over `NWConnection` + TLS). Implements just the subset Suber needs: `LOGIN` / `SELECT` / `UID SEARCH` / `UID FETCH` / `LOGOUT`. Chosen over MailCore2 to avoid Obj-C++ dependencies and notarization complexity.
+- `CompositeMailBridge`: parallel scan via `withThrowingTaskGroup`; per-bridge errors logged but don't abort siblings. Apple Mail can be down while IMAP keeps working (and vice versa).
+- App Password lives in **local Keychain** with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` — readable by background Watchdog scans but **never synced via iCloud Keychain** (per-device only).
+- Dynamic bridge composition: adding/removing an IMAP account in Settings rebuilds the bridge stack live without an app restart (`MailWatchdog.setBridge()` swap).
+
+#### 🌍 In-app language toggle (Settings → Language)
+- System default / English / 简体中文 — was previously locked to macOS system locale.
+- "Restart" prompt → relaunch with new locale via shell helper that waits for our PID then `open`s the bundle.
+- Existing per-app locale honored: macOS auto-selects from CFBundleLocalizations declared in Info.plist (zh-Hans + en).
+
+### Changed
+- `MailBridge` protocol gains `func ping(timeout:) async throws -> Int` — lightweight liveness probe (used by "Watch Apple Mail" toggle and "Test connection" button) separate from the heavyweight scan path.
+- `AutopilotSettings.imapAccount: IMAPAccount?` field added with forward-compat decoder so v1.6.x payloads decode cleanly.
+- `MailWatchdog.connectAppleMail()` switched from a heavy probe-scan (10s timeout) to the new lightweight `ping(timeout: 60)` — fixes the "TCC dialog killed osascript" v1.6 user-reported bug where the macOS permission prompt blocked osascript longer than the probe budget.
+
+### Fixed (audit polish, not user-visible)
+- **IMAP continuation safety** (3 sites in IMAPClient): `withCheckedThrowingContinuation` + `var resumed = false` flag check-and-set was non-atomic. Network flapping (Wi-Fi/LTE swap, TLS handshake on the timeout edge) could race two callbacks both calling `continuation.resume` → Swift runtime crash with `SWIFT TASK CONTINUATION MISUSE`. Replaced with `IMAPContinuationGuard` (NSLock-backed one-shot wrapper). Stress-tested with 100 concurrent dispatches.
+- **`IMAPClient.sendCommand` wall-clock timeout**: a half-open or blackholed TCP connection would leave the wrapping Task suspended forever. Added `asyncAfter` timeout matching the read-loop budget.
+- **`NWConnection` cleanup on timeout**: timeout branches now `conn.cancel()` so a stuck TLS handshake doesn't leave a zombie socket.
+- **`stateUpdateHandler` cleared on success**: prevents the captured closure from outliving the `connect()` call.
+- **`LanguageOverride.relaunch()`** now uses `NSApp.terminate(nil)` instead of `exit(0)` so AppKit drains pending Scene saves and CloudSync's in-flight `kvStore.synchronize()` finishes before exit. Was a rare edge case where a settings flip made just before language switch could be lost when iCloud re-synced from another device.
+- 4 force unwraps converted to `guard let` / nil-coalesce. All were guarded-safe in current code; the rewrite makes the safety self-document and survives future refactors. (DateHelpers calendar grid, ListView sort comparator, RecurringChargeDetector first/last txn date.)
+
+### Engineering
+- **206 tests across 15 suites** (+22 new for IMAP + 4 for IMAPContinuationGuard).
+- Plan reviewed via `/swiftui-code-audit` (8/10 → 10/10 post-fix). Audit found 0 🔴, 4 🟡, 3 🔵 — all addressed in this release.
+- Build pipeline (`scripts/build-dmg.sh`) hardened in v1.6.1/v1.6.2 (archive + exportArchive, defensive runtime check) — same pipeline ships v1.7.
+
+### Notes for upgraders
+- v1.6.2 → v1.7.0: zero data migration. AppGroupStore (file-based shared container, introduced in v1.6.2) is unchanged — v1.7.0 reads/writes the same JSON files. Settings, subscriptions, change log all carry forward cleanly.
+- v1.6.0 / v1.6.1 users who never upgraded to v1.6.2: Mac data may live in the old UserDefaults app-group store; iCloud sync (if enabled) repopulates on first launch. Without iCloud sync, expect a one-time empty state. (Same migration story as v1.6.2 — the fix path is unchanged.)
+
+---
+
 ## [1.6.2] — 2026-04-25 — Fix the actual launch-time permission prompt on macOS Tahoe
 
 v1.6.1 misdiagnosed the macOS 26.4 (Tahoe) "Suber.app would like to access data from other apps" prompt as the Apple Events temporary-exception entitlement. Removing that was correct cleanup but not the root cause — the prompt still fires on v1.6.1.
