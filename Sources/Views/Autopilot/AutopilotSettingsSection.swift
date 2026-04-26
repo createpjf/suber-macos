@@ -24,11 +24,10 @@ import SwiftUI
 struct AutopilotSettingsSection: View {
     @EnvironmentObject var settingsStore: SettingsStore
     @EnvironmentObject var watchdog: MailWatchdog
-
-    @State private var showConsentSheet = false
-    /// v1.7 IMAP: state for the add/edit account modal.
-    @State private var showIMAPSheet = false
-    @State private var imapAccountBeingEdited: IMAPAccount?
+    /// v1.8.0: popover-root overlay coordinator. Replaces the v1.7.1
+    /// `.popoverOverlay(isPresented:)` modifier — see OverlayPresenter.swift
+    /// header for why deep-nested sheets need to be hoisted to MenuBarView root.
+    @EnvironmentObject var overlayPresenter: OverlayPresenter
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -127,57 +126,11 @@ struct AutopilotSettingsSection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        // v1.7.1: switched from `.sheet` → `.popoverOverlay` because the
-        // MenuBarExtra popover loses key-window status whenever a sheet
-        // attached to it triggers system focus changes (TCC prompt being
-        // staged, AppKit reordering for "Watch Apple Mail" → osascript, etc.).
-        // When the popover loses key, the sheet dies with it. The overlay
-        // pattern keeps the modal inside the popover view tree → safe.
-        .popoverOverlay(isPresented: $showConsentSheet) {
-            AutopilotConsentSheet(
-                onConfirm: {
-                    showConsentSheet = false
-                    // Persist the toggle flip, then trigger TCC prompt.
-                    settingsStore.update { $0.autopilot.watchAppleMail = true }
-                    Task {
-                        await watchdog.connectAppleMail()
-                        // If permission denied, unwind the toggle so the UI
-                        // honestly reflects state.
-                        if watchdog.state == .permissionDenied {
-                            settingsStore.update { $0.autopilot.watchAppleMail = false }
-                        } else {
-                            watchdog.scheduleDailyScan()
-                        }
-                    }
-                },
-                onCancel: {
-                    showConsentSheet = false
-                    // User backed out — leave toggle OFF.
-                }
-            )
-        }
-        // v1.7 IMAP: add/edit account modal.
-        // v1.7.1: `.sheet` → `.popoverOverlay`. The IMAPAccountSheet's
-        // SecureField for App Password is the killer here — clicking it
-        // hands focus to macOS's SecureInputServer, the popover loses key,
-        // and the sheet vanished mid-typing. Overlay pattern fixes this.
-        .popoverOverlay(isPresented: $showIMAPSheet) {
-            IMAPAccountSheet(
-                existing: imapAccountBeingEdited,
-                onSave: { account, password in
-                    // Save credential to Keychain FIRST so the bridge has it
-                    // before settings.imapAccount triggers the rebuild.
-                    IMAPCredentialStore.save(password: password, for: account.email)
-                    settingsStore.update { $0.autopilot.imapAccount = account }
-                    showIMAPSheet = false
-                    imapAccountBeingEdited = nil
-                },
-                onCancel: {
-                    showIMAPSheet = false
-                    imapAccountBeingEdited = nil
-                }
-            )
-        }
+        // v1.8.0: AutopilotConsentSheet + IMAPAccountSheet 不再用
+        // .popoverOverlay 挂在本 section 上 — 那样 ZStack 边界只覆盖
+        // section 高度，弹窗渲染成 inline。改用 OverlayPresenter 把内容
+        // 推到 MenuBarView 根节点渲染（见 OverlayPresenter.swift header）。
+        // 触发逻辑见 handleWatchToggle / addIMAPAccountButton / imapAccountRow。
     }
 
     // MARK: - IMAP UI helpers (v1.7)
@@ -185,8 +138,7 @@ struct AutopilotSettingsSection: View {
     @ViewBuilder
     private var addIMAPAccountButton: some View {
         Button {
-            imapAccountBeingEdited = nil
-            showIMAPSheet = true
+            presentIMAPSheet(editing: nil)
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "plus.circle")
@@ -196,6 +148,26 @@ struct AutopilotSettingsSection: View {
             .foregroundColor(Theme.accent)
         }
         .buttonStyle(.plain)
+    }
+
+    /// v1.8.0: 通过 OverlayPresenter 推到 popover 根渲染。AnyView 会丢
+    /// SwiftUI 的 Environment 链 — 显式 .environmentObject 重新注入
+    /// IMAPAccountSheet 用到的 settingsStore（其他 env 同 popover 根的）。
+    private func presentIMAPSheet(editing account: IMAPAccount?) {
+        overlayPresenter.present(
+            IMAPAccountSheet(
+                existing: account,
+                onSave: { account, password in
+                    // Save credential to Keychain FIRST so the bridge has it
+                    // before settings.imapAccount triggers the rebuild.
+                    IMAPCredentialStore.save(password: password, for: account.email)
+                    settingsStore.update { $0.autopilot.imapAccount = account }
+                    overlayPresenter.dismiss()
+                },
+                onCancel: { overlayPresenter.dismiss() }
+            )
+            .environmentObject(settingsStore)
+        )
     }
 
     @ViewBuilder
@@ -218,8 +190,7 @@ struct AutopilotSettingsSection: View {
             Spacer()
 
             Button("Edit") {
-                imapAccountBeingEdited = account
-                showIMAPSheet = true
+                presentIMAPSheet(editing: account)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -246,7 +217,30 @@ struct AutopilotSettingsSection: View {
     /// ON→OFF disables the scheduler and flips immediately.
     private func handleWatchToggle(_ newValue: Bool) {
         if newValue {
-            showConsentSheet = true   // don't flip yet; confirm path will
+            // v1.8.0: present via OverlayPresenter so the consent panel renders
+            // at popover root, not inline at the bottom of this section.
+            overlayPresenter.present(
+                AutopilotConsentSheet(
+                    onConfirm: {
+                        overlayPresenter.dismiss()
+                        // Persist the toggle flip, then trigger TCC prompt.
+                        settingsStore.update { $0.autopilot.watchAppleMail = true }
+                        Task {
+                            await watchdog.connectAppleMail()
+                            // If permission denied, unwind so UI honestly reflects state.
+                            if watchdog.state == .permissionDenied {
+                                settingsStore.update { $0.autopilot.watchAppleMail = false }
+                            } else {
+                                watchdog.scheduleDailyScan()
+                            }
+                        }
+                    },
+                    onCancel: {
+                        overlayPresenter.dismiss()
+                        // User backed out — leave toggle OFF.
+                    }
+                )
+            )
         } else {
             settingsStore.update { $0.autopilot.watchAppleMail = false }
             watchdog.cancelDailyScan()

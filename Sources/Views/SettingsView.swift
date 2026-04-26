@@ -10,20 +10,14 @@ struct SettingsView: View {
     @State private var showClearConfirm = false
     @State private var importError: String?
     @State private var showImportError = false
-    @State private var updateState: UpdateCheckState = .idle
 
     // v1.6: language override — restart prompt state.
     @State private var pendingLanguageChoice: LanguageOverride.Choice?
     @State private var showRestartAlert = false
 
-    enum UpdateCheckState {
-        case idle
-        case checking
-        case available(UpdateService.Release)
-        case upToDate
-        case downloading
-        case error(String)
-    }
+    // v1.8.0: observe Sparkle-backed UpdateService for canCheck / lastChecked
+    // reactive UI binding.
+    @ObservedObject private var updates = UpdateService.shared
 
     private let reminderOptions = [1, 2, 3, 5, 7]
 
@@ -181,14 +175,9 @@ struct SettingsView: View {
 
                 divider
 
-                // Update
+                // Update (v1.8.0: Sparkle 2 — see UpdateService.swift)
                 section("Update") {
                     updateSectionContent
-                }
-                .onAppear {
-                    if case .idle = updateState {
-                        checkForUpdate()
-                    }
                 }
 
                 divider
@@ -354,100 +343,56 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Update Section
+    // MARK: - Update Section (v1.8.0 Sparkle-backed)
 
+    /// Minimal Settings UI on top of UpdateService (Sparkle 2 wrapper).
+    /// Sparkle drives its own update-prompt dialog (release notes, install
+    /// confirm, progress, restart) — we just expose the trigger + auto-check
+    /// preference + last-checked timestamp.
     @ViewBuilder
     private var updateSectionContent: some View {
-        switch updateState {
-        case .idle:
-            actionButton("Check for updates", icon: "arrow.clockwise") {
-                checkForUpdate()
-            }
-        case .checking:
-            HStack(spacing: 8) {
-                ProgressView()
-                    .scaleEffect(0.7)
-                Text("Checking...")
-                    .font(AppFont.regular(12))
-                    .foregroundColor(Theme.textSecondary)
-            }
-        case .available(let release):
-            VStack(alignment: .leading, spacing: 8) {
-                Text("New version v\(release.version) available · you have v\(UpdateService.currentVersion)")
-                    .font(AppFont.regular(12))
-                    .foregroundColor(Theme.textSecondary)
-                actionButton("Download update", icon: "arrow.down.circle") {
-                    downloadUpdate(release)
-                }
-            }
-        case .upToDate:
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 12))
-                    .foregroundColor(Theme.success)
-                Text("You're up to date (v\(UpdateService.currentVersion))")
+                Text("Suber \(UpdateService.currentVersion)")
                     .font(AppFont.regular(12))
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
-                Button(action: { checkForUpdate() }) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 11))
-                        .foregroundColor(Theme.textDim)
+                Button(action: { updates.checkForUpdates() }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 11))
+                        Text("Check for updates")
+                            .font(AppFont.medium(12))
+                    }
+                    .foregroundColor(Theme.textPrimary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Theme.bgSecondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Theme.border, lineWidth: 1)
+                    )
                 }
                 .buttonStyle(.plain)
+                .disabled(!updates.canCheckForUpdates)
+                .opacity(updates.canCheckForUpdates ? 1 : 0.5)
             }
-        case .downloading:
-            HStack(spacing: 8) {
-                ProgressView()
-                    .scaleEffect(0.7)
-                Text("Downloading...")
+
+            Toggle(isOn: Binding(
+                get: { updates.automaticallyChecks },
+                set: { updates.automaticallyChecks = $0 }
+            )) {
+                Text("Automatically check for updates")
                     .font(AppFont.regular(12))
-                    .foregroundColor(Theme.textSecondary)
+                    .foregroundColor(Theme.textPrimary)
             }
-        case .error(let msg):
-            VStack(spacing: 8) {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 11))
-                        .foregroundColor(Theme.warning)
-                    Text(msg)
-                        .font(AppFont.regular(12))
-                        .foregroundColor(Theme.textSecondary)
-                }
-                actionButton("Retry", icon: "arrow.clockwise") {
-                    checkForUpdate()
-                }
-            }
-        }
-    }
+            .toggleStyle(.checkbox)
 
-    private func checkForUpdate() {
-        updateState = .checking
-        Task {
-            do {
-                if let release = try await UpdateService.checkForUpdate() {
-                    await MainActor.run { updateState = .available(release) }
-                } else {
-                    await MainActor.run { updateState = .upToDate }
-                }
-            } catch {
-                await MainActor.run { updateState = .error("Check failed") }
-            }
-        }
-    }
-
-    private func downloadUpdate(_ release: UpdateService.Release) {
-        guard let dmgURL = release.dmgURL else {
-            updateState = .error("No DMG available")
-            return
-        }
-        updateState = .downloading
-        Task {
-            do {
-                _ = try await UpdateService.downloadAndOpen(dmgURL, version: release.version)
-                await MainActor.run { updateState = .upToDate }
-            } catch {
-                await MainActor.run { updateState = .error("Download failed") }
+            if let last = updates.lastCheckedAt {
+                Text("Last checked: \(last.formatted(date: .abbreviated, time: .shortened))")
+                    .font(AppFont.regular(11))
+                    .foregroundColor(Theme.textDim)
             }
         }
     }

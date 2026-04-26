@@ -186,7 +186,7 @@ final class AppleMailBridge: MailBridge {
             // the right UI state.
             let lower = stderrStr.lowercased()
             if lower.contains("not authorized") || lower.contains("not allowed") || lower.contains("1743") {
-                throw MailBridgeError.permissionDenied
+                throw MailBridgeError.permissionDenied(detail: nil)
             }
             if lower.contains("can\u{2019}t get application") || lower.contains("can't get application") ||
                lower.contains("connection is invalid") || lower.contains("-600") {

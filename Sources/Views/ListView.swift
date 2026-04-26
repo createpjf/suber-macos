@@ -12,14 +12,15 @@ enum SortBy: String, CaseIterable, Identifiable {
 struct ListView: View {
     @EnvironmentObject var subscriptionStore: SubscriptionStore
     @EnvironmentObject var settingsStore: SettingsStore
+    /// v1.8.0: popover-root overlay coordinator. CancelConfirmationSheet
+    /// is now pushed via overlayPresenter.present rather than .popoverOverlay
+    /// on this view (which caused inline rendering — see OverlayPresenter docs).
+    @EnvironmentObject var overlayPresenter: OverlayPresenter
     let onEdit: (Subscription) -> Void
 
     @State private var searchText = ""
     @State private var statusFilter = "all"
     @State private var sortBy: SortBy = .nextBilling
-
-    // v1.6: pending-cancel confirmation sheet state.
-    @State private var pendingCancelSub: Subscription?
 
     var body: some View {
         VStack(spacing: 6) {
@@ -81,7 +82,7 @@ struct ListView: View {
                         ForEach(filteredSubscriptions) { sub in
                             SubCardView(
                                 subscription: sub,
-                                onOpenCancelPage: { pendingCancelSub = sub }
+                                onOpenCancelPage: { presentCancelConfirmation(for: sub) }
                             )
                             .environmentObject(subscriptionStore)
                             .onTapGesture { onEdit(sub) }
@@ -92,26 +93,29 @@ struct ListView: View {
                 }
             }
         }
-        // v1.6 One-Tap Cancel confirmation sheet (D10).
-        // v1.7.1: `.sheet(item:)` → `.popoverOverlay(item:)` because we live
-        // inside the MenuBarExtra popover. See PopoverOverlay.swift header
-        // for why `.sheet` dies on popover key-loss.
-        .popoverOverlay(item: $pendingCancelSub) { sub in
+        // v1.8.0: CancelConfirmationSheet 走 OverlayPresenter，由
+        // MenuBarView 根节点渲染（见 OverlayPresenter.swift header）。
+    }
+
+    /// v1.8.0: presents CancelConfirmationSheet via OverlayPresenter so it
+    /// renders at popover root (not inline at section bounds).
+    private func presentCancelConfirmation(for sub: Subscription) {
+        overlayPresenter.present(
             CancelConfirmationSheet(
                 subscription: sub,
                 hasDataSource: hasDataSource,
                 onOpenCancelPage: {
-                    pendingCancelSub = nil
+                    overlayPresenter.dismiss()
                     subscriptionStore.markPendingCancellation(id: sub.id)
                     OneTapCancelService.openCancelPage(for: sub)
                 },
                 onMarkCancelledManually: {
-                    pendingCancelSub = nil
+                    overlayPresenter.dismiss()
                     markSubscriptionCancelledManually(sub)
                 },
-                onCancel: { pendingCancelSub = nil }
+                onCancel: { overlayPresenter.dismiss() }
             )
-        }
+        )
     }
 
     /// A4: true if Suber has a data source that can verify an auto-transition.

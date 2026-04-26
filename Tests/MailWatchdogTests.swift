@@ -73,7 +73,7 @@ final class MailWatchdogTests: XCTestCase {
     // MARK: - Permission denied → state mapping
 
     func testPermissionDeniedFlowsIntoState() async {
-        bridge.errorToThrow = .permissionDenied
+        bridge.errorToThrow = .permissionDenied(detail: nil)
         do {
             _ = try await watchdog.scanNow()
             XCTFail("Expected throw")

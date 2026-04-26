@@ -2,6 +2,39 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.8.0] — 2026-04-26 — Layout fix · Data rescue · IMAP detail · Sparkle in-app updates
+
+合集 release。修复 v1.7.1 三个紧急 bug + 加入 Sparkle 应用内自动更新。
+
+### Added
+
+- **In-app auto-update via Sparkle 2.** Settings → Updates 加 "Check for updates" 按钮 + "Automatically check" toggle + last-checked 时间戳。一键下载 + 验证 EdDSA 签名 + 原子替换 binary + 重启。绕开了 macOS Sequoia/Tahoe 的 App Management TCC 弹窗（Sparkle 用签名 XPC helper "Autoupdate.app"，权限 baked in）。**v1.7.x 用户最后一次手动下载 v1.8.0 DMG，之后所有 v1.8.x → v1.8.x+1 都在应用内自动升级。**
+- 改进的 Outlook setupHint：三步具体指南（启用 2FA → 创建 App Password → IMAP 启用），不再笼统说"Generate App Password"。Outlook 个人账号（@outlook.com / @hotmail.com / @live.com）2024-2025 起 Microsoft 逐步禁用 Basic Auth，新提示明确告诉用户必须走 App Password 路径。
+
+### Fixed
+
+- **弹窗布局** — IMAPAccountSheet / Watch consent / Cancel confirmation 现在正确铺满 popover。v1.7.1 的 `.popoverOverlay` modifier 只能在 popover 根节点起作用；深嵌触发的 modal 会被 section 边界限制成 inline 错位（用户截图证实"Add IMAP account" 表单挂在 Autopilot 标题下面而不是居中弹出）。新加 `OverlayPresenter` env-object 把弹窗渲染抽到 `MenuBarView` 根 ZStack，`.frame(.infinity)` 那时才真覆盖整个 480×520 popover。
+- **升级丢数据** — 新加 `LegacyDataMigration`：第一次启动 v1.8.0+ 时直接读 legacy `~/Library/Group Containers/group.com.suber.app/group.com.suber.app.plist`（`PropertyListSerialization` 走文件系统，不走 cfprefsd → 不触发 macOS Tahoe 的 TCC 弹窗）恢复 v1.6.0/v1.6.1 用户写在老 UserDefaults app-group 里的 subscriptions + settings + change log。一次性，UserDefaults.standard 标志位防重跑。已有 AppGroupStore 数据（v1.6.2+ 用户 / iCloud sync 拉过来的）不被覆盖。
+- **IMAP 测试连接错误信息** — `MailBridgeError.permissionDenied` 加 `detail:` 参数，`IMAPClient.login()` 把服务器原始响应（如 `[AUTHENTICATIONFAILED] basic auth disabled`）透传过去，IMAPAccountSheet 的 "Test connection" 失败提示从笼统的 "check email and app password" 升级为 "Authentication failed. Server said: ..." — Outlook 个人账号 Basic Auth 被 Microsoft 禁用的情况下用户能直接看到原因，自助诊断。
+- **IMAPAccountSheet timeout 错误信息** — 加上"Check the host and port (or local proxy/VPN settings)"提示，因为本地 VPN/proxy（Clash/Stash 等）经常拦截 imap.* 域名导致超时。
+
+### Notes for upgraders
+
+- **v1.7.1 → v1.8.0**：手动下载 DMG（最后一次）。安装后，未来所有 v1.8.x → v1.8.x+1 都在应用内自动升级，不用再手动下 DMG。
+- **v1.6.0 / v1.6.1 → v1.8.0**（跳过 v1.6.2 / v1.7.x 直升）：自动数据迁移，无感。LegacyDataMigration 会从老 UserDefaults plist 恢复订阅 + 设置。
+- **v1.6.2 → v1.8.0**：数据已在 AppGroupStore，迁移 no-op，零变化。
+- **v1.7.0 → v1.8.0**：v1.7.0 的 IMAP 配置（如有保存）和 v1.7.1 修了一半的 sheet UI 都在 v1.8.0 完整工作。
+
+### Engineering
+
+- 210/210 tests green (+4 LegacyDataMigrationTests)
+- 新依赖：Sparkle 2.9.1 通过 SwiftPM
+- `scripts/build-dmg.sh` 新增 [9/9] generate_appcast 步骤（用 `~/.local/sparkle/bin/generate_appcast` — brew cask 已废弃，直接从 GitHub 下二进制）
+- `MailBridgeError` enum 加自定义 `==` 实现，`detail` 字段不参与比较，老 catch 写法（`catch MailBridgeError.permissionDenied(_)`）兼容
+- v1.7.1 加的 `.popoverOverlay(item:)` overload 已删除（无引用），`.popoverOverlay(isPresented:)` 保留备用
+
+---
+
 ## [1.7.1] — 2026-04-26 — Fix sheet dismissal inside menubar popover
 
 Same-day hotfix for v1.7.0. Reported within the hour of release: clicking the **App Password** field in "Add IMAP account" made the entire sheet vanish. Same root cause also broke the "Watch Apple Mail" consent sheet and the "Open cancel page" confirmation sheet — anywhere v1.6/v1.7 used `.sheet(...)` from inside the menubar popover.

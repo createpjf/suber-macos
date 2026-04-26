@@ -11,6 +11,10 @@ struct MenuBarView: View {
     @EnvironmentObject var subscriptionStore: SubscriptionStore
     @EnvironmentObject var settingsStore: SettingsStore
     @EnvironmentObject var importPresenter: ImportPresenter
+    /// v1.8.0: popover-root overlay slot. Any deeply-nested view can push
+    /// modal content here via `overlayPresenter.present(...)` — see
+    /// OverlayPresenter.swift for the rationale.
+    @EnvironmentObject var overlayPresenter: OverlayPresenter
 
     /// Opens the "Import Subscriptions" Window scene declared in SuberApp.
     /// We keep import flows in a separate window so TCC / file-picker / system
@@ -99,11 +103,24 @@ struct MenuBarView: View {
                 }
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
+
+            // v1.8.0: popover-root overlay slot. Renders ABOVE the form
+            // overlays (zIndex 2 vs formOverlay's implicit 1) so deeply-
+            // triggered modals correctly cover everything else. See
+            // OverlayPresenter.swift for the architecture rationale.
+            if let overlay = overlayPresenter.content {
+                overlay
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Theme.bgPrimary)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .zIndex(2)
+            }
         }
         .background(Theme.bgPrimary)
         .clipped()
         .animation(.easeOut(duration: 0.2), value: showAddForm)
         .animation(.easeOut(duration: 0.2), value: editingSubscription?.id)
+        .animation(.easeOut(duration: 0.2), value: overlayPresenter.isPresenting)
     }
 
     // MARK: - Import triggers

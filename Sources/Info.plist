@@ -54,5 +54,15 @@
 	     the in-app consent modal does the heavier trust-scaffolding before this fires. -->
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Suber reads billing receipts from Apple Mail so you never miss a price change or a subscription you forgot about. Only renewal and invoice emails are read. Nothing leaves your Mac.</string>
+	<!-- v1.8.0 Sparkle 2 in-app updater. Feed URL points at the GitHub
+	     "latest release" auto-redirect — every new release uploads an
+	     appcast.xml asset which signed with the EdDSA private key in
+	     macOS Keychain (see scripts/build-dmg.sh step [9/10]). -->
+	<key>SUFeedURL</key>
+	<string>https://github.com/createpjf/suber-macos/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>OCFacAj9t+hdajly+ZhOvo42fCgNNyF4HfTH55emYYA=</string>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
 </dict>
 </plist>

@@ -268,10 +268,19 @@ struct IMAPAccountSheet: View {
         do {
             let count = try await bridge.ping(timeout: 30)
             testResult = .success(accountCount: count)
-        } catch MailBridgeError.permissionDenied {
-            testResult = .failure(message: "Authentication failed. Check the email and app password.")
+        } catch MailBridgeError.permissionDenied(let detail) {
+            // v1.8.0: surface server's actual response so users can self-
+            // diagnose. Outlook personal accounts especially benefit —
+            // `[AUTHENTICATIONFAILED] basic auth disabled` is way more
+            // actionable than generic "check email and app password".
+            let baseMsg = "Authentication failed."
+            if let detail = detail, !detail.isEmpty {
+                testResult = .failure(message: "\(baseMsg) Server said: \(detail)")
+            } else {
+                testResult = .failure(message: "\(baseMsg) Check the email and app password.")
+            }
         } catch MailBridgeError.timeout {
-            testResult = .failure(message: "Connection timed out. Check the host and port.")
+            testResult = .failure(message: "Connection timed out. Check the host and port (or local proxy/VPN settings).")
         } catch {
             testResult = .failure(message: error.localizedDescription)
         }

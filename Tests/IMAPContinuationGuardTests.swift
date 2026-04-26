@@ -21,7 +21,7 @@ final class IMAPContinuationGuardTests: XCTestCase {
             let guarded = IMAPContinuationGuard(c)
             guarded.resume(.success(42))
             guarded.resume(.success(99))   // ignored
-            guarded.resume(throwing: MailBridgeError.permissionDenied)  // ignored
+            guarded.resume(throwing: MailBridgeError.permissionDenied(detail: nil))  // ignored
         }
         XCTAssertEqual(value, 42, "First resume value should win")
     }
@@ -30,13 +30,13 @@ final class IMAPContinuationGuardTests: XCTestCase {
         do {
             _ = try await withCheckedThrowingContinuation { (c: CheckedContinuation<Int, Error>) in
                 let guarded = IMAPContinuationGuard(c)
-                guarded.resume(throwing: MailBridgeError.permissionDenied)
+                guarded.resume(throwing: MailBridgeError.permissionDenied(detail: nil))
                 guarded.resume(.success(0))    // ignored
                 guarded.resume(throwing: MailBridgeError.unknown("ignored"))
             }
             XCTFail("Should have thrown the first error")
         } catch let e as MailBridgeError {
-            XCTAssertEqual(e, .permissionDenied, "First-thrown error must propagate")
+            XCTAssertEqual(e, .permissionDenied(detail: nil), "First-thrown error must propagate")
         } catch {
             XCTFail("Wrong error type: \(error)")
         }

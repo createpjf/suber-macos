@@ -76,7 +76,19 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
         case .icloud:
             return "Generate an app-specific password at appleid.apple.com → Sign-In and Security → App-Specific Passwords."
         case .outlook:
-            return "Microsoft accounts: enable 2FA, then create an App Password at account.microsoft.com → Security → Advanced security options."
+            // v1.8.0: 细化提示。Microsoft 个人账号（@outlook.com / @hotmail.com /
+            // @live.com）2024-2025 起逐步禁用 Basic Auth，必须走 App Password
+            // 而且要求账号开启两步验证。当用户填错 App Password 时，IMAP
+            // 服务器返回的是 `[AUTHENTICATIONFAILED] basic auth disabled`
+            // 这种具体消息 — IMAPAccountSheet.runTest() 会原样展示给用户。
+            return """
+                Outlook personal accounts (@outlook.com / @hotmail.com / @live.com):
+                1. Enable 2-Step Verification at account.live.com → Security
+                2. Create App Password under Security → Advanced security options
+                3. Use the 16-char App Password here, NOT your account password
+
+                Some legacy accounts have IMAP disabled by default — enable in Outlook.com Settings.
+                """
         case .yahoo:
             return "Generate an App Password at login.yahoo.com → Account Security → Generate app password."
         case .fastmail:

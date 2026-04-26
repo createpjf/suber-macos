@@ -8,10 +8,10 @@ struct DayDetailView: View {
 
     @EnvironmentObject private var subscriptionStore: SubscriptionStore
     @EnvironmentObject private var settingsStore: SettingsStore
+    /// v1.8.0: popover-root overlay coordinator for CancelConfirmationSheet.
+    @EnvironmentObject private var overlayPresenter: OverlayPresenter
 
     @State private var dragOffset: CGFloat = 0
-    /// v1.6: pending-cancel confirmation sheet target.
-    @State private var pendingCancelSub: Subscription?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -126,25 +126,28 @@ struct DayDetailView: View {
                     }
                 }
         )
-        // v1.6 One-Tap Cancel confirmation sheet (D10).
-        // v1.7.1: `.sheet(item:)` → `.popoverOverlay(item:)` — see
-        // PopoverOverlay.swift header for the popover key-loss bug.
-        .popoverOverlay(item: $pendingCancelSub) { sub in
+        // v1.8.0: CancelConfirmationSheet 走 OverlayPresenter (popover root).
+    }
+
+    /// v1.8.0: presents CancelConfirmationSheet via OverlayPresenter so it
+    /// renders at popover root instead of being pinned to this view's bounds.
+    private func presentCancelConfirmation(for sub: Subscription) {
+        overlayPresenter.present(
             CancelConfirmationSheet(
                 subscription: sub,
                 hasDataSource: hasDataSource,
                 onOpenCancelPage: {
-                    pendingCancelSub = nil
+                    overlayPresenter.dismiss()
                     subscriptionStore.markPendingCancellation(id: sub.id)
                     OneTapCancelService.openCancelPage(for: sub)
                 },
                 onMarkCancelledManually: {
-                    pendingCancelSub = nil
+                    overlayPresenter.dismiss()
                     subscriptionStore.markCancelledManually(id: sub.id)
                 },
-                onCancel: { pendingCancelSub = nil }
+                onCancel: { overlayPresenter.dismiss() }
             )
-        }
+        )
     }
 
     // MARK: - v1.6 Cancel row
@@ -153,7 +156,7 @@ struct DayDetailView: View {
     private func cancelActionRow(for sub: Subscription) -> some View {
         HStack(spacing: 8) {
             Spacer()
-            Button(action: { pendingCancelSub = sub }) {
+            Button(action: { presentCancelConfirmation(for: sub) }) {
                 HStack(spacing: 4) {
                     Image(systemName: "arrow.up.right.square")
                         .font(.system(size: 10, weight: .medium))

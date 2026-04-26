@@ -158,7 +158,7 @@ final class MailWatchdog: ObservableObject {
             } catch {
                 // scanNow handled its own state; don't override.
             }
-        } catch MailBridgeError.permissionDenied {
+        } catch MailBridgeError.permissionDenied(_) {
             state = .permissionDenied
         } catch MailBridgeError.mailNotRunning {
             state = .error("Mail not running — open Mail.app once, then tap Scan now.")
@@ -231,9 +231,9 @@ final class MailWatchdog: ObservableObject {
             state = .idle
 
             return summary
-        } catch MailBridgeError.permissionDenied {
+        } catch MailBridgeError.permissionDenied(_) {
             state = .permissionDenied
-            throw MailBridgeError.permissionDenied
+            throw MailBridgeError.permissionDenied(detail: nil)
         } catch MailBridgeError.mailNotRunning {
             state = .error("Mail not running — open Mail.app once, then tap Scan now.")
             throw MailBridgeError.mailNotRunning

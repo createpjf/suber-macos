@@ -52,7 +52,7 @@ final class CompositeMailBridge: MailBridge {
         // If every bridge failed, propagate the most informative error.
         if errors.count == bridges.count {
             // Prefer permissionDenied (most actionable) over generic.
-            if let denied = errors.first(where: { ($0 as? MailBridgeError) == .permissionDenied }) {
+            if let denied = errors.first(where: { ($0 as? MailBridgeError) == .permissionDenied(detail: nil) }) {
                 throw denied
             }
             throw errors.first ?? MailBridgeError.unknown("all bridges failed")

@@ -62,19 +62,7 @@ extension View {
         modifier(PopoverOverlay(isPresented: isPresented, overlay: overlay))
     }
 
-    /// `.sheet(item:)` ergonomic parity. Renders overlay when `item != nil`,
-    /// passes the unwrapped value into the closure. Setting the binding to
-    /// nil dismisses the overlay.
-    func popoverOverlay<Item: Identifiable, Overlay: View>(
-        item: Binding<Item?>,
-        @ViewBuilder overlay: @escaping (Item) -> Overlay
-    ) -> some View {
-        modifier(PopoverOverlay(
-            isPresented: Binding(
-                get: { item.wrappedValue != nil },
-                set: { if !$0 { item.wrappedValue = nil } }
-            ),
-            overlay: { item.wrappedValue.map(overlay) }
-        ))
-    }
+    // v1.8.0: 删了 `.popoverOverlay(item:)` 重载 — 4 个调用点都迁到了
+    // OverlayPresenter，没人再用 item-binding 形式。`isPresented:` 重载
+    // 保留，仍可用于 popover 根直接挂的场景（如果将来需要）。
 }

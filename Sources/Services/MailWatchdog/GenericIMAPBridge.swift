@@ -48,7 +48,7 @@ final class GenericIMAPBridge: MailBridge {
     /// for IMAP we have one account per bridge instance).
     func ping(timeout: TimeInterval) async throws -> Int {
         guard let password = passwordResolver(), !password.isEmpty else {
-            throw MailBridgeError.permissionDenied
+            throw MailBridgeError.permissionDenied(detail: nil)
         }
         let client = IMAPClient(host: account.host, port: account.port)
         do {
@@ -68,7 +68,7 @@ final class GenericIMAPBridge: MailBridge {
               keywords: [String],
               timeout: TimeInterval) async throws -> [MailMessage] {
         guard let password = passwordResolver(), !password.isEmpty else {
-            throw MailBridgeError.permissionDenied
+            throw MailBridgeError.permissionDenied(detail: nil)
         }
 
         let deadline = Date().addingTimeInterval(timeout)
@@ -117,7 +117,7 @@ final class GenericIMAPBridge: MailBridge {
             // either timed out or the credentials are wrong.
             let desc = error.localizedDescription.lowercased()
             if desc.contains("auth") || desc.contains("login") || desc.contains("password") {
-                throw MailBridgeError.permissionDenied
+                throw MailBridgeError.permissionDenied(detail: nil)
             }
             throw MailBridgeError.unknown(error.localizedDescription)
         }

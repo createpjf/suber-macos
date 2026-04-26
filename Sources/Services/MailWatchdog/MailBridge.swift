@@ -45,9 +45,13 @@ struct MailMessage: Equatable {
 
 /// Errors a MailBridge may throw. Each one maps to a specific state transition
 /// in MailWatchdog so the UI can show the right error affordance.
-enum MailBridgeError: Error, Equatable {
-    /// User denied the TCC Apple Events prompt. Recoverable via System Settings.
-    case permissionDenied
+enum MailBridgeError: Error {
+    /// User denied the TCC Apple Events prompt OR IMAP server rejected
+    /// credentials. `detail` (v1.8.0) carries the server's raw response text
+    /// when available — surfaced in the IMAPAccountSheet test-result UI so
+    /// users can see e.g. `[AUTHENTICATIONFAILED] basic auth disabled` and
+    /// self-diagnose Outlook personal-account issues.
+    case permissionDenied(detail: String?)
     /// Mail.app isn't running (no accounts available to query).
     case mailNotRunning
     /// No accounts configured in Mail.app.
@@ -57,6 +61,21 @@ enum MailBridgeError: Error, Equatable {
     case timeout(resumeToken: [String: String])
     /// Anything else (osascript syntax error, AppleScript engine fault, etc.)
     case unknown(String)
+}
+
+// v1.8.0: 自定义 == — `detail` 不参与比较，老的 `XCTAssertEqual(err, .permissionDenied(detail: nil))`
+// 也匹配新的 `.permissionDenied(detail: "server text")`。语义上两者都是 "auth failed"。
+extension MailBridgeError: Equatable {
+    static func == (lhs: MailBridgeError, rhs: MailBridgeError) -> Bool {
+        switch (lhs, rhs) {
+        case (.permissionDenied, .permissionDenied): return true
+        case (.mailNotRunning, .mailNotRunning): return true
+        case (.noAccountsConfigured, .noAccountsConfigured): return true
+        case (.timeout, .timeout): return true
+        case (.unknown(let a), .unknown(let b)): return a == b
+        default: return false
+        }
+    }
 }
 
 /// Protocol boundary. Implementers see subject-line keywords only — no body

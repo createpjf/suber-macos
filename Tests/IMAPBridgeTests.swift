@@ -248,15 +248,15 @@ final class IMAPBridgeTests: XCTestCase {
 
     @MainActor
     func testCompositeBridgePingThrowsWhenAllFail() async {
-        let a = StubMailBridge(); a.errorToThrow = .permissionDenied
-        let b = StubMailBridge(); b.errorToThrow = .permissionDenied
+        let a = StubMailBridge(); a.errorToThrow = .permissionDenied(detail: nil)
+        let b = StubMailBridge(); b.errorToThrow = .permissionDenied(detail: nil)
         let composite = CompositeMailBridge(bridges: [a, b])
 
         do {
             _ = try await composite.ping(timeout: 5)
             XCTFail("Should have thrown when all bridges fail")
         } catch let error as MailBridgeError {
-            XCTAssertEqual(error, .permissionDenied,
+            XCTAssertEqual(error, .permissionDenied(detail: nil),
                            "Should propagate permissionDenied (most actionable)")
         } catch {
             XCTFail("Wrong error type: \(error)")

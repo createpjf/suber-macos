@@ -3,6 +3,13 @@ import SwiftUI
 @main
 struct SuberApp: App {
     init() {
+        // v1.8.0: rescue v1.6.0/v1.6.1 → v1.7.x upgraders' data from the
+        // legacy app-group plist (cfprefsd path that v1.6.2 abandoned).
+        // Must run BEFORE StorageService.shared.loadSettings() below or
+        // the first read sees empty AppGroupStore. No-op on fresh installs
+        // and on users who already migrated.
+        LegacyDataMigration.runIfNeeded()
+
         // v1.6: apply the user's language override BEFORE any view loads.
         // Foundation caches NSBundle lookups very early; this needs to run
         // before the first @Published settings read or first Text() resolve.
@@ -20,6 +27,11 @@ struct SuberApp: App {
     /// persistence. Wired to subscriptionStore via onScanComplete callback
     /// (set up in init so the closure captures the store reference once).
     @StateObject private var mailWatchdog = MailWatchdog()
+    /// v1.8.0 OverlayPresenter — popover-root 弹窗协调器。深嵌触发的 modal
+    /// （IMAPAccountSheet / AutopilotConsentSheet / CancelConfirmationSheet）
+    /// 通过 present(...) 把内容推到 MenuBarView 根节点渲染，避免 v1.7.1
+    /// 的 .popoverOverlay 在 section 边界内 inline 错位的问题。
+    @StateObject private var overlayPresenter = OverlayPresenter()
 
     var body: some Scene {
         // v1.6: `label:` closure replaces the `image:` arg so we can overlay
@@ -34,6 +46,7 @@ struct SuberApp: App {
                 settingsStore: settingsStore,
                 importPresenter: importPresenter,
                 mailWatchdog: mailWatchdog,
+                overlayPresenter: overlayPresenter,
                 setupCloudSync: setupCloudSync,
                 setupWatchdog: setupWatchdog,
                 rebuildBridge: { mailWatchdog.setBridge(buildBridge()) },
@@ -238,6 +251,8 @@ private struct MenuBarContainerView: View {
     let settingsStore: SettingsStore
     let importPresenter: ImportPresenter
     let mailWatchdog: MailWatchdog
+    /// v1.8.0: popover-root overlay coordinator (see OverlayPresenter docs).
+    let overlayPresenter: OverlayPresenter
     let setupCloudSync: () -> Void
     let setupWatchdog: () -> Void
     /// v1.7 IMAP: rebuilds the MailBridge composition when settings change.
@@ -257,6 +272,7 @@ private struct MenuBarContainerView: View {
             .environmentObject(settingsStore)
             .environmentObject(importPresenter)
             .environmentObject(mailWatchdog)
+            .environmentObject(overlayPresenter)
             .frame(width: 480)
             .frame(maxHeight: 520)
             .fixedSize(horizontal: false, vertical: true)
@@ -266,6 +282,11 @@ private struct MenuBarContainerView: View {
                 setupWatchdog()
                 lastIMAPAccountID = settingsStore.settings.autopilot.imapAccount?.id
                 Task { await ExchangeRateService.shared.refreshIfNeeded() }
+                // v1.8.0: start Sparkle background updater (in-app auto-update).
+                // Deferred to onAppear so other launch-time work (LegacyDataMigration,
+                // CloudSync) runs first and so Sparkle isn't racing with first-
+                // launch Gatekeeper / quarantine processing.
+                UpdateService.shared.start()
             }
             .onOpenURL { url in handleURL(url, openWindow) }
             .onReceive(settingsStore.$settings) { settings in

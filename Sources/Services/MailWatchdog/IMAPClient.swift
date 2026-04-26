@@ -141,7 +141,11 @@ actor IMAPClient {
         if response.status == .no || response.status == .bad {
             // Server rejected credentials. The text usually contains
             // "Authentication failed" or similar.
-            throw MailBridgeError.permissionDenied
+            // v1.8.0: pass server response text through detail so
+            // IMAPAccountSheet's "Test connection" can show users the actual
+            // reason (e.g. `[AUTHENTICATIONFAILED] basic auth disabled` for
+            // Outlook personal accounts that haven't enabled App Password).
+            throw MailBridgeError.permissionDenied(detail: response.text)
         }
     }
 

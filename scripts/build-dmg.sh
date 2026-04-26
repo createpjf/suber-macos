@@ -242,12 +242,43 @@ else
     # 9. Final Gatekeeper assessment
     # ----------------------------------------------------------------------
 
-    echo "[8/8] spctl assess (Gatekeeper sanity check)…"
+    echo "[8/9] spctl assess (Gatekeeper sanity check)…"
     spctl --assess --type install --verbose "${OUTPUT_DMG}" 2>&1 | tail -3
+
+    # ----------------------------------------------------------------------
+    # v1.8.0: Generate signed appcast.xml for Sparkle in-app updater.
+    # Sparkle CLI tools live at ~/.local/sparkle/bin (downloaded from
+    # https://github.com/sparkle-project/Sparkle/releases since the brew
+    # cask is deprecated as of 2026-04). Private EdDSA key lives in macOS
+    # Keychain — generate_appcast picks it up automatically.
+    # ----------------------------------------------------------------------
+
+    echo "[9/9] Generating signed appcast.xml for Sparkle…"
+    SPARKLE_BIN="${HOME}/.local/sparkle/bin"
+    if [ ! -x "${SPARKLE_BIN}/generate_appcast" ]; then
+        echo "ERROR: ${SPARKLE_BIN}/generate_appcast not found." >&2
+        echo "       Download Sparkle from https://github.com/sparkle-project/Sparkle/releases" >&2
+        echo "       Extract Sparkle-X.Y.Z.tar.xz to ~/.local/sparkle/" >&2
+        exit 1
+    fi
+
+    APPCAST_DIR="${BUILD_DIR}/appcast"
+    mkdir -p "${APPCAST_DIR}"
+    cp "${OUTPUT_DMG}" "${APPCAST_DIR}/"
+    "${SPARKLE_BIN}/generate_appcast" \
+        --download-url-prefix "https://github.com/createpjf/suber-macos/releases/download/v${VERSION}/" \
+        "${APPCAST_DIR}" 2>&1 | tail -5
+
+    APPCAST_OUT="${PROJECT_DIR}/appcast.xml"
+    cp "${APPCAST_DIR}/appcast.xml" "${APPCAST_OUT}"
+    echo "      appcast.xml → ${APPCAST_OUT}"
+    echo ""
+    echo "      Upload BOTH ${OUTPUT_DMG} AND ${APPCAST_OUT} to the GitHub release:"
+    echo "      gh release create v${VERSION} ${OUTPUT_DMG} ${APPCAST_OUT} --notes-file …"
 fi
 
 # ---------------------------------------------------------------------------
-# Cleanup intermediate build dir; keep the DMG.
+# Cleanup intermediate build dir; keep the DMG (and appcast.xml at project root).
 # ---------------------------------------------------------------------------
 
 rm -rf "${BUILD_DIR}"
