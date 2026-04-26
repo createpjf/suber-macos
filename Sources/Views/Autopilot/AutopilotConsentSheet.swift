@@ -115,7 +115,10 @@ struct AutopilotConsentSheet: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 16)
         }
-        .frame(width: 540)
+        // v1.8.1: 写死 width: 540 超过了 popover 480pt → "Connect Apple Mail"
+        // 主按钮被裁。改 maxWidth: .infinity 让 OverlayPresenter 控制
+        // 实际宽度（popover 480 自适应）。
+        .frame(maxWidth: .infinity)
         .fixedSize(horizontal: false, vertical: true)
         .background(Theme.bgPrimary)
     }

@@ -2,6 +2,39 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.8.1] — 2026-04-26 — Gmail 跑通 + consent 布局 + IMAP 错误显示
+
+v1.8.0 同日 hotfix。修核心问题：Gmail 用户哪怕输对了 App Password 也常常连不上，加上 v1.8.0 弹窗布局漏修一处 + IMAP 错误信息被截。
+
+### Fixed
+
+- **AutopilotConsentSheet 写死 540pt 宽超过 popover 480pt** → "Connect Apple Mail" 按钮被裁。改成 `.frame(maxWidth: .infinity)` 自适应。`IMAPAccountSheet` 同改（之前 480pt 等于 popover 宽度但零边距，OverlayPresenter 包裹层任何 padding 都会破）。
+- **IMAP 测试错误信息被 `.lineLimit(2) + .truncationMode(.tail)` 截断** → 看不到 Gmail/Outlook 服务器返回的完整 URL。重做 testRow：失败信息独立成全宽多行 selectable 块 + Copy diagnostic 按钮一键把完整响应复制到剪贴板。
+
+### Improved (Gmail 救援)
+
+- **Email + App Password 输入自动 trim** — 复制粘贴时常带的首尾空格、换行、看不见的 unicode 现在不会再卡住 LOGIN。
+- **Gmail "abcd efgh ijkl mnop" 4-4-4-4 格式自动 strip 空格** — Google 的 App Password 页面用空格分组方便阅读，我们粘贴后自动归一化为连续 16 字符（Gmail 服务器两种都接受，归一化更稳）。
+- **Gmail setupHint 加为 4 步**，把最常被忽略的"启用 IMAP"放到第 1 步：
+  1. mail.google.com → Settings → Forwarding and POP/IMAP → IMAP access: Enable
+  2. 启用 2-Step Verification
+  3. 在 myaccount.google.com/apppasswords 创建 App Password
+  4. 粘贴 16 位 App Password
+- **iCloud / Yahoo / Fastmail setupHint** 全部改成同款 3-4 步多行格式（与 Outlook 一致），明确"NOT your account password"。
+- **Test connection 错误智能识别 5 种常见模式**，失败信息前自动追加一句中文友好解释：
+  - "App Password required" → 提示用户输的是账号密码
+  - "Basic auth disabled" → Outlook 个人账号必须用 App Password
+  - "IMAP is disabled" → Gmail/Workspace IMAP 没启用
+  - "Web login required" → Gmail 触发安全锁，需要先在浏览器登录一次
+  - "LOGINDISABLED" → 服务器禁了 IMAP 登录
+
+### Notes
+
+- v1.8.0 用户**直接 Sparkle 应用内一键升级**（Settings → Updates → Check for updates → Install）— 首次实测 Sparkle 升级 pipeline 是否端到端工作。
+- 210/210 tests 全绿（无逻辑变更，UI/copy 调整 + 防御性 trim/normalize）。
+
+---
+
 ## [1.8.0] — 2026-04-26 — Layout fix · Data rescue · IMAP detail · Sparkle in-app updates
 
 合集 release。修复 v1.7.1 三个紧急 bug + 加入 Sparkle 应用内自动更新。

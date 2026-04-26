@@ -83,7 +83,10 @@ struct IMAPAccountSheet: View {
             footer
         }
         .padding(.vertical, 16)
-        .frame(width: 480)
+        // v1.8.1: 改 .frame(maxWidth: .infinity) 跟 AutopilotConsentSheet 一致。
+        // 旧的 480pt 等于 popover 宽度但零边距，OverlayPresenter 包裹层有任何
+        // padding 都会让按钮被裁。Inner padding 都是相对值，自适应。
+        .frame(maxWidth: .infinity)
         .background(Theme.bgPrimary)
     }
 
@@ -185,46 +188,81 @@ struct IMAPAccountSheet: View {
     }
 
     private var testRow: some View {
-        HStack(spacing: 8) {
-            Button {
-                Task { await runTest() }
-            } label: {
-                HStack(spacing: 4) {
-                    if testing {
-                        ProgressView().scaleEffect(0.5).frame(width: 12, height: 12)
-                    } else {
-                        Image(systemName: "network")
+        // v1.8.1: split the row into Test button + (success-or-empty) on top,
+        // and a full-width failure block underneath. Failure used to share
+        // horizontal space with the button + .lineLimit(2) + .truncationMode
+        // — Gmail's response includes a URL that got cut off, killing the
+        // user's ability to self-diagnose. Now: full-width, multi-line,
+        // selectable, with a Copy diagnostic button.
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Button {
+                    Task { await runTest() }
+                } label: {
+                    HStack(spacing: 4) {
+                        if testing {
+                            ProgressView().scaleEffect(0.5).frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "network")
+                        }
+                        Text(testing ? "Testing…" : "Test connection")
                     }
-                    Text(testing ? "Testing…" : "Test connection")
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(!canTest)
+
+                if case .success(let count) = testResult {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                        Text("Connected · \(count) account\(count == 1 ? "" : "s")")
+                            .font(AppFont.regular(11))
+                            .foregroundColor(Theme.textSecondary)
+                    }
+                }
+
+                Spacer()
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(!canTest)
 
-            Spacer()
-
-            switch testResult {
-            case .success(let count):
-                HStack(spacing: 4) {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                    Text("Connected · \(count) account\(count == 1 ? "" : "s")")
-                        .font(AppFont.regular(11))
-                        .foregroundColor(Theme.textSecondary)
-                }
-            case .failure(let message):
-                HStack(spacing: 4) {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.yellow)
-                    Text(message)
-                        .font(AppFont.regular(11))
-                        .foregroundColor(Theme.textSecondary)
-                        .lineLimit(2)
-                        .truncationMode(.tail)
-                }
-            case .none:
-                EmptyView()
+            if case .failure(let message) = testResult {
+                failureBlock(message)
             }
         }
+    }
+
+    /// v1.8.1: full-width selectable error block with Copy diagnostic.
+    /// Replaces the truncated single-line yellow-triangle row.
+    @ViewBuilder
+    private func failureBlock(_ message: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.yellow)
+                    .font(.system(size: 12))
+                    .padding(.top, 1)
+                Text(message)
+                    .font(AppFont.regular(11))
+                    .foregroundColor(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            Button {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(message, forType: .string)
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "doc.on.doc")
+                        .font(.system(size: 9))
+                    Text("Copy diagnostic")
+                        .font(AppFont.regular(10))
+                }
+                .foregroundColor(Theme.textDim)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.bgCell))
     }
 
     private var footer: some View {
@@ -262,25 +300,48 @@ struct IMAPAccountSheet: View {
         testing = true
         testResult = nil
 
-        let account = IMAPAccount(provider: provider, email: email, host: host, port: port)
-        let bridge = GenericIMAPBridge(account: account, passwordResolver: { password })
+        // v1.8.1 defensive normalization. Two common Gmail copy-paste bugs:
+        //   1. Trailing whitespace from triple-click selection on the App
+        //      Password page → IMAP LOGIN silently fails (Gmail doesn't tell
+        //      you why because the wrong password is "auth failed" too).
+        //   2. The "abcd efgh ijkl mnop" 4-4-4-4 display format on Google's
+        //      page is human-readable; both stripped and spaced forms are
+        //      accepted by Gmail's IMAP server, but stripping is what the
+        //      Sparkle/Mail/Thunderbird ecosystem does — safer default.
+        let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanPassword = Self.normalizeAppPassword(password)
+
+        let account = IMAPAccount(provider: provider, email: cleanEmail, host: cleanHost, port: port)
+        let bridge = GenericIMAPBridge(account: account, passwordResolver: { cleanPassword })
 
         do {
             let count = try await bridge.ping(timeout: 30)
             testResult = .success(accountCount: count)
+            // Reflect the normalized values back in the form so handleSave
+            // persists the cleaned versions and the user can see what worked.
+            email = cleanEmail
+            host = cleanHost
+            password = cleanPassword
         } catch MailBridgeError.permissionDenied(let detail) {
             // v1.8.0: surface server's actual response so users can self-
             // diagnose. Outlook personal accounts especially benefit —
             // `[AUTHENTICATIONFAILED] basic auth disabled` is way more
             // actionable than generic "check email and app password".
+            // v1.8.1: prepend a plain-English friendly hint when we recognize
+            // the server's reason (5 patterns covered, see friendlyHintFor).
             let baseMsg = "Authentication failed."
             if let detail = detail, !detail.isEmpty {
-                testResult = .failure(message: "\(baseMsg) Server said: \(detail)")
+                if let friendly = Self.friendlyHintFor(serverDetail: detail, provider: provider) {
+                    testResult = .failure(message: "\(baseMsg) \(friendly)\n\nServer said: \(detail)")
+                } else {
+                    testResult = .failure(message: "\(baseMsg) Server said: \(detail)")
+                }
             } else {
                 testResult = .failure(message: "\(baseMsg) Check the email and app password.")
             }
         } catch MailBridgeError.timeout {
-            testResult = .failure(message: "Connection timed out. Check the host and port (or local proxy/VPN settings).")
+            testResult = .failure(message: "Connection timed out. Check the host and port (or local proxy/VPN settings — Clash/Stash etc. often intercept imap.* domains).")
         } catch {
             testResult = .failure(message: error.localizedDescription)
         }
@@ -289,8 +350,67 @@ struct IMAPAccountSheet: View {
 
     private func handleSave() {
         guard let port = UInt16(portString) else { return }
-        let account = IMAPAccount(provider: provider, email: email, host: host, port: port)
-        onSave(account, password)
+        // v1.8.1: persist the normalized form (matches what runTest verified).
+        let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanPassword = Self.normalizeAppPassword(password)
+        let account = IMAPAccount(provider: provider, email: cleanEmail, host: cleanHost, port: port)
+        onSave(account, cleanPassword)
+    }
+
+    // MARK: - v1.8.1 normalization + smart-hint helpers
+    //
+    // Static so they're trivially testable and don't capture form state.
+
+    /// Trim outer whitespace; if the input matches Google's
+    /// "abcd efgh ijkl mnop" 4-4-4-4 App Password display format, strip the
+    /// inner spaces. Falls through unchanged for any other shape (Outlook /
+    /// iCloud / Yahoo App Passwords vary in format; never modify those).
+    static func normalizeAppPassword(_ raw: String) -> String {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let parts = trimmed.split(separator: " ", omittingEmptySubsequences: false)
+        if parts.count == 4, parts.allSatisfy({ $0.count == 4 }) {
+            return parts.joined()
+        }
+        return trimmed
+    }
+
+    /// Recognize common server-rejection patterns and return a one-line
+    /// human-readable explanation. Returns nil for unknown responses (UI
+    /// then shows just the raw server text).
+    static func friendlyHintFor(serverDetail: String, provider: IMAPProvider) -> String? {
+        let lower = serverDetail.lowercased()
+
+        // Gmail when user typed account password instead of App Password.
+        if lower.contains("application-specific password required")
+            || lower.contains("app password")
+            || lower.contains("app-specific password") {
+            return "You probably typed your account password — \(provider.displayName) needs an App Password (see numbered steps below the password field)."
+        }
+
+        // Outlook personal accounts after Microsoft disabled basic auth (2024+).
+        if lower.contains("basic auth disabled")
+            || lower.contains("basic authentication is disabled") {
+            return "Microsoft has disabled basic authentication for this account — you must use an App Password (Outlook → Security → Advanced → App Passwords)."
+        }
+
+        // Gmail / Workspace where IMAP itself isn't enabled.
+        if lower.contains("imap access is disabled") || lower.contains("imap is disabled") {
+            return "IMAP is disabled on this account. For Gmail: enable at mail.google.com → Settings → Forwarding and POP/IMAP. For Workspace: ask your admin to enable it in Admin Console."
+        }
+
+        // Gmail security lockout — account flagged, needs interactive web login.
+        if lower.contains("webloginrequired")
+            || lower.contains("please log in via your web browser") {
+            return "Gmail thinks this account needs a security check. Open mail.google.com in a browser, sign in, then try here again."
+        }
+
+        // Server advertises LOGINDISABLED capability.
+        if lower.contains("logindisabled") {
+            return "IMAP login is disabled for this account — enable in your provider's web settings, or check with your admin."
+        }
+
+        return nil
     }
 }
 

@@ -67,14 +67,34 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    /// One-line guidance shown under the password field. Each provider has
-    /// a subtly different "how to get an App Password" path.
+    /// Multi-step guidance shown under the password field. Each provider's
+    /// path is non-trivial enough that one-line hints (v1.6/v1.7) caused
+    /// users to skip critical steps (v1.8.1: Gmail's "enable IMAP first" was
+    /// the most-skipped → most "Gmail doesn't work" reports). All hints
+    /// follow the Outlook pattern from v1.7.1: numbered list + final line
+    /// explicitly telling the user "NOT your account password".
     var setupHint: String {
         switch self {
         case .gmail:
-            return "Enable 2-Step Verification, then create an App Password at myaccount.google.com → Security → App passwords."
+            // v1.8.1: 4 steps. The IMAP-enable step (1) is the one users
+            // skip most — Gmail defaults IMAP to OFF. Without it, even a
+            // valid App Password fails LOGIN with cryptic responses.
+            return """
+                Gmail (@gmail.com / Google Workspace) requires:
+                1. Enable IMAP at mail.google.com → Settings ⚙ → See all settings → Forwarding and POP/IMAP → IMAP access: Enable
+                2. Enable 2-Step Verification at myaccount.google.com → Security
+                3. Create App Password at myaccount.google.com/apppasswords (select 'Mail')
+                4. Paste the 16-char App Password here, NOT your Gmail login password
+
+                Google Workspace: your admin may have disabled IMAP org-wide. Ask them to enable it in Admin Console.
+                """
         case .icloud:
-            return "Generate an app-specific password at appleid.apple.com → Sign-In and Security → App-Specific Passwords."
+            return """
+                iCloud (@icloud.com / @me.com / @mac.com) requires:
+                1. Enable 2-Factor Authentication at appleid.apple.com → Sign-In and Security
+                2. Generate App-Specific Password under Sign-In and Security → App-Specific Passwords
+                3. Use the app-specific password here, NOT your Apple ID password
+                """
         case .outlook:
             // v1.8.0: 细化提示。Microsoft 个人账号（@outlook.com / @hotmail.com /
             // @live.com）2024-2025 起逐步禁用 Basic Auth，必须走 App Password
@@ -90,9 +110,21 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
                 Some legacy accounts have IMAP disabled by default — enable in Outlook.com Settings.
                 """
         case .yahoo:
-            return "Generate an App Password at login.yahoo.com → Account Security → Generate app password."
+            return """
+                Yahoo:
+                1. Sign in at login.yahoo.com → Account Security
+                2. Generate App Password (Mail) — distinct from your account password
+                3. Use the generated App Password here, NOT your Yahoo login password
+
+                Yahoo aggressively expires App Passwords — regenerate if auth fails after a long gap.
+                """
         case .fastmail:
-            return "Create an app password at fastmail.com → Settings → Privacy & Security → App passwords. Give it 'Mail (IMAP)' access."
+            return """
+                Fastmail:
+                1. Settings → Privacy & Security → App passwords → New app password
+                2. Give it 'Mail (IMAP)' access
+                3. Use the generated app password here, NOT your account password
+                """
         case .generic:
             return "Use your IMAP server's host (e.g. mail.example.com) and an app password if your provider supports them."
         }
