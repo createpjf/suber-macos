@@ -2,6 +2,34 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.8.4] — 2026-04-28 — 紧急 hotfix：彻底拆掉 LegacyDataMigration（数据丢失真凶）
+
+**🚨 CRITICAL — 所有 v1.8.0 / v1.8.1 / v1.8.2 / v1.8.3 用户应**立即升级**。**
+
+### 真凶定位
+
+本来 v1.8.3 是想用 Sparkle 升级实验证伪/证实"升级丢数据"是不是 Sparkle 引起的。结果**实验进行中数据自己丢了一次**，调试发现：
+
+罪魁不是 Sparkle，是 v1.8.0 加进来的 `LegacyDataMigration.runIfNeeded()`。它本来是给跳过 v1.6.2 直升 v1.7.x 的用户救数据用的，但有几个致命设计缺陷：
+
+1. **存在用户数据时仍然覆盖** — `AppGroupStore.data(forKey:) != nil` 这个守卫在 macOS Tahoe 上某种条件下失效（疑似 cfprefsd 路径不一致：我们写到 `<container>/Library/Preferences/Suber/*.json`，但 `containerURL()` 在新进程里返回的根路径不同）
+2. **一次性 flag 会被重置** — `suber.legacyMigration.v180.done` 标志位在某种情况下从 true 变 false（可能因 UserDefaults 缓存 / 进程并发 / Sparkle swap），让 migration 反复跑
+3. **结果**：用户的 9 条真实订阅被覆盖成 1 条月前的旧 Netflix Premium snapshot
+
+### Fixed
+
+- **`LegacyDataMigration.runIfNeeded()` HARD DISABLED** — 一行 return，无任何路径触发迁移逻辑。原 migration body 保留为 `_disabledMigrationBody` dead code 仅供参考。
+- 单测重写：增加 2 个 critical regression 测试 — `testHardDisabledEvenWhenPlistExists` 和 `testNeverOverwritesExistingAppGroupStoreData`，防止任何人未经审查重新启用迁移。
+- 受影响用户的数据通过 `plutil -extract suber-subscriptions raw` 从 legacy plist `<container>/Library/Preferences/group.com.suber.app.plist` 直接 base64-decode 写回 AppGroupStore — 已用此方法手动救回过用户的 9 条订阅。
+
+### Notes
+
+- v1.6.0/v1.6.1 直升 v1.8.4 的用户：legacy plist 里的数据**不会自动迁了**。如有需要数据救援，运行 `plutil -extract suber-subscriptions raw ~/Library/Group\ Containers/group.com.suber.app/Library/Preferences/group.com.suber.app.plist | base64 -d > ~/Library/Group\ Containers/group.com.suber.app/Library/Preferences/Suber/suber-subscriptions.json` 即可。后续 v1.9.0 会加 "Import from legacy plist" 显式 UI 入口替代危险的自动迁移。
+- 这次事件的全部 PM 反思 + 路线图修订见 v1.9.0 release notes。
+- 210/210 tests 全绿。
+
+---
+
 ## [1.8.3] — 2026-04-28 — Sparkle pipeline 数据完整性验证
 
 **纯净对照版本，零功能变更。** 唯一目的：验证 Sparkle 自动升级 (v1.8.2 → v1.8.3) 是否会损坏 AppGroupStore 用户数据。用户在 v1.8.2 上预先记录订阅列表 SHA256，升级后比对 — 任何不匹配都证明 Sparkle 路径有 data-loss bug。

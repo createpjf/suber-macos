@@ -31,19 +31,46 @@ enum LegacyDataMigration {
         "suber-changes",
     ]
 
-    /// 在 SubscriptionStore 第一次读 AppGroupStore 之前调一次。Idempotent —
-    /// UserDefaults.standard 上的标志位防止重复跑。
+    /// **v1.8.4: HARD-DISABLED.** This migration was designed for v1.6.x → v1.7.x
+    /// upgraders, but a flaw in the existing-data check caused it to overwrite
+    /// valid AppGroupStore data with stale plist data on subsequent launches:
     ///
-    /// `legacyURLOverride` 用于测试注入临时 plist 路径；生产路径走真实
-    /// group container 下的 `<groupID>.plist` 文件。
+    ///   - User had 9 real subs in AppGroupStore (`Library/Preferences/Suber/`)
+    ///   - Migration ran (somehow flag was reset between sessions)
+    ///   - The `AppGroupStore.data(forKey:) != nil` guard failed somehow
+    ///     (suspect: cfprefsd file path mismatch on macOS Tahoe — the
+    ///     containerURL we write to differs from where containerURL reads
+    ///     when called fresh in a new process)
+    ///   - Migration "recovered" old plist content, OVERWROTE user's 9 subs
+    ///   - User saw all real data replaced with month-old test snapshot
+    ///
+    /// Cost-benefit at this point: v1.6.x users have either upgraded all the
+    /// way to v1.8.4 by now (and their data is in AppGroupStore), or never
+    /// will. The risk of data destruction from this migration permanently
+    /// outweighs the benefit. Hard-disable; never re-enable without:
+    ///   1. Atomic backup of existing AppGroupStore before any migration write
+    ///   2. Path verification: confirm read URL == write URL == reference
+    ///   3. Test on macOS Tahoe, Sequoia, Sonoma separately
+    ///   4. Rotating backup file kept even if migration succeeds
+    ///
+    /// Behavior: returns immediately. Existing flag in UserDefaults.standard
+    /// (`suber.legacyMigration.v180.done`) stays true so this remains a no-op
+    /// on fresh-install machines too (defensive — even if flag flips false,
+    /// this method does nothing).
     static func runIfNeeded(legacyURLOverride: URL? = nil) {
+        // v1.8.4 — HARD DISABLED, see header above.
+        return
+    }
+
+    /// **DEAD CODE** kept for reference only. Was the migration body up to
+    /// v1.8.3. See `runIfNeeded` header for why this was disabled.
+    private static func _disabledMigrationBody(legacyURLOverride: URL? = nil) {
         let standard = UserDefaults.standard
         guard !standard.bool(forKey: migrationDoneKey) else { return }
         defer { standard.set(true, forKey: migrationDoneKey) }
 
         guard let url = legacyURLOverride ?? defaultLegacyPlistURL(),
               FileManager.default.fileExists(atPath: url.path) else {
-            // 没 plist — fresh install 或已迁移用户。No-op。
             return
         }
 
