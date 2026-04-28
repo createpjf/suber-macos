@@ -187,22 +187,77 @@ struct SuberApp: App {
 
         CloudSyncService.shared.startSync()
 
+        // v1.9.1 — emergency hotfix to v1.9.0's unconditional overwrite.
+        // The previous version called `importSubscriptions(remote)` directly,
+        // which replaced local data with whatever KVS held. That destroyed
+        // 9 live subs on a user upgrade because KVS still had a stale
+        // 1-sub snapshot from earlier testing. Now everything goes through
+        // `CloudSyncMerger` with three rules:
+        //   1. local empty + remote non-empty → replace (new device hydration)
+        //   2. remote smaller than local       → REJECT, log, surface banner
+        //   3. otherwise                       → merge by id, last-write-wins
+        // Plus: take a pre-merge snapshot of local data so even if the rules
+        // are wrong, recovery is one Restore-UI click away.
         CloudSyncService.shared.onRemoteChange = { [weak subscriptionStore, weak settingsStore] subsData, settingsData, changesData in
-            if let data = subsData,
-               let subs = try? JSONDecoder.suberDecoder.decode([Subscription].self, from: data) {
-                subscriptionStore?.importSubscriptions(subs)
-            }
-            if let data = settingsData,
-               let settings = try? JSONDecoder.suberDecoder.decode(AppSettings.self, from: data) {
-                settingsStore?.update { $0 = settings }
-            }
-            // v1.6: SubscriptionChange log sync. Merge-by-id with local log;
-            // the dedup hash in SubscriptionStore.recordAndPersist handles
-            // cross-device duplicates (same change detected on 2 Macs).
+            handleRemoteSubscriptions(subsData, store: subscriptionStore)
+            handleRemoteSettings(settingsData, store: settingsStore)
+            // SubscriptionChange log: existing path is already safe — it
+            // merges by dedup hash and prunes to 200, so it can't
+            // destructively overwrite. Leave unchanged.
             if let data = changesData,
                let remoteChanges = try? JSONDecoder.suberDecoder.decode([SubscriptionChange].self, from: data) {
                 subscriptionStore?.mergeRemoteChanges(remoteChanges)
             }
+        }
+    }
+
+    /// Subscriptions merge path. Pre-snapshots, decides, applies (or rejects).
+    /// Lives at the App level (not on SubscriptionStore) because the snapshot
+    /// + decision logic crosses two services and is easier to reason about
+    /// here. The rule logic itself is in `CloudSyncMerger` (pure, testable).
+    private func handleRemoteSubscriptions(_ data: Data?, store: SubscriptionStore?) {
+        guard let data, let store else { return }
+        guard let remote = try? JSONDecoder.suberDecoder.decode([Subscription].self, from: data) else {
+            NSLog("Suber CloudSync: subs decode failed; ignoring remote update")
+            return
+        }
+        let local = store.subscriptions
+        // Pre-merge snapshot — even if the merger rejects, we still grab a
+        // copy of local. Tiny cost (one rotating-backup write) for a huge
+        // safety win: any bug here is recoverable via Restore UI.
+        let snapshotEncoder = JSONEncoder()
+        snapshotEncoder.dateEncodingStrategy = .iso8601
+        if let localData = try? snapshotEncoder.encode(local) {
+            DataBackupManager.snapshot(key: "suber-subscriptions", data: localData)
+        }
+        switch CloudSyncMerger.mergeSubscriptions(local: local, remote: remote) {
+        case .applied(let merged):
+            NSLog("Suber CloudSync: merge applied (local=\(local.count) remote=\(remote.count) → merged=\(merged.count))")
+            store.importSubscriptions(merged)
+        case .rejectedAsStale(let l, let r):
+            NSLog("Suber CloudSync: REJECTED stale remote (local=\(l) remote=\(r)). Use Settings → Data → Restore if intentional.")
+            // Future improvement: surface a non-blocking banner inviting
+            // the user to inspect via Restore UI. Logging is enough for v1.9.1.
+        case .noOp:
+            break
+        }
+    }
+
+    /// Settings merge path. Cloud only wins when local is still factory
+    /// default — once the user has customised anything, local wins. v1.9.0's
+    /// unconditional `update { $0 = settings }` would silently revert user
+    /// preferences (currency, language, autopilot toggles) on every cross-
+    /// device sync; this stops that.
+    private func handleRemoteSettings(_ data: Data?, store: SettingsStore?) {
+        guard let data, let store else { return }
+        guard let remote = try? JSONDecoder.suberDecoder.decode(AppSettings.self, from: data) else {
+            NSLog("Suber CloudSync: settings decode failed; ignoring remote update")
+            return
+        }
+        if let merged = CloudSyncMerger.mergeSettings(local: store.settings, remote: remote) {
+            store.update { $0 = merged }
+        } else {
+            NSLog("Suber CloudSync: local settings already customised; remote settings dropped")
         }
     }
 }

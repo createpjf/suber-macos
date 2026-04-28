@@ -3,12 +3,12 @@
     <channel>
         <title>Suber</title>
         <item>
-            <title>1.9.0</title>
-            <pubDate>Tue, 28 Apr 2026 10:29:44 +0800</pubDate>
-            <sparkle:version>190</sparkle:version>
-            <sparkle:shortVersionString>1.9.0</sparkle:shortVersionString>
+            <title>1.9.1</title>
+            <pubDate>Tue, 28 Apr 2026 11:52:25 +0800</pubDate>
+            <sparkle:version>191</sparkle:version>
+            <sparkle:shortVersionString>1.9.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/createpjf/suber-macos/releases/download/v1.9.0/Suber-1.9.0.dmg" length="4869809" type="application/octet-stream" sparkle:edSignature="uSndokIABX7ZTjBjzefYOt91ZQEqBw78wNzvX5W8veJvhTB5cHPcYqx7qJMUzZK5FcuREEYUZgI6lic7EQGoDA=="/>
+            <enclosure url="https://github.com/createpjf/suber-macos/releases/download/v1.9.1/Suber-1.9.1.dmg" length="4882370" type="application/octet-stream" sparkle:edSignature="yV4ntWOwMSOebN3KDlXLI+XD1yYdQz/svstV2PJDS4koXZ9taFBWSkgyodusRctx6CdRMHkLoGakuQQ56j8HAQ=="/>
         </item>
     </channel>
 </rss>

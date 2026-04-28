@@ -2,6 +2,50 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.9.1] — 2026-04-28 — 紧急 hotfix：iCloud KVS 不再无条件覆盖本地数据
+
+**🚨 CRITICAL — 所有 v1.9.0 用户应**立即升级**。**
+
+### 真凶定位（v1.9.0 ship 后 90 分钟实测中触发）
+
+v1.9.0 ship 完用户走第一次 onboarding 流程，点了 "Enable iCloud Sync"，然后**9 条订阅又被覆盖成 1 条 stale Netflix Premium**。
+
+跟 v1.8.4 LegacyDataMigration 是**同一个反模式从不同方向触发**：
+
+| 路径 | v1.8.4 (LegacyDataMigration) | v1.9.0 (CloudSync onRemoteChange) |
+|---|---|---|
+| 来源 | `<container>/.../group.com.suber.app.plist` | `NSUbiquitousKeyValueStore` (iCloud KVS) |
+| 写入 | `AppGroupStore.set(staleData)` | `subscriptionStore.importSubscriptions(staleSubs)` |
+| 守卫 | "已有数据则不写"（在 macOS Tahoe 上失效） | **完全没有守卫** |
+| 后果 | 9 → 1 | 9 → 1 |
+
+`SuberApp.setupCloudSync.onRemoteChange` 一直直接调 `subscriptionStore.importSubscriptions(remote)`，**任何**远端推送都无条件 replace 本地。架构上 iCloud KVS 还残留之前测试用的 stale Netflix snapshot，用户开 sync 那一刻就被它覆盖。
+
+v1.9.0 的 4 层数据保护把本地持久层修了，但**完全没碰这个 cloud-sync 路径**。这是计划的盲点。
+
+### Fixed
+
+- **新增 `Sources/Services/CloudSyncMerger.swift`** — 纯函数 + 3 条 merge 规则：
+  1. local 空 + remote 非空 → REPLACE（合法的 fresh-device hydration）
+  2. remote.count < local.count（且 local 非空）→ **REJECT** + NSLog；本地不动
+  3. 否则 → 按 `Subscription.id` merge，按 `updatedAt` last-write-wins，保留 local-only 条目
+- **`SuberApp.handleRemoteSubscriptions`** — 替换原 `importSubscriptions(subs)` 为走 merger。还在 merge 之前对当前 local 数据**强制 snapshot 一份**到 `DataBackupManager`，即使 merger 逻辑写错了也能 Restore UI 一键回滚。
+- **`SuberApp.handleRemoteSettings`** — 同样不再无条件 `update { $0 = settings }`。`CloudSyncMerger.mergeSettings` 只在本地仍是 factory default 时接受 remote；用户改过任何字段 → local wins。防止跨设备同步时静默回退用户偏好（货币、语言、Autopilot toggle 等）。
+
+### Tests
+
+- 新增 `Tests/CloudSyncMergerTests.swift` — 9 个测试覆盖 3 条规则 + 边界 + settings merger。其中 `testRule2_rejectsStaleRemoteAgainstLargerLocal_TheBugThatPromptedV191` 是 v1.9.0 的精准 regression：local 9 + remote 1 → 必须 REJECT。任何人将来弱化这个守卫，这个测试就会变红。
+- **228/228 全绿**（219 + 9 new）。
+
+### Notes
+
+- v1.9.0 用户**应用内一键升级**（Settings → Updates → Check for updates → Install）。升级后 iCloud sync 仍是关闭状态（v1.9.0 onboarding 时若你开过会被这次 hotfix 自动保留，因为我们改的是 sync 触发后的 merge 行为，不是 sync 开关本身）。
+- **如果 v1.9.0 已经用 iCloud KVS 覆盖了你的真实数据：** Settings → Data → Restore from backup… 选择本地 rotating backups 里时间戳最早的（merge 前的版本）→ Restore。或者 Tab 上能看到 `Legacy data (v1.6.x)` → Restore。
+- **架构反思**：v1.9.0 的 4-layer 计划只看本地持久层，没看远端 → 本地的 merge 路径，是非常典型的"计划盲点"。v1.9.1 把同样的"挽救/同步机制不能无条件覆盖"原则扩展到所有 inbound write 路径。下次再做 sync-related 设计，需要 explicit checklist：每个 inbound write path（远端 KVS / 老 plist / import 文件）都过 merger 决策点，不直接进 store。
+- 7-day feature freeze clock **重置为 2026-04-28 起的 7 天**（按 `docs/RELEASE-PROCESS.md` rule "P0 数据安全 exception → reset clock"）。
+
+---
+
 ## [1.9.0] — 2026-04-25 — Stability Release · 4 层数据保护 + 完整 QA pass
 
 ### PM 反思 — 为什么是 v1.9.0 而不是继续小版本

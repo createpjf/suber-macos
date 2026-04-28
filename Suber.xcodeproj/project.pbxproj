@@ -133,7 +133,9 @@
 		E51ED767F091D747AAD5A2F3 /* MailBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925BFC4914A32B15DD40AC88 /* MailBridge.swift */; };
 		E57DB005D0BD43FF3E776C17 /* StatementFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3652D50DFEDF3A2A86AA63 /* StatementFormat.swift */; };
 		E627DE1C6B254F83F2585A36 /* KnownServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BDFAB4C9431C8C2B105376 /* KnownServices.swift */; };
+		E70AA2A2A87B799C78172CE2 /* CloudSyncMergerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0E5BDAAB5CCAE5FAB50A4E /* CloudSyncMergerTests.swift */; };
 		E7398E8B77F4D1B31443D44D /* MediumUpcomingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D8B17645AC218615E9244A /* MediumUpcomingWidget.swift */; };
+		E8E404587A709D9597FB8C57 /* CloudSyncMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBA3087E7BCB0065D5DB884 /* CloudSyncMerger.swift */; };
 		F003237A8C6C902803690669 /* AutopilotBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610ECBE70A09B5EE4BCA90B5 /* AutopilotBannerView.swift */; };
 		F3C02B83396C25A31D880D4D /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0454D55BE6BC7470C7CBA1E /* Subscription.swift */; };
 		F652D608B4F8FA4F455831BB /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F8D53742B96A524C270A8A /* ImageCache.swift */; };
@@ -242,6 +244,7 @@
 		8933138C06CE2532ED860557 /* SuberWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SuberWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		896C0AD6C100D4D350597033 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
 		8AB05319D182A1924458613C /* AppGroupStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupStore.swift; sourceTree = "<group>"; };
+		8B0E5BDAAB5CCAE5FAB50A4E /* CloudSyncMergerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncMergerTests.swift; sourceTree = "<group>"; };
 		8C481B2B5AAE8544299D2485 /* PendingCancellationIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCancellationIndicator.swift; sourceTree = "<group>"; };
 		8D02E5693BF5801E910C8655 /* DataPersistenceLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataPersistenceLifecycleTests.swift; sourceTree = "<group>"; };
 		8DA53D89C607C630B60617D4 /* SubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubCardView.swift; sourceTree = "<group>"; };
@@ -264,6 +267,7 @@
 		A49ECA3983F3B01D7035FD44 /* MenuBarBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarBadgeView.swift; sourceTree = "<group>"; };
 		A74AD0B9C94424581D207AE7 /* RecurringChargeDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringChargeDetectorTests.swift; sourceTree = "<group>"; };
 		AB1E821D6971485CE4FBFD93 /* BannerCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerCoordinatorTests.swift; sourceTree = "<group>"; };
+		ACBA3087E7BCB0065D5DB884 /* CloudSyncMerger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncMerger.swift; sourceTree = "<group>"; };
 		ACD9DF85C48A9B55ED6CC7C8 /* LegacyDataMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyDataMigration.swift; sourceTree = "<group>"; };
 		ACE89D6AEAA19D0A333A93AE /* NotificationServiceGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceGroupingTests.swift; sourceTree = "<group>"; };
 		B164702B8BBDB3C53F4A508C /* SpaceGrotesk-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Light.ttf"; sourceTree = "<group>"; };
@@ -342,6 +346,7 @@
 				AB1E821D6971485CE4FBFD93 /* BannerCoordinatorTests.swift */,
 				5FE2031B0FC251517244D5F0 /* BillingCalculatorTests.swift */,
 				0BE5C05E9D254535707B4688 /* ChangeDetectorTests.swift */,
+				8B0E5BDAAB5CCAE5FAB50A4E /* CloudSyncMergerTests.swift */,
 				8D02E5693BF5801E910C8655 /* DataPersistenceLifecycleTests.swift */,
 				23B21B26BD686A93391FA814 /* IMAPBridgeTests.swift */,
 				8FF412D7E608A0F28F13A0FA /* IMAPContinuationGuardTests.swift */,
@@ -529,6 +534,7 @@
 				8AB05319D182A1924458613C /* AppGroupStore.swift */,
 				D9DEE6DA508FFB14AEE7124E /* BillingCalculator.swift */,
 				58AFAFCE33C8D26875CDE9D1 /* ChangeDetector.swift */,
+				ACBA3087E7BCB0065D5DB884 /* CloudSyncMerger.swift */,
 				D952CCBFC2EBFD4611E9143E /* CloudSyncService.swift */,
 				9D1E712F376495FC02507944 /* DataBackupManager.swift */,
 				4B95933EC5EA5987B71DD666 /* ExchangeRateService.swift */,
@@ -748,6 +754,7 @@
 				81EBD8B633BCEBBAA8CC6DB3 /* ChangeDetector.swift in Sources */,
 				232DE77BA2995E6008A4C385 /* ChangeRowView.swift in Sources */,
 				0DFCE195BD1B46BAB7C8F8D7 /* ChangesListView.swift in Sources */,
+				E8E404587A709D9597FB8C57 /* CloudSyncMerger.swift in Sources */,
 				108CF1594118B48DE0EEA712 /* CloudSyncOnboardingSheet.swift in Sources */,
 				65D393B749FEFB0A0F356F8E /* CloudSyncService.swift in Sources */,
 				92C3A1155EC5018E5A01EC7E /* CompositeMailBridge.swift in Sources */,
@@ -830,6 +837,7 @@
 				8655B0DC5E55869CAA1BAA4E /* BannerCoordinatorTests.swift in Sources */,
 				6171C5B8DB5487C757F4707E /* BillingCalculatorTests.swift in Sources */,
 				7728286EBDE4BF7C0BCA2771 /* ChangeDetectorTests.swift in Sources */,
+				E70AA2A2A87B799C78172CE2 /* CloudSyncMergerTests.swift in Sources */,
 				C6BB237A21B4CAF7C9A32EEA /* DataPersistenceLifecycleTests.swift in Sources */,
 				BB7D7AFD4FA91243E8FDD174 /* IMAPBridgeTests.swift in Sources */,
 				85A98A6DABE319CB978EAB20 /* IMAPContinuationGuardTests.swift in Sources */,
@@ -892,14 +900,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 190;
+				CURRENT_PROJECT_VERSION = 191;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.9.0;
+				MARKETING_VERSION = 1.9.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -944,7 +952,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 190;
+				CURRENT_PROJECT_VERSION = 191;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -952,7 +960,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.9.0;
+				MARKETING_VERSION = 1.9.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};
@@ -1021,14 +1029,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 190;
+				CURRENT_PROJECT_VERSION = 191;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.9.0;
+				MARKETING_VERSION = 1.9.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -1103,7 +1111,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 190;
+				CURRENT_PROJECT_VERSION = 191;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1111,7 +1119,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.9.0;
+				MARKETING_VERSION = 1.9.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};
