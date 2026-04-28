@@ -2,6 +2,21 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.8.3] — 2026-04-28 — Sparkle pipeline 数据完整性验证
+
+**纯净对照版本，零功能变更。** 唯一目的：验证 Sparkle 自动升级 (v1.8.2 → v1.8.3) 是否会损坏 AppGroupStore 用户数据。用户在 v1.8.2 上预先记录订阅列表 SHA256，升级后比对 — 任何不匹配都证明 Sparkle 路径有 data-loss bug。
+
+### Changed
+
+- 仅版本号：1.8.2 → 1.8.3 / 182 → 183
+
+### Notes
+
+- 这是 Suber 历史上第一次**为可观测性而非功能**发版。从 v1.9.0 起恢复正常发版（功能 + 修 bug），但只有当数据持久性问题彻底证伪 / 修好 / 测全。
+- v1.6.x → v1.8.2 累计 6 个 release，期间未做完整 QA pass —— 那个 PM-grade 决策见 v1.9.0 release notes。
+
+---
+
 ## [1.8.2] — 2026-04-26 — IMAP setup 一键跳转
 
 v1.8.1 同日小升级。setupHint 里的 URL 现在是可点击按钮，不用再手动复制到浏览器。
