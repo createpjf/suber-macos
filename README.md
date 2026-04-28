@@ -61,6 +61,19 @@ Suber lives in your macOS menu bar and tracks every subscription you pay for —
 - **Light / dark** — follows system appearance
 - **Typography** — ships with Space Grotesk
 
+## Data Safety (v1.9.0)
+
+After a v1.8.0 bug overwrote one user's nine real subscriptions with a stale snapshot, v1.9.0 reworked persistence so a single bad write can't take your data with it. There are now **four independent layers** between you and data loss, and each is recoverable from the other three:
+
+1. **Live store** — `<App Group container>/Library/Preferences/Suber/suber-subscriptions.json`. Atomic writes; the widget reader never sees a partial file.
+2. **Local rotating backups** — every save also writes a millisecond-timestamped snapshot to `…/Suber/Backups/` and prunes to the most recent 10 per key. Three keys are protected: subscriptions, settings, and the change log.
+3. **iCloud Key-Value sync** — opt-in (recommended at first launch). Pushes the same blob to your iCloud account so a fully wiped Mac can re-hydrate from any other Mac. Apple stores it; Suber's servers see nothing.
+4. **Restore from backup UI** — Settings → Data → Restore from backup… lists every recoverable source (local rotating, iCloud, even the legacy v1.6.x plist if you've kept one) and restores explicitly on user confirm. Restore itself triggers a fresh local backup, so a misclick is reversible.
+
+If you ever see your subscription list go empty or revert to old data, **don't add anything new** — open Settings → Data → Restore from backup, pick the right snapshot, confirm. Your previous (possibly corrupted) state becomes another rotating backup before the restore completes.
+
+The full architecture (and the disabled `LegacyDataMigration` that prompted v1.9.0) is documented in `Sources/Services/DataBackupManager.swift` and `Sources/Services/LegacyDataMigration.swift`.
+
 ## Install
 
 Grab the latest `Suber-X.Y.Z.dmg` from the [latest release](../../releases/latest), mount it, and drag **Suber.app** into **Applications**. Launch from Applications.

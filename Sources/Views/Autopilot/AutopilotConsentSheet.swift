@@ -126,7 +126,10 @@ struct AutopilotConsentSheet: View {
 
 // MARK: - TrustBullet row
 
-private struct TrustBullet: View {
+/// Small icon + title + detail row. Originally private to AutopilotConsentSheet,
+/// promoted to internal in v1.9.0 so CloudSyncOnboardingSheet can reuse the
+/// same visual treatment without duplicating the layout.
+struct TrustBullet: View {
     let symbol: String
     let title: String
     let detail: String   // can't name this `body` — collides with View.body

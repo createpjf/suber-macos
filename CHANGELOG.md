@@ -2,6 +2,55 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.9.0] — 2026-04-25 — Stability Release · 4 层数据保护 + 完整 QA pass
+
+### PM 反思 — 为什么是 v1.9.0 而不是继续小版本
+
+数据：v1.6.0 → v1.8.4，**12 个版本，4 天**。其中 4 个引入新 bug、8 个修补、1 次真实数据丢失（v1.8.0 的 LegacyDataMigration 把用户的 9 条订阅覆盖成月前的 1 条 snapshot）、**0 次完整 QA pass**。
+
+核心反思是架构问题，不是技术问题。Suber 一直只有**一层数据保护**——AppGroupStore 的"已有数据则不覆盖"守卫。那一层失效就全军覆没。LegacyDataMigration 是这个架构的副产品；只要架构是这样，下一个 destructive bug 还会来。
+
+v1.9.0 把"防止数据丢失"从"靠开发者写对代码"升级为"架构上多层冗余"。Ship 之后**强制 7 天 feature freeze**（详见 docs/RELEASE-PROCESS.md），让稳定性在用户那里证明出来。
+
+### Added — 4 层数据保护
+
+1. **本地轮转备份（Local rotating backups）** — 新增 `Sources/Services/DataBackupManager.swift`。每次 `AppGroupStore.set()` 写主文件后，自动写一份带毫秒级 ISO 8601 时间戳的快照到 `<container>/Library/Preferences/Suber/Backups/`，每 key 保留最近 10 份（按 mtime prune）。仅对 3 个 critical key 启用：`suber-subscriptions` / `suber-settings` / `suber-changes`。备份写失败仅 NSLog 不阻塞业务（"备份是 bonus，不是 dependency"）。
+
+2. **iCloud 同步默认推荐 + 首次启动 onboarding sheet** — 新增 `Sources/Views/Onboarding/CloudSyncOnboardingSheet.swift`。第一次启动通过 OverlayPresenter 弹出 consent sheet "Sync your subscriptions across Macs"，三条 trust bullet（跨 Mac 同步 / 异常时可恢复 / 私密免费），Skip 与 Enable 都把 `iCloud.onboarded` flag 翻成 true 防重弹。Settings → iCloud Sync 提到顶部独立 section，加状态指示器。永远不强制开启（隐私 / 用户主权），但默认推荐。
+
+3. **Settings → Data → Restore from backup… UI** — 新增 `Sources/Views/Settings/DataRestoreView.swift` + `Sources/Services/RestoreSourceLister.swift`。显式列出所有可用备份源（本地轮转 / iCloud KVS / legacy plist v1.6.x），用户**主动**选择恢复。Restore 操作前 confirmation dialog 名出"将用 X 条订阅替换当前 Y 条订阅"，确认后写回 AppGroupStore——这一次写入又触发新的 backup snapshot，所以 Restore 本身也是可逆的。**这就是替代危险自动 LegacyDataMigration 的安全路径。**
+
+4. **DataPersistenceLifecycleTests** — 新增 `Tests/DataPersistenceLifecycleTests.swift`，10 个测试覆盖：round-trip 9 subs 不丢、每次 save 都触发 snapshot、prune 保留最近 10 份、restore 字节级一致、LegacyMigration 永远不动 AppGroupStore（regression 防线）、并发写不腐化、空数组写入仍然走 backup（clearAll 可逆）、cloud sync toggle 正确传播、fresh launch 从磁盘恢复、rotation 不破坏单个 backup 文件。`AppGroupStore` + `DataBackupManager` 各加 `testOverrideDirectory` 测试逃生通道，测试全跑在 temp 目录不污染用户真实数据。**219/219 全绿**（209 + 10 new）。
+
+### Added — 仪式
+
+- **`docs/QA-pass-v1.9.0.md`** — v1.6.0 → v1.9.0 全部 13 项功能 QA checklist，8 项 auto-verified（测试 + 代码审查），5 项 requires-manual（Mail/IMAP/Sparkle/进程杀/同步收敛 — 用户运行已构建 app 后逐项确认）。
+- **`docs/RELEASE-PROCESS.md`** — 7 天 feature freeze 仪式 + ship 后 release notes 第一段必须包含反思的硬规则（v1.9.0 起生效）。
+
+### Changed
+
+- **Settings 布局** — iCloud Sync 升级到顶部 section（之前埋在 General 里被忽略）；Data section 新增 "Restore from backup…" 入口；其余排序未动。
+- **`TrustBullet`** 从 AutopilotConsentSheet private 提升为 internal，给 CloudSyncOnboardingSheet 复用，避免重复实现。
+- **`AppGroupStore.set(_:forKey:)`** 在原子写之后追加 `DataBackupManager.snapshot(key:data:)` 调用——3 个 critical key 自动 backup，其他 key（exchange-rate cache 等）不变。
+
+### Not changed (feature freeze)
+
+- IMAP / MailWatchdog / Sparkle 任何代码（freeze 周期内不动）。
+- LegacyDataMigration 仍然 hard-disabled（`runIfNeeded` 是单行 return，原 body 保留为 `_disabledMigrationBody` dead code）。
+- iCloud KVS prune 政策（H5 已限制 SubscriptionChange 200 条，本次不动）。
+
+### Out of scope（明确不在 v1.9.0）
+
+Settings 独立 Window scene、IMAP OAuth2、多账号 IMAP UI、iOS 配套 app、IMAP IDLE / push notifications。这些是 v2.0 候选，不在本周冲刺范围。
+
+### Notes for upgraders
+
+- **v1.8.4 → v1.9.0**：通过 Settings → Updates → Check for updates → Install 在应用内一键升级（v1.8.3 的 Sparkle pipeline 已实测过一次）。第一次启动会弹 iCloud Sync onboarding sheet——**强烈推荐 Enable**，这样未来任何本地异常都能从远端恢复。
+- **数据安全文档** — 见 README "Data Safety" 章节（v1.9.0 新加），完整描述 4 层防护和恢复路径。
+- 219/219 tests 全绿。
+
+---
+
 ## [1.8.4] — 2026-04-28 — 紧急 hotfix：彻底拆掉 LegacyDataMigration（数据丢失真凶）
 
 **🚨 CRITICAL — 所有 v1.8.0 / v1.8.1 / v1.8.2 / v1.8.3 用户应**立即升级**。**

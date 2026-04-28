@@ -36,8 +36,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app
-        MARKETING_VERSION: "1.8.4"
-        CURRENT_PROJECT_VERSION: "184"
+        MARKETING_VERSION: "1.9.0"
+        CURRENT_PROJECT_VERSION: "190"
         INFOPLIST_FILE: Sources/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: false
@@ -60,6 +60,10 @@ targets:
       # data sharing — see that file's header for the macOS 26.4 cfprefsd
       # regression. Widget needs to read what main app writes.
       - path: Sources/Services/AppGroupStore.swift
+      # v1.9.0: AppGroupStore.set() calls DataBackupManager.snapshot.
+      # Widget rarely writes (reads dominate) but the symbol must resolve
+      # at compile time, so include the file in the widget target too.
+      - path: Sources/Services/DataBackupManager.swift
       # v1.7: IMAP types are referenced by Settings.swift (AutopilotSettings.imapAccount
       # field). Widget never instantiates them — they're just data — but the Codable +
       # Equatable synthesis on AutopilotSettings needs the types in scope.
@@ -68,8 +72,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app.widget
-        MARKETING_VERSION: "1.8.4"
-        CURRENT_PROJECT_VERSION: "184"
+        MARKETING_VERSION: "1.9.0"
+        CURRENT_PROJECT_VERSION: "190"
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
         CODE_SIGN_ENTITLEMENTS: SuberWidget/SuberWidget.entitlements

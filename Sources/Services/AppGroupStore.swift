@@ -34,6 +34,14 @@ import Foundation
 enum AppGroupStore {
     static let groupIdentifier = "group.com.suber.app"
 
+    /// v1.9.0 — test-only override. When non-nil, every read/write uses this
+    /// directory instead of the App Group container. Production code MUST
+    /// NOT set this. Used by `DataPersistenceLifecycleTests` so the suite
+    /// can exercise the live read/write paths (round-trip, concurrent writes,
+    /// fresh launch) against a temp directory, never the user's real
+    /// subscriptions / settings / change log.
+    static var testOverrideDirectory: URL?
+
     /// Resolves to e.g. `/Users/x/Library/Group Containers/group.com.suber.app/`.
     /// Returns nil only when the entitlement is missing or the container
     /// hasn't been created yet — both are unrecoverable, callers should fall
@@ -46,6 +54,11 @@ enum AppGroupStore {
     /// canonical home for app-defined preferences and gets backed up by
     /// Time Machine.
     private static var preferencesDirectory: URL? {
+        if let override = testOverrideDirectory {
+            try? FileManager.default.createDirectory(
+                at: override, withIntermediateDirectories: true)
+            return override
+        }
         guard let base = containerURL else { return nil }
         let dir = base
             .appendingPathComponent("Library", isDirectory: true)
@@ -75,11 +88,19 @@ enum AppGroupStore {
 
     /// Persist raw bytes for `key`. Atomic write — partial files never
     /// observed by the widget reader during refresh.
+    ///
+    /// v1.9.0: after a successful live write, we additionally take a rotating
+    /// snapshot via `DataBackupManager` for the 3 critical keys
+    /// (subscriptions / settings / changes). Backup is best-effort —
+    /// snapshot failures are logged but never propagate.
     @discardableResult
     static func set(_ data: Data, forKey key: String) -> Bool {
         guard let url = fileURL(for: key) else { return false }
         do {
             try data.write(to: url, options: [.atomic])
+            // v1.9.0 — rotating snapshot. No-op for keys not in
+            // DataBackupManager.backupKeys; never throws.
+            DataBackupManager.snapshot(key: key, data: data)
             return true
         } catch {
             NSLog("Suber AppGroupStore: write failed for \(key): \(error)")

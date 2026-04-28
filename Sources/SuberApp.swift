@@ -266,6 +266,12 @@ private struct MenuBarContainerView: View {
     /// (not every settings tweak).
     @State private var lastIMAPAccountID: String?
 
+    /// v1.9.0 — first-launch iCloud onboarding gate. Persists in standard
+    /// UserDefaults (not the App Group container) because it's a UI prompt
+    /// flag, not data the widget needs. Default false → first launch shows
+    /// the sheet; Enable/Skip both flip it to true so we never re-prompt.
+    @AppStorage("iCloud.onboarded") private var iCloudOnboarded: Bool = false
+
     var body: some View {
         MenuBarView()
             .environmentObject(subscriptionStore)
@@ -287,6 +293,10 @@ private struct MenuBarContainerView: View {
                 // CloudSync) runs first and so Sparkle isn't racing with first-
                 // launch Gatekeeper / quarantine processing.
                 UpdateService.shared.start()
+                // v1.9.0: first-launch iCloud sync onboarding. Surface AFTER
+                // services start so the popover layout is settled and the
+                // sheet renders cleanly via OverlayPresenter (popover-root).
+                presentICloudOnboardingIfNeeded()
             }
             .onOpenURL { url in handleURL(url, openWindow) }
             .onReceive(settingsStore.$settings) { settings in
@@ -304,5 +314,45 @@ private struct MenuBarContainerView: View {
                     rebuildBridge()
                 }
             }
+    }
+
+    /// v1.9.0 — show the iCloud onboarding sheet on first launch only.
+    /// Idempotent: both Enable and Skip flip `iCloudOnboarded = true` so
+    /// we never re-prompt. No-op when sync is already on (the user opted
+    /// in via Settings before we ever showed the sheet) or when iCloud KVS
+    /// is unreachable (no signed-in iCloud account → onboarding makes no
+    /// sense; user can flip the toggle later when they sign in).
+    @MainActor
+    private func presentICloudOnboardingIfNeeded() {
+        guard !iCloudOnboarded else { return }
+        guard !settingsStore.settings.enableCloudSync else {
+            // Already opted in some other way (import / earlier version);
+            // don't re-prompt. Mark onboarded so the gate stays closed.
+            iCloudOnboarded = true
+            return
+        }
+        // Best-effort iCloud-availability check. NSUbiquitousKeyValueStore
+        // returns a default instance even when the user is signed out, so
+        // we test by attempting a synchronize() — if it returns false the
+        // account isn't usable and we skip the prompt entirely.
+        let kvAvailable = NSUbiquitousKeyValueStore.default.synchronize()
+        guard kvAvailable else {
+            // No usable iCloud account — silently skip. Don't mark onboarded
+            // so we'll re-check on a future launch (after the user signs in).
+            return
+        }
+        overlayPresenter.present(
+            CloudSyncOnboardingSheet(
+                onEnable: { [settingsStore, overlayPresenter] in
+                    settingsStore.update { $0.enableCloudSync = true }
+                    iCloudOnboarded = true
+                    overlayPresenter.dismiss()
+                },
+                onSkip: { [overlayPresenter] in
+                    iCloudOnboarded = true
+                    overlayPresenter.dismiss()
+                }
+            )
+        )
     }
 }

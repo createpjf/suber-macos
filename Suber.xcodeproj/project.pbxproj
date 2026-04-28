@@ -15,6 +15,7 @@
 		0C9C64B501095EB3655839BC /* RecurringChargeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C710E69D775063187F3F0D25 /* RecurringChargeDetector.swift */; };
 		0DFCE195BD1B46BAB7C8F8D7 /* ChangesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E55FD97394E1272EA68BD1B /* ChangesListView.swift */; };
 		0E9C57C724F6EDF9EBD72734 /* MultiSubscriptionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96C0B9AF08BEA6613B47CE1 /* MultiSubscriptionParser.swift */; };
+		108CF1594118B48DE0EEA712 /* CloudSyncOnboardingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C83F5193A13069E0A857A4 /* CloudSyncOnboardingSheet.swift */; };
 		11B3CC91595CBE68CF815492 /* SuberWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49F67319EFA265A52637F0E /* SuberWidget.swift */; };
 		13F5B9232C962340324EB7D4 /* ToggleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52C5D5162C9A8ABE25CFBAC /* ToggleRow.swift */; };
 		141C79D233E71E6DC6D2E844 /* SubscriptionStoreChangeLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72D8B1AAE171945D137BECB /* SubscriptionStoreChangeLogTests.swift */; };
@@ -32,6 +33,7 @@
 		34ABE7BF700D089EDC95A7A9 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DD65487F10B18320FE4642 /* CurrencyFormatter.swift */; };
 		34ADF1397FF485789C90DD2C /* SubscriptionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C0C0FFD8CE4F90A25285E2 /* SubscriptionStoreTests.swift */; };
 		3862E57C14A41C6C2BD2CE8E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A7AC8CC1CD0227DFA53914 /* Constants.swift */; };
+		39AC5740F10BC80F19C9FA5B /* DataRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB0C504B0DEFA93D80E9D3E /* DataRestoreView.swift */; };
 		3A2BF3BEE84D0FD7CAC4DCA8 /* MailWatchdog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3EF60CEE41FB8E2131FA2A /* MailWatchdog.swift */; };
 		3A7C1FF1C1628CBB869A4C49 /* IMAPAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */; };
 		3CE50577B993B5B433259A3A /* AppGroupStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB05319D182A1924458613C /* AppGroupStore.swift */; };
@@ -92,12 +94,15 @@
 		9CCC6474863A909DD9A71FCA /* SpaceGrotesk-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3169530E0D794BF8348B6FC /* SpaceGrotesk-Medium.ttf */; };
 		9EB54FBE87938F4021098EF3 /* SubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA53D89C607C630B60617D4 /* SubCardView.swift */; };
 		A0263E0517AD7BB9124E71E8 /* CancellationSuccessBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2411E068CF7C174BBCD0B2AF /* CancellationSuccessBanner.swift */; };
+		A1E1008D79EC27FFB41D30B3 /* DataBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1E712F376495FC02507944 /* DataBackupManager.swift */; };
 		A25D5C8ACFC3E17A1F4D8875 /* AutopilotSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18065EDD0D3D7EE36F35A9E8 /* AutopilotSettingsSection.swift */; };
 		A33DD626068D198E00FC4DBF /* AutoTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E182DED984A81C1B45766015 /* AutoTransitionTests.swift */; };
 		A4BF81F28F48055C53BB2B8E /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D1458ABC9F1D769C48EB29 /* NotificationService.swift */; };
 		A6237381E0AC2C34C5CF67A2 /* IMAPContinuationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E542D0F9C8E00D32D28132D4 /* IMAPContinuationGuard.swift */; };
 		A7C30A1F9212AB0D707546DD /* SubscriptionChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D3D965F67F346B9924BE9EE /* SubscriptionChange.swift */; };
+		A986D5136F12428B9381ED89 /* DataBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1E712F376495FC02507944 /* DataBackupManager.swift */; };
 		AA6FF6A881F8BB3EF8C19BC7 /* BannerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FE36E9302209D4C1E2EEBC /* BannerCoordinator.swift */; };
+		AC9A477A281B8462279E50FA /* RestoreSourceLister.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45CF2CD96CF7EFE516A3260 /* RestoreSourceLister.swift */; };
 		ACFE9828B1163E4E7F2BC6C2 /* BillingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9DEE6DA508FFB14AEE7124E /* BillingCalculator.swift */; };
 		AD7E286DD287AA60189A9E86 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1940BFFEDDC7D2FB96D14DF0 /* ListView.swift */; };
 		B0886311D6E746360DDBD6D0 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC79AF98975C727773BF90D /* SettingsStore.swift */; };
@@ -117,6 +122,7 @@
 		BB99E3E20950FE60CF22D4BE /* MailSubscriptionExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D132E690B69FBA4D1BDBA159 /* MailSubscriptionExtractor.swift */; };
 		BCC922CABD01E72950A8E9F6 /* OneTapCancelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D842E31CE4535E1149BAFC0 /* OneTapCancelService.swift */; };
 		C36A70975270B8C071BF9B1F /* LogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764FF5CAD135727ADA6AB331 /* LogoView.swift */; };
+		C6BB237A21B4CAF7C9A32EEA /* DataPersistenceLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D02E5693BF5801E910C8655 /* DataPersistenceLifecycleTests.swift */; };
 		CBBB981AD8890CA2E4803ED5 /* AddSubscriptionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEA595179B4649C16DFFF52 /* AddSubscriptionIntent.swift */; };
 		D374AB9D4C3C94C82D60A844 /* IMAPProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E1CAAF04A7EFB52FBC9BAC /* IMAPProvider.swift */; };
 		D84F1BEF23B1AAFD31A0B072 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F222D3227042408ED0A4BE33 /* StorageService.swift */; };
@@ -211,7 +217,9 @@
 		594CF40103D1C97D41305BD8 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		5D28C83FE3B25F940423559C /* IMAPAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPAccountSheet.swift; sourceTree = "<group>"; };
 		5DC55B06AF3867C980C14606 /* SmallSpendWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallSpendWidget.swift; sourceTree = "<group>"; };
+		5EB0C504B0DEFA93D80E9D3E /* DataRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRestoreView.swift; sourceTree = "<group>"; };
 		5FE2031B0FC251517244D5F0 /* BillingCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingCalculatorTests.swift; sourceTree = "<group>"; };
+		60C83F5193A13069E0A857A4 /* CloudSyncOnboardingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncOnboardingSheet.swift; sourceTree = "<group>"; };
 		610ECBE70A09B5EE4BCA90B5 /* AutopilotBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutopilotBannerView.swift; sourceTree = "<group>"; };
 		61DD65487F10B18320FE4642 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		64DCE6C04F795F651DBDE619 /* Suber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suber.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -235,6 +243,7 @@
 		896C0AD6C100D4D350597033 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
 		8AB05319D182A1924458613C /* AppGroupStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupStore.swift; sourceTree = "<group>"; };
 		8C481B2B5AAE8544299D2485 /* PendingCancellationIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCancellationIndicator.swift; sourceTree = "<group>"; };
+		8D02E5693BF5801E910C8655 /* DataPersistenceLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataPersistenceLifecycleTests.swift; sourceTree = "<group>"; };
 		8DA53D89C607C630B60617D4 /* SubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubCardView.swift; sourceTree = "<group>"; };
 		8DF337F3C6EE7378914BE990 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8EE740FCF5EDE13D614C65F4 /* MerchantNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchantNormalizer.swift; sourceTree = "<group>"; };
@@ -244,6 +253,7 @@
 		91A7AC8CC1CD0227DFA53914 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		925BFC4914A32B15DD40AC88 /* MailBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailBridge.swift; sourceTree = "<group>"; };
 		9494532546525F7E5D6BB7B1 /* URLSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSchemeHandler.swift; sourceTree = "<group>"; };
+		9D1E712F376495FC02507944 /* DataBackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupManager.swift; sourceTree = "<group>"; };
 		9D3D965F67F346B9924BE9EE /* SubscriptionChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionChange.swift; sourceTree = "<group>"; };
 		9D842E31CE4535E1149BAFC0 /* OneTapCancelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapCancelService.swift; sourceTree = "<group>"; };
 		9E55FD97394E1272EA68BD1B /* ChangesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesListView.swift; sourceTree = "<group>"; };
@@ -288,6 +298,7 @@
 		EB1223103BFC8FB8758674A1 /* SpaceGrotesk-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Regular.ttf"; sourceTree = "<group>"; };
 		EF8F02EC727924A7DFEAB82E /* MerchantNormalizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchantNormalizerTests.swift; sourceTree = "<group>"; };
 		F222D3227042408ED0A4BE33 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		F45CF2CD96CF7EFE516A3260 /* RestoreSourceLister.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreSourceLister.swift; sourceTree = "<group>"; };
 		F49F67319EFA265A52637F0E /* SuberWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuberWidget.swift; sourceTree = "<group>"; };
 		F9BDFAB4C9431C8C2B105376 /* KnownServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownServices.swift; sourceTree = "<group>"; };
 		F9FBE138F15A7A99F79E9897 /* AppleMailBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMailBridge.swift; sourceTree = "<group>"; };
@@ -331,6 +342,7 @@
 				AB1E821D6971485CE4FBFD93 /* BannerCoordinatorTests.swift */,
 				5FE2031B0FC251517244D5F0 /* BillingCalculatorTests.swift */,
 				0BE5C05E9D254535707B4688 /* ChangeDetectorTests.swift */,
+				8D02E5693BF5801E910C8655 /* DataPersistenceLifecycleTests.swift */,
 				23B21B26BD686A93391FA814 /* IMAPBridgeTests.swift */,
 				8FF412D7E608A0F28F13A0FA /* IMAPContinuationGuardTests.swift */,
 				4F2ABDBAE907BBEA62C4B4AA /* LegacyDataMigrationTests.swift */,
@@ -406,6 +418,8 @@
 				C58711524D9E9749003DC053 /* Autopilot */,
 				A756A44EC807D7E69F830F8A /* Components */,
 				53B85E1B8ACF88B125408DD4 /* Import */,
+				64A8A47DA916D9E0321B3259 /* Onboarding */,
+				D16C1591982A035E84BB0FAC /* Settings */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -418,6 +432,14 @@
 				DDDA2B04E110F3934DD3DA1D /* ImportWindowView.swift */,
 			);
 			path = Import;
+			sourceTree = "<group>";
+		};
+		64A8A47DA916D9E0321B3259 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				60C83F5193A13069E0A857A4 /* CloudSyncOnboardingSheet.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		773DBEC45D2AF21DA3AF073C /* SuberWidget */ = {
@@ -508,6 +530,7 @@
 				D9DEE6DA508FFB14AEE7124E /* BillingCalculator.swift */,
 				58AFAFCE33C8D26875CDE9D1 /* ChangeDetector.swift */,
 				D952CCBFC2EBFD4611E9143E /* CloudSyncService.swift */,
+				9D1E712F376495FC02507944 /* DataBackupManager.swift */,
 				4B95933EC5EA5987B71DD666 /* ExchangeRateService.swift */,
 				04F8D53742B96A524C270A8A /* ImageCache.swift */,
 				73E2F8DA8054615C97A01286 /* ImageRecognitionService.swift */,
@@ -516,6 +539,7 @@
 				E96C0B9AF08BEA6613B47CE1 /* MultiSubscriptionParser.swift */,
 				08D1458ABC9F1D769C48EB29 /* NotificationService.swift */,
 				9D842E31CE4535E1149BAFC0 /* OneTapCancelService.swift */,
+				F45CF2CD96CF7EFE516A3260 /* RestoreSourceLister.swift */,
 				F222D3227042408ED0A4BE33 /* StorageService.swift */,
 				7B7361A153A6794B550223DC /* SubscriptionTextParser.swift */,
 				58CE8ED2533C6CCB4B15C2D1 /* UpdateService.swift */,
@@ -568,6 +592,14 @@
 				3FE0E4BA6BFD2B8C8A6E2982 /* SubscriptionStore.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		D16C1591982A035E84BB0FAC /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				5EB0C504B0DEFA93D80E9D3E /* DataRestoreView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -716,12 +748,15 @@
 				81EBD8B633BCEBBAA8CC6DB3 /* ChangeDetector.swift in Sources */,
 				232DE77BA2995E6008A4C385 /* ChangeRowView.swift in Sources */,
 				0DFCE195BD1B46BAB7C8F8D7 /* ChangesListView.swift in Sources */,
+				108CF1594118B48DE0EEA712 /* CloudSyncOnboardingSheet.swift in Sources */,
 				65D393B749FEFB0A0F356F8E /* CloudSyncService.swift in Sources */,
 				92C3A1155EC5018E5A01EC7E /* CompositeMailBridge.swift in Sources */,
 				7CB2C3251CE4F1EAAC68B39D /* Constants.swift in Sources */,
 				02726321F61517F6D33C5396 /* CurrencyFormatter.swift in Sources */,
 				25C58D28202228CAE8703633 /* DashboardView.swift in Sources */,
 				B23BA62822953FE092ADCE44 /* DashboardViewModel.swift in Sources */,
+				A1E1008D79EC27FFB41D30B3 /* DataBackupManager.swift in Sources */,
+				39AC5740F10BC80F19C9FA5B /* DataRestoreView.swift in Sources */,
 				01581313E40F4724190A3ABF /* DateHelpers.swift in Sources */,
 				B0C5EA6829D03FDA74743D2B /* DayDetailView.swift in Sources */,
 				3E6ED4C05077BFBB32B4BCEF /* EmailParseView.swift in Sources */,
@@ -760,6 +795,7 @@
 				4EE7B34CC8AFEA017AEAC347 /* PendingCancellationIndicator.swift in Sources */,
 				DF7A3ED1D6A64F6FEFF7C961 /* PopoverOverlay.swift in Sources */,
 				0C9C64B501095EB3655839BC /* RecurringChargeDetector.swift in Sources */,
+				AC9A477A281B8462279E50FA /* RestoreSourceLister.swift in Sources */,
 				6DF7E00971222505E899A6D3 /* SearchBarView.swift in Sources */,
 				B9F6949EFA6CE7BAD07E973E /* Settings.swift in Sources */,
 				B0886311D6E746360DDBD6D0 /* SettingsStore.swift in Sources */,
@@ -794,6 +830,7 @@
 				8655B0DC5E55869CAA1BAA4E /* BannerCoordinatorTests.swift in Sources */,
 				6171C5B8DB5487C757F4707E /* BillingCalculatorTests.swift in Sources */,
 				7728286EBDE4BF7C0BCA2771 /* ChangeDetectorTests.swift in Sources */,
+				C6BB237A21B4CAF7C9A32EEA /* DataPersistenceLifecycleTests.swift in Sources */,
 				BB7D7AFD4FA91243E8FDD174 /* IMAPBridgeTests.swift in Sources */,
 				85A98A6DABE319CB978EAB20 /* IMAPContinuationGuardTests.swift in Sources */,
 				DAED89A0D2985D11A58936F7 /* LegacyDataMigrationTests.swift in Sources */,
@@ -821,6 +858,7 @@
 				ACFE9828B1163E4E7F2BC6C2 /* BillingCalculator.swift in Sources */,
 				3862E57C14A41C6C2BD2CE8E /* Constants.swift in Sources */,
 				34ABE7BF700D089EDC95A7A9 /* CurrencyFormatter.swift in Sources */,
+				A986D5136F12428B9381ED89 /* DataBackupManager.swift in Sources */,
 				3A7C1FF1C1628CBB869A4C49 /* IMAPAccount.swift in Sources */,
 				8DB65FA910912C7306716DDB /* IMAPProvider.swift in Sources */,
 				E7398E8B77F4D1B31443D44D /* MediumUpcomingWidget.swift in Sources */,
@@ -854,14 +892,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 184;
+				CURRENT_PROJECT_VERSION = 190;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.4;
+				MARKETING_VERSION = 1.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -906,7 +944,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 184;
+				CURRENT_PROJECT_VERSION = 190;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -914,7 +952,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.4;
+				MARKETING_VERSION = 1.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};
@@ -983,14 +1021,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Suber.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 184;
+				CURRENT_PROJECT_VERSION = 190;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.4;
+				MARKETING_VERSION = 1.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app;
 				SDKROOT = macosx;
 			};
@@ -1065,7 +1103,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SuberWidget/SuberWidget.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 184;
+				CURRENT_PROJECT_VERSION = 190;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1073,7 +1111,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.4;
+				MARKETING_VERSION = 1.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.suber.app.widget;
 				SDKROOT = macosx;
 			};

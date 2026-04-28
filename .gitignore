@@ -16,3 +16,6 @@ xcuserdata/
 # Swift Package Manager
 .build/
 Packages/
+
+# gstack skill local state (telemetry, qa reports — not source-controlled)
+.gstack/

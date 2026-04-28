@@ -4,6 +4,8 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     @EnvironmentObject var subscriptionStore: SubscriptionStore
     @EnvironmentObject var settingsStore: SettingsStore
+    /// v1.9.0: needed to present DataRestoreView via popover-root overlay.
+    @EnvironmentObject var overlayPresenter: OverlayPresenter
 
     var onImport: (() -> Void)? = nil
 
@@ -24,6 +26,17 @@ struct SettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
+                // v1.9.0: iCloud sync promoted to top of Settings.
+                // Rationale — see CHANGELOG [1.9.0] "Data Safety": iCloud
+                // sync is the remote-redundancy layer in the 4-layer
+                // protection scheme. Putting it at the top makes the
+                // safety story discoverable instead of buried in General.
+                section("iCloud Sync") {
+                    iCloudSyncRow
+                }
+
+                divider
+
                 // Currency
                 section("Currency") {
                     HStack {
@@ -127,15 +140,13 @@ struct SettingsView: View {
                 divider
 
                 // General
+                // v1.9.0: iCloud sync was moved out to its own top-of-Settings
+                // section — see body header. General now only holds Launch at
+                // login.
                 section("General") {
                     ToggleRow(label: "Launch at login", isOn: Binding(
                         get: { settingsStore.settings.launchAtLogin },
                         set: { _ in settingsStore.toggleLaunchAtLogin() }
-                    ))
-
-                    ToggleRow(label: "iCloud sync", isOn: Binding(
-                        get: { settingsStore.settings.enableCloudSync },
-                        set: { val in settingsStore.update { $0.enableCloudSync = val } }
                     ))
                 }
 
@@ -157,6 +168,14 @@ struct SettingsView: View {
                             actionButton("Import from bank statement…", icon: "doc.badge.arrow.up") {
                                 onImport()
                             }
+                        }
+
+                        // v1.9.0: explicit, user-driven Restore — replaces the
+                        // dangerous automatic LegacyDataMigration disabled in
+                        // v1.8.4. Safe to invoke any time; live data is
+                        // backed up automatically before the restore writes.
+                        actionButton("Restore from backup…", icon: "arrow.uturn.backward.circle") {
+                            presentRestore()
                         }
 
                         Button(action: { showClearConfirm = true }) {
@@ -341,6 +360,49 @@ struct SettingsView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Restore (v1.9.0)
+
+    /// Push DataRestoreView through OverlayPresenter so the confirm dialog
+    /// renders at popover root (480pt full width) and survives focus events.
+    private func presentRestore() {
+        overlayPresenter.present(
+            DataRestoreView(onClose: { [overlayPresenter] in
+                overlayPresenter.dismiss()
+            })
+            .environmentObject(subscriptionStore)
+            .environmentObject(settingsStore)
+            .environmentObject(overlayPresenter)
+        )
+    }
+
+    // MARK: - iCloud Sync Row (v1.9.0)
+
+    /// Promoted iCloud sync UI. Toggle + a one-line status that tells the
+    /// user what the toggle is for in concrete terms — "subscriptions sync
+    /// across all your Macs", not "enableCloudSync".
+    @ViewBuilder
+    private var iCloudSyncRow: some View {
+        let isOn = settingsStore.settings.enableCloudSync
+        VStack(alignment: .leading, spacing: 8) {
+            ToggleRow(label: "iCloud sync", isOn: Binding(
+                get: { settingsStore.settings.enableCloudSync },
+                set: { val in settingsStore.update { $0.enableCloudSync = val } }
+            ))
+
+            HStack(spacing: 6) {
+                Image(systemName: isOn ? "checkmark.icloud.fill" : "icloud.slash")
+                    .font(.system(size: 11))
+                    .foregroundColor(isOn ? Theme.success : Theme.textDim)
+                Text(isOn
+                     ? "On — subscriptions sync to your iCloud account."
+                     : "Off — subscriptions stay on this Mac only.")
+                    .font(AppFont.regular(11))
+                    .foregroundColor(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 
     // MARK: - Update Section (v1.8.0 Sparkle-backed)
