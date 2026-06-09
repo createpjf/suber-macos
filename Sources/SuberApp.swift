@@ -319,6 +319,10 @@ private struct MenuBarContainerView: View {
     /// (not every settings tweak).
     @State private var lastIMAPAccountID: String?
 
+    /// v1.9.2: track the previous enableCloudSync value so we only call
+    /// start/stopSync on the actual toggle transition (not every settings tweak).
+    @State private var lastCloudSyncEnabled: Bool?
+
     /// v1.9.0 — first-launch iCloud onboarding gate. Persists in standard
     /// UserDefaults (not the App Group container) because it's a UI prompt
     /// flag, not data the widget needs. Default false → first launch shows
@@ -353,10 +357,14 @@ private struct MenuBarContainerView: View {
             }
             .onOpenURL { url in handleURL(url, openWindow) }
             .onReceive(settingsStore.$settings) { settings in
-                if settings.enableCloudSync {
-                    CloudSyncService.shared.startSync()
-                } else {
-                    CloudSyncService.shared.stopSync()
+                // v1.9.2: only react to the actual enableCloudSync transition.
+                if settings.enableCloudSync != lastCloudSyncEnabled {
+                    lastCloudSyncEnabled = settings.enableCloudSync
+                    if settings.enableCloudSync {
+                        CloudSyncService.shared.startSync()
+                    } else {
+                        CloudSyncService.shared.stopSync()
+                    }
                 }
                 // v1.7: rebuild the MailBridge composition if the IMAP
                 // account membership changed (added, removed, or swapped
