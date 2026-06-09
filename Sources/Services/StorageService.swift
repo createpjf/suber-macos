@@ -99,6 +99,22 @@ final class StorageService {
         }
     }
 
+    /// v1.9.2: atomic-ish append for AppIntents (Siri/Shortcuts). Loads the
+    /// freshest on-disk list, appends, and saves in ONE call — narrowing the
+    /// load→save window vs doing it across two StorageService calls in the
+    /// Intent body. NOTE: this is not a cross-process lock; if the main app
+    /// and an out-of-process Intent invocation race, a lost update is still
+    /// theoretically possible. The window is now microseconds and both paths
+    /// are additive, so the worst case is one of two near-simultaneous *adds*
+    /// is dropped — never existing-data loss.
+    @discardableResult
+    func appendSubscription(_ sub: Subscription) -> [Subscription] {
+        var subs = loadSubscriptions()
+        subs.append(sub)
+        saveSubscriptions(subs)
+        return subs
+    }
+
     // MARK: - Changes log (v1.6)
 
     /// Load the SubscriptionChange log. Gracefully returns [] on any decode

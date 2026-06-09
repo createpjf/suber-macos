@@ -43,6 +43,47 @@ final class StorageServiceTests: XCTestCase {
         XCTAssertEqual(loaded.first?.cycle, .monthly)
     }
 
+    func testAppendSubscriptionPreservesExisting() {
+        // Sandbox the live store + backups dir so this test doesn't touch the
+        // user's real container or Backups/. defer guarantees cleanup even if
+        // an assertion fails.
+        let storeDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-append-store-\(UUID().uuidString)")
+        let backupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-append-backup-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = storeDir
+        DataBackupManager.testOverrideDirectory = backupDir
+        defer {
+            AppGroupStore.testOverrideDirectory = nil
+            DataBackupManager.testOverrideDirectory = nil
+            try? FileManager.default.removeItem(at: storeDir)
+            try? FileManager.default.removeItem(at: backupDir)
+        }
+
+        let a = Subscription(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+            name: "A", amount: 1, currency: "USD", cycle: .monthly, billingDay: 1,
+            startDate: Date(), category: "Test", status: .active,
+            createdAt: Date(), updatedAt: Date())
+        let b = Subscription(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+            name: "B", amount: 2, currency: "USD", cycle: .monthly, billingDay: 1,
+            startDate: Date(), category: "Test", status: .active,
+            createdAt: Date(), updatedAt: Date())
+        StorageService.shared.saveSubscriptions([a, b])
+
+        let c = Subscription(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000003")!,
+            name: "C", amount: 3, currency: "USD", cycle: .monthly, billingDay: 1,
+            startDate: Date(), category: "Test", status: .active,
+            createdAt: Date(), updatedAt: Date())
+        StorageService.shared.appendSubscription(c)
+
+        let loaded = StorageService.shared.loadSubscriptions()
+        XCTAssertEqual(loaded.count, 3, "append must preserve existing subscriptions")
+        XCTAssertTrue(loaded.contains { $0.name == "C" })
+    }
+
     func testSaveAndLoadSettings() {
         var settings = AppSettings()
         settings.primaryCurrency = "EUR"

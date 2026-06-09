@@ -36,8 +36,8 @@ struct AddSubscriptionIntent: AppIntent {
         default: data.cycle = .monthly
         }
 
-        // Write directly via StorageService (Intents may not have access to @MainActor stores)
-        var subs = StorageService.shared.loadSubscriptions()
+        // v1.9.2: single-call append narrows the load→save lost-update window
+        // (was two StorageService calls with logic between).
         let sub = Subscription(
             id: UUID(),
             name: data.name.trimmingCharacters(in: .whitespaces),
@@ -51,8 +51,7 @@ struct AddSubscriptionIntent: AppIntent {
             createdAt: Date(),
             updatedAt: Date()
         )
-        subs.append(sub)
-        StorageService.shared.saveSubscriptions(subs)
+        StorageService.shared.appendSubscription(sub)
 
         let formatted = CurrencyFormatter.formatShort(sub.amount, currency: sub.currency)
         return .result(dialog: "Added \(name) — \(formatted)/\(data.cycle.shortLabel.isEmpty ? "one-time" : String(data.cycle.shortLabel.dropFirst()))")
