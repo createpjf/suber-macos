@@ -309,7 +309,7 @@ final class MailWatchdog: ObservableObject {
         // On first scan: lookback from now.
         let persistedTS = defaults.double(forKey: Self.lastScanDateKey)
         if persistedTS == 0 {
-            return Calendar.current.date(byAdding: .day, value: -initialScanLookbackDays, to: Date())!
+            return Calendar.current.date(byAdding: .day, value: -initialScanLookbackDays, to: Date()) ?? Date()
         }
         // Subsequent scan: use lastScanDate minus 1 day (safety margin for
         // clock skew / delayed delivery). Incremental cursor filtering

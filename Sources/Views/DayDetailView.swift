@@ -216,7 +216,7 @@ struct DayDetailView: View {
     /// A4 data-source detector — mirrors ListView's implementation.
     private var hasDataSource: Bool {
         if settingsStore.settings.autopilot.watchAppleMail { return true }
-        let threshold = Calendar.current.date(byAdding: .day, value: -90, to: Date())!
+        let threshold = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
         return subscriptionStore.changes.contains { change in
             change.source == .csvImport && change.detectedAt >= threshold
         }

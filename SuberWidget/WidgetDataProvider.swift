@@ -108,7 +108,7 @@ struct SuberTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<SuberWidgetEntry>) -> Void) {
         let entry = makeEntry()
         // Refresh every 2 hours
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 2, to: Date())!
+        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 2, to: Date()) ?? Date().addingTimeInterval(7200)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
     }

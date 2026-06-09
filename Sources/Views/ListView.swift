@@ -126,7 +126,7 @@ struct ListView: View {
         // CSV-only user: if they've ever imported one, the next import will
         // cover the window. Heuristic: any change sourced from csvImport in
         // the last 90 days → yes, they use CSV.
-        let threshold = Calendar.current.date(byAdding: .day, value: -90, to: Date())!
+        let threshold = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
         return subscriptionStore.changes.contains { change in
             change.source == .csvImport && change.detectedAt >= threshold
         }

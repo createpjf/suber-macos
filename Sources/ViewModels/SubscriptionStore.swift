@@ -30,7 +30,7 @@ final class SubscriptionStore: ObservableObject {
     /// `changes` without manual bookkeeping. @Published via `objectWillChange`
     /// propagation from the `changes` setter.
     var unreadChangeCount: Int {
-        let threshold = Calendar.current.date(byAdding: .day, value: -14, to: Date())!
+        let threshold = Calendar.current.date(byAdding: .day, value: -14, to: Date()) ?? Date()
         return changes.filter { !$0.acknowledged && $0.detectedAt >= threshold }.count
     }
 
