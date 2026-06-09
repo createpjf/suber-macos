@@ -5,6 +5,22 @@ import XCTest
 /// D5 idempotent markPendingCancellation: re-tap doesn't reset the anchor.
 final class OneTapCancelTests: XCTestCase {
 
+    // v1.9.2: the one store-using test below writes to the file-based
+    // AppGroupStore (since v1.6.2). Clear it around every test so a leaked
+    // subscription can't contaminate order-dependent assertions in sibling
+    // test classes (the same isolation gap that made AutoTransitionTests flaky).
+    override func setUp() {
+        super.setUp()
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-changes")
+    }
+
+    override func tearDown() {
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-changes")
+        super.tearDown()
+    }
+
     // MARK: - URL resolution priority
 
     func testPerSubOverrideWins() {
@@ -97,10 +113,7 @@ final class OneTapCancelTests: XCTestCase {
         // test re-states the contract at the One-Tap-Cancel level so a
         // future refactor of OneTapCancelService doesn't accidentally
         // call setAt = now on every tap.
-        let defaults = UserDefaults(suiteName: "onetap-test-\(UUID())") ?? .standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-changes")
-
+        // (AppGroupStore is cleared in setUp/tearDown — no per-test dance needed.)
         let store = SubscriptionStore()
         var data = SubscriptionFormData()
         data.name = "Netflix"; data.amount = "15.99"; data.currency = "USD"

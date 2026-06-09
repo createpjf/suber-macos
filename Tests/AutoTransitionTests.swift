@@ -16,6 +16,14 @@ final class AutoTransitionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        // v1.9.2: SubscriptionStore loads from the file-based AppGroupStore
+        // (since v1.6.2), NOT legacy UserDefaults — so clearing only the
+        // UserDefaults suite left `suber-changes` dirty between test methods.
+        // A cancellationConfirmed written by testZeroCharges… leaked through
+        // the AppGroupStore file and tripped testNoDataSourceLeavesSubPending
+        // (depending on method execution order). Clear BOTH stores.
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-changes")
         let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
         defaults.removeObject(forKey: "suber-subscriptions")
         defaults.removeObject(forKey: "suber-changes")
@@ -23,6 +31,8 @@ final class AutoTransitionTests: XCTestCase {
     }
 
     override func tearDown() {
+        AppGroupStore.removeObject(forKey: "suber-subscriptions")
+        AppGroupStore.removeObject(forKey: "suber-changes")
         let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
         defaults.removeObject(forKey: "suber-subscriptions")
         defaults.removeObject(forKey: "suber-changes")
@@ -106,7 +116,7 @@ final class AutoTransitionTests: XCTestCase {
         XCTAssertNotNil(updated.pendingCancellationSetAt)
 
         XCTAssertFalse(
-            store.changes.contains(where: { $0.type == .cancellationConfirmed }),
+            store.changes.contains(where: { $0.type == .cancellationConfirmed && $0.subscriptionID == sub.id }),
             "No cancellationConfirmed logged — honesty wins over convenience"
         )
     }
