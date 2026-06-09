@@ -70,8 +70,10 @@ enum DataBackupManager {
         // hash to the same filename and the second `.atomic` write would clobber
         // the first, silently losing the pre-clear recovery point. Append a
         // numeric uniquifier when the base name is taken so each distinct write
-        // keeps its own file. The suffix preserves lexicographic == chronological
-        // ordering because it only disambiguates within a single millisecond.
+        // keeps its own file. The suffix only disambiguates the filename so the
+        // second write doesn't clobber the first — `listBackups` orders by
+        // mtime, not filename, so same-millisecond ties resolve by on-disk
+        // write order (both files are retained either way).
         var url = dir.appendingPathComponent("\(key)-\(timestamp).json")
         if FileManager.default.fileExists(atPath: url.path) {
             var dedupe = 1
