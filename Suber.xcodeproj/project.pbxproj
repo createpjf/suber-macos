@@ -47,6 +47,7 @@
 		4E60C418829A866EE8A49A3B /* ImportPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183A814B71ED77466457F6AF /* ImportPresenter.swift */; };
 		4EE7B34CC8AFEA017AEAC347 /* PendingCancellationIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C481B2B5AAE8544299D2485 /* PendingCancellationIndicator.swift */; };
 		5283B1DEEE3242AEF39EABDF /* SinceYouWereAwayBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B707619D73A06E718A123EE /* SinceYouWereAwayBanner.swift */; };
+		540D11A9E6BBAB0AB93BC1D6 /* SubscriptionReplaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2571AD1F45EB9620AF084D /* SubscriptionReplaceTests.swift */; };
 		555F10D2E05A5CD00ED4C945 /* AutopilotFlagsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150D60920647F6E03A2BD53E /* AutopilotFlagsTests.swift */; };
 		55BFF274B4315169F19BAE01 /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52C9C7D711B0DD8A72A4EBC /* TopBarView.swift */; };
 		576B18C2EF0B5904EC9D01F4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 594CF40103D1C97D41305BD8 /* Localizable.xcstrings */; };
@@ -217,6 +218,7 @@
 		58AFAFCE33C8D26875CDE9D1 /* ChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeDetector.swift; sourceTree = "<group>"; };
 		58CE8ED2533C6CCB4B15C2D1 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
 		594CF40103D1C97D41305BD8 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		5D2571AD1F45EB9620AF084D /* SubscriptionReplaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionReplaceTests.swift; sourceTree = "<group>"; };
 		5D28C83FE3B25F940423559C /* IMAPAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMAPAccountSheet.swift; sourceTree = "<group>"; };
 		5DC55B06AF3867C980C14606 /* SmallSpendWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallSpendWidget.swift; sourceTree = "<group>"; };
 		5EB0C504B0DEFA93D80E9D3E /* DataRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRestoreView.swift; sourceTree = "<group>"; };
@@ -361,6 +363,7 @@
 				A74AD0B9C94424581D207AE7 /* RecurringChargeDetectorTests.swift */,
 				710C8C5B7EB986709456F2BA /* StatementFormatTests.swift */,
 				BE01FD4ECBEFDC4F73FF7BC1 /* StorageServiceTests.swift */,
+				5D2571AD1F45EB9620AF084D /* SubscriptionReplaceTests.swift */,
 				D9C4030C179BC0F9DC89F53D /* SubscriptionStatusCodableTests.swift */,
 				B72D8B1AAE171945D137BECB /* SubscriptionStoreChangeLogTests.swift */,
 				A0C0C0FFD8CE4F90A25285E2 /* SubscriptionStoreTests.swift */,
@@ -852,6 +855,7 @@
 				8F59FD8D1B742E68B3B14E52 /* RecurringChargeDetectorTests.swift in Sources */,
 				8A118204837604BFB85A7200 /* StatementFormatTests.swift in Sources */,
 				6AD3DCB920533521ED21C466 /* StorageServiceTests.swift in Sources */,
+				540D11A9E6BBAB0AB93BC1D6 /* SubscriptionReplaceTests.swift in Sources */,
 				00E381AC2C81858EF5004E8A /* SubscriptionStatusCodableTests.swift in Sources */,
 				141C79D233E71E6DC6D2E844 /* SubscriptionStoreChangeLogTests.swift in Sources */,
 				34ADF1397FF485789C90DD2C /* SubscriptionStoreTests.swift in Sources */,

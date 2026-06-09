@@ -487,7 +487,7 @@ struct SettingsView: View {
             do {
                 let data = try Data(contentsOf: url)
                 let result = try StorageService.shared.importData(from: data)
-                subscriptionStore.importSubscriptions(result.subscriptions)
+                subscriptionStore.replaceAll(result.subscriptions, reason: .userImport)
                 settingsStore.update { settings in
                     settings = result.settings
                 }

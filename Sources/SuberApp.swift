@@ -233,7 +233,7 @@ struct SuberApp: App {
         switch CloudSyncMerger.mergeSubscriptions(local: local, remote: remote) {
         case .applied(let merged):
             NSLog("Suber CloudSync: merge applied (local=\(local.count) remote=\(remote.count) → merged=\(merged.count))")
-            store.importSubscriptions(merged)
+            store.replaceAll(merged, reason: .cloudMerge)
         case .rejectedAsStale(let l, let r):
             NSLog("Suber CloudSync: REJECTED stale remote (local=\(l) remote=\(r)). Use Settings → Data → Restore if intentional.")
             // Future improvement: surface a non-blocking banner inviting

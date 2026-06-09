@@ -246,7 +246,7 @@ struct DataRestoreView: View {
         // old live data automatically becomes another rotating backup.
         // That makes Restore itself reversible: bad pick → restore an even
         // older snapshot to revert.
-        subscriptionStore.importSubscriptions(subs)
+        subscriptionStore.replaceAll(subs, reason: .userRestore)
 
         // 2) Settings — best-effort. Decode failure just skips this part;
         // user keeps their current settings rather than getting a broken set.

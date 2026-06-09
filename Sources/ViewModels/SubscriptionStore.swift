@@ -99,11 +99,37 @@ final class SubscriptionStore: ObservableObject {
     }
 
     func clearAll() {
-        subscriptions.removeAll()
-        save()
+        // v1.9.2: route through the single destructive-replace chokepoint so
+        // the pre-clear state is snapshotted + logged like every other replace.
+        replaceAll([], reason: .clearAll)
     }
 
-    func importSubscriptions(_ subs: [Subscription]) {
+    /// **The one destructive-replace chokepoint (v1.9.2).** Every wholesale
+    /// replacement of the subscription list passes through here with an
+    /// explicit `reason`. It (1) snapshots the OUTGOING state to Backups/
+    /// before overwriting, (2) logs the count transition for diagnostics, and
+    /// (3) fires a tripwire if the automated `cloudMerge` path ever shrinks the
+    /// list — which `CloudSyncMerger` should already prevent upstream.
+    ///
+    /// User-initiated reasons (`userImport`, `userRestore`, `clearAll`) may
+    /// legitimately reduce the count; only `cloudMerge` shrinking is suspicious.
+    func replaceAll(_ subs: [Subscription], reason: SubscriptionReplaceReason) {
+        let oldCount = subscriptions.count
+        let newCount = subs.count
+
+        // Belt-and-suspenders: snapshot the outgoing state before overwrite,
+        // independent of AppGroupStore.set's own post-write hook. Guarantees
+        // the pre-replace list is in Backups/ for one-click recovery.
+        if oldCount > 0, let outgoing = try? JSONEncoder.suberEncoder.encode(subscriptions) {
+            DataBackupManager.snapshot(key: "suber-subscriptions", data: outgoing)
+        }
+
+        if reason == .cloudMerge && newCount < oldCount {
+            NSLog("Suber ⚠️ replaceAll TRIPWIRE: cloudMerge shrank \(oldCount) → \(newCount). CloudSyncMerger should have rejected this — investigate.")
+        } else {
+            NSLog("Suber replaceAll: \(oldCount) → \(newCount) (reason=\(reason.rawValue))")
+        }
+
         subscriptions = subs
         save()
     }
@@ -358,6 +384,16 @@ final class SubscriptionStore: ObservableObject {
             AppGroupStore.set(data, forKey: "suber-changes")
         }
     }
+}
+
+/// Why a subscription list was wholesale-replaced. Used by
+/// `SubscriptionStore.replaceAll(_:reason:)` for logging + the cloudMerge
+/// shrink tripwire. `rawValue` strings appear in NSLog diagnostics.
+enum SubscriptionReplaceReason: String {
+    case userImport    // JSON import (Settings → Data → Import JSON)
+    case userRestore   // Settings → Data → Restore from backup
+    case cloudMerge    // CloudSyncMerger result applied from iCloud KVS
+    case clearAll      // explicit "Clear all data" (count → 0 expected)
 }
 
 // MARK: - Shared Encoder (matches StorageService.encoder)
