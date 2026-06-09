@@ -211,10 +211,10 @@ struct SuberApp: App {
         }
     }
 
-    /// Subscriptions merge path. Pre-snapshots, decides, applies (or rejects).
-    /// Lives at the App level (not on SubscriptionStore) because the snapshot
-    /// + decision logic crosses two services and is easier to reason about
-    /// here. The rule logic itself is in `CloudSyncMerger` (pure, testable).
+    /// Subscriptions merge path. Decides via CloudSyncMerger, then applies on
+    /// the .applied branch (or rejects/no-ops). The pre-replace snapshot lives
+    /// in SubscriptionStore.replaceAll, so this method no longer snapshots
+    /// directly. The rule logic itself is in `CloudSyncMerger` (pure, testable).
     private func handleRemoteSubscriptions(_ data: Data?, store: SubscriptionStore?) {
         guard let data, let store else { return }
         guard let remote = try? JSONDecoder.suberDecoder.decode([Subscription].self, from: data) else {
@@ -222,14 +222,12 @@ struct SuberApp: App {
             return
         }
         let local = store.subscriptions
-        // Pre-merge snapshot — even if the merger rejects, we still grab a
-        // copy of local. Tiny cost (one rotating-backup write) for a huge
-        // safety win: any bug here is recoverable via Restore UI.
-        let snapshotEncoder = JSONEncoder()
-        snapshotEncoder.dateEncodingStrategy = .iso8601
-        if let localData = try? snapshotEncoder.encode(local) {
-            DataBackupManager.snapshot(key: "suber-subscriptions", data: localData)
-        }
+        // v1.9.2: no pre-merge snapshot here anymore. SubscriptionStore.replaceAll
+        // (called below on the .applied path) snapshots the outgoing list before
+        // overwriting, so this was redundant — it tripled backup writes per merge
+        // and churned the 10-slot rotating ring. The .rejectedAsStale / .noOp
+        // paths don't mutate local, so the live file + its existing backup
+        // already cover recovery.
         switch CloudSyncMerger.mergeSubscriptions(local: local, remote: remote) {
         case .applied(let merged):
             NSLog("Suber CloudSync: merge applied (local=\(local.count) remote=\(remote.count) → merged=\(merged.count))")

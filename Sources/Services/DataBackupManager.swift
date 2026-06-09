@@ -64,7 +64,22 @@ enum DataBackupManager {
         }
 
         let timestamp = filesystemSafeTimestamp(Date())
-        let url = dir.appendingPathComponent("\(key)-\(timestamp).json")
+        // Two snapshots can land in the same millisecond — e.g. clearAll's
+        // replaceAll([]) snapshots the OUTGOING list, then save()'s post-write
+        // hook snapshots the new (empty) list microseconds later. Both would
+        // hash to the same filename and the second `.atomic` write would clobber
+        // the first, silently losing the pre-clear recovery point. Append a
+        // numeric uniquifier when the base name is taken so each distinct write
+        // keeps its own file. The suffix preserves lexicographic == chronological
+        // ordering because it only disambiguates within a single millisecond.
+        var url = dir.appendingPathComponent("\(key)-\(timestamp).json")
+        if FileManager.default.fileExists(atPath: url.path) {
+            var dedupe = 1
+            repeat {
+                url = dir.appendingPathComponent("\(key)-\(timestamp)-\(dedupe).json")
+                dedupe += 1
+            } while FileManager.default.fileExists(atPath: url.path)
+        }
         do {
             try data.write(to: url, options: [.atomic])
             pruneIfNeeded(key: key, dir: dir)

@@ -54,6 +54,9 @@ final class SubscriptionReplaceTests: XCTestCase {
     func testReplaceAllKeepsPreReplaceStateRecoverable() {
         let store = SubscriptionStore()
         store.replaceAll((0..<3).map(makeSub), reason: .userImport)   // 0 -> 3
+        // Clear the backup left by the first import's save-hook so the
+        // assertion below isolates replaceAll's OWN pre-replace snapshot.
+        DataBackupManager.removeAllBackups(key: "suber-subscriptions")
         store.replaceAll([makeSub(99)], reason: .userRestore)         // 3 -> 1
 
         XCTAssertEqual(store.subscriptions.count, 1)
@@ -74,6 +77,9 @@ final class SubscriptionReplaceTests: XCTestCase {
     func testClearAllRoutesThroughReplaceAll() {
         let store = SubscriptionStore()
         store.replaceAll((0..<2).map(makeSub), reason: .userImport)
+        // Clear the import's save-hook backup so the assertion isolates the
+        // pre-clear snapshot taken inside replaceAll([], .clearAll).
+        DataBackupManager.removeAllBackups(key: "suber-subscriptions")
         store.clearAll()
         XCTAssertTrue(store.subscriptions.isEmpty)
         // The 2-sub state before clear must remain recoverable.
