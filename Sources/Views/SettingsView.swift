@@ -12,6 +12,11 @@ struct SettingsView: View {
     @State private var showClearConfirm = false
     @State private var importError: String?
     @State private var showImportError = false
+    // v1.9.2: JSON import confirmation — import is a destructive whole-list
+    // replace, so we stage the decoded result and require explicit confirm.
+    // StorageService.importData(from:) returns this exact tuple shape.
+    @State private var pendingImport: (subscriptions: [Subscription], settings: AppSettings)?
+    @State private var showImportConfirm = false
 
     // v1.6: language override — restart prompt state.
     @State private var pendingLanguageChoice: LanguageOverride.Choice?
@@ -307,6 +312,16 @@ struct SettingsView: View {
         } message: {
             Text(importError ?? "Unknown error")
         }
+        .alert("Replace all subscriptions?",
+               isPresented: $showImportConfirm,
+               presenting: pendingImport) { result in
+            Button("Replace", role: .destructive) { applyPendingImport() }
+            Button("Cancel", role: .cancel) { pendingImport = nil }
+        } message: { result in
+            Text("This will replace your current \(subscriptionStore.subscriptions.count) "
+                 + "subscriptions with \(result.subscriptions.count) from the file. "
+                 + "Your current data is backed up automatically first.")
+        }
         // v1.6 language switch — restart prompt.
         .alert("Restart Suber to switch language?",
                isPresented: $showRestartAlert) {
@@ -487,15 +502,22 @@ struct SettingsView: View {
             do {
                 let data = try Data(contentsOf: url)
                 let result = try StorageService.shared.importData(from: data)
-                subscriptionStore.replaceAll(result.subscriptions, reason: .userImport)
-                settingsStore.update { settings in
-                    settings = result.settings
-                }
+                // v1.9.2: stage + confirm before the destructive replace.
+                pendingImport = result
+                showImportConfirm = true
             } catch {
                 importError = error.localizedDescription
                 showImportError = true
             }
         }
+    }
+
+    /// Applies a previously-staged JSON import after the user confirms.
+    private func applyPendingImport() {
+        guard let result = pendingImport else { return }
+        subscriptionStore.replaceAll(result.subscriptions, reason: .userImport)
+        settingsStore.update { $0 = result.settings }
+        pendingImport = nil
     }
 
     /// Runs a save/open panel while temporarily dropping the MenuBarExtra
