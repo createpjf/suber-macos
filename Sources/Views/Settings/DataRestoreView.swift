@@ -268,5 +268,8 @@ struct DataRestoreView: View {
         pendingSource = nil
         // Don't auto-close — let the user see the success banner and review.
         // They can close manually via the X button.
+        // v1.9.2: the restore wrote new data + created a fresh backup, so the
+        // available-sources list is now stale — refresh it.
+        reload()
     }
 }
