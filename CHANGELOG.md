@@ -2,6 +2,39 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.9.2] — 2026-06-09 — Audit hardening：补全数据完整性缺口
+
+v1.9.1 之后做了一次完整代码审计（SwiftUI 崩溃预防 + UX/功能两个 lens）。崩溃面干净：0 个 `try!`/`as!`，所有数组 force-unwrap 都被 `switch count` 证明性守卫，所有 ObservableObject 都正确标 `@MainActor`。本版修掉审计发现的 7 个数据完整性/正确性缺口，外加实现过程中发现的 1 个潜在数据丢失 bug，无新功能 —— 属 `docs/RELEASE-PROCESS.md` 的 P0 数据安全例外，7-day freeze clock 重置。
+
+每个修复都走了 implementer → spec review → code-quality review 三道关，并做了一次跨任务的 final integration review。**233/233 测试全绿**（228 baseline + 5 新增）。
+
+### Added
+
+- **W4 — `SubscriptionStore.replaceAll(_:reason:)` 破坏性整表替换的唯一 chokepoint。** 带显式 `reason`（`userImport`/`userRestore`/`cloudMerge`/`clearAll`）：替换前把旧列表快照到 Backups/、记录 count 变化日志、`cloudMerge` 路径若缩小则触发 tripwire 警告。`clearAll` 与 3 个调用点（CloudSync merge / JSON import / Restore）全部改走它，`importSubscriptions` 移除。这是「自动路径静默清空订阅」这一类 bug（v1.8.4 / v1.9.0）的架构级收口。新增 `SubscriptionReplaceTests`（3 个测试，含 Backups/ 可恢复性断言）。
+
+### Fixed
+
+- **W1** `mergeRemoteChanges` 之前直接 `AppGroupStore.set` 绕过了 H5 prune —— 跨设备合并后 change log 可超过 200 条上限、撑爆 KVS 1 MB 预算。现在走 `StorageService.prune`，in-memory + 持久化都裁剪（仍不回推 KVS，避免 ping-pong）。+1 回归测试。
+- **W5（bonus，实现 W4 时发现）** `DataBackupManager.snapshot` 的文件名是毫秒级时间戳。`replaceAll` 先快照旧列表、`save()` 微秒后快照新列表 —— 同一毫秒内两次写会撞同名，第二次 `.atomic` 写**静默覆盖**第一次，丢掉 pre-replace 恢复点。加数字后缀消歧（`-1`/`-2`），两份都保留。这是真实数据安全 bug，不只是测试假象。
+- **W2/U1** JSON Import 之前是静默破坏性替换。现在弹 confirmation：「将用 X 条替换当前 Y 条订阅」，只有点 Replace 才执行。
+- **W3** `AddSubscriptionIntent` 的 load→append→save 跨两次调用、中间夹着对象构造，存在 lost-update 窗口。集中到 `StorageService.appendSubscription` 单次调用收窄窗口。**诚实标注残余风险**：这不修跨进程/app↔Intent 的根本竞态 —— 运行中的 app 持有启动时载入的内存快照，每次 `save()` 整份回写，所以 Intent 写盘后被 app 后续 save 覆盖仍可能发生（任意时刻，不只竞态窗口）。彻底修需要 app reconcile-on-save，列为后续。+1 测试。
+- **I1** 6 处 `Calendar.date(byAdding:to:)!` force-unwrap 改 `?? fallback`（widget 用 `?? Date().addingTimeInterval(7200)`）。
+- **I2** `onReceive($settings)` 之前每次任意设置变更都调 start/stopSync，现在只在 `enableCloudSync` 真翻转时调。
+- **I4** Restore 成功后没刷新备份源列表，二次 restore 显示旧列表 —— 现在 restore 后 `reload()`。
+
+### Cleanup
+
+- 移除死代码 `StorageService.clearAll()`（无调用者，且做的是**不带快照**的 `removeObject` 删除 —— 对未来调用者是个 loaded gun）。live clear 路径是 `SubscriptionStore.clearAll()` → `replaceAll([])`，始终先快照。
+- 修正 `DataRestoreView` 里引用已删除 `importSubscriptions` 的过期注释。
+
+### Notes
+
+- v1.9.1 用户应用内一键升级（Settings → Updates → Check for updates → Install）。
+- 已知后续（不在本补丁）：app↔Intent reconcile-on-save（W3 根因）；`StorageService.prune` 的 `now:` 参数与文档描述漂移（pre-existing，change-log prune 语义，与本版订阅路径无关）。
+- 7-day feature freeze clock 重置为 2026-06-09。
+
+---
+
 ## [1.9.1] — 2026-04-28 — 紧急 hotfix：iCloud KVS 不再无条件覆盖本地数据
 
 **🚨 CRITICAL — 所有 v1.9.0 用户应**立即升级**。**
