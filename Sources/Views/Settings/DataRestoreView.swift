@@ -16,9 +16,9 @@ import SwiftUI
 // │       this backup's Y subs. Continue?"                                     │
 // │    3. On confirm:                                                          │
 // │       a. Decode subscriptions from `BackupSource.subscriptionsData`.       │
-// │       b. SubscriptionStore.importSubscriptions(...) — writes through      │
-// │          AppGroupStore.set, which itself takes a fresh snapshot via       │
-// │          DataBackupManager. So even an unintended restore is recoverable. │
+// │       b. SubscriptionStore.replaceAll(..., reason: .userRestore) — writes  │
+// │          through AppGroupStore.set, which takes a fresh snapshot via       │
+// │          DataBackupManager. So even an unintended restore is recoverable.  │
 // │       c. Optionally restore settings + change log if the source has them. │
 // │                                                                            │
 // │  Presentation: rendered via OverlayPresenter (popover-root) so the       │
@@ -241,8 +241,8 @@ struct DataRestoreView: View {
         }
 
         // 1) Subscriptions — this is the critical payload.
-        // SubscriptionStore.importSubscriptions writes through StorageService
-        // → AppGroupStore.set → triggers DataBackupManager.snapshot(), so the
+        // replaceAll snapshots the outgoing list to Backups/ before overwriting
+        // (and save() → AppGroupStore.set snapshots the new list too), so the
         // old live data automatically becomes another rotating backup.
         // That makes Restore itself reversible: bad pick → restore an even
         // older snapshot to revert.

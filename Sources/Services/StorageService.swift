@@ -219,10 +219,9 @@ final class StorageService {
         return (chrome.subscriptions, settings)
     }
 
-    // MARK: - Clear
-
-    func clearAll() {
-        AppGroupStore.removeObject(forKey: subscriptionsKey)
-        AppGroupStore.removeObject(forKey: settingsKey)
-    }
+    // v1.9.2: removed the unused `clearAll()` here. It did a destructive
+    // `removeObject` WITHOUT a DataBackupManager snapshot — a loaded gun for any
+    // future caller. The live clear path is SubscriptionStore.clearAll(), which
+    // routes through `replaceAll([], reason: .clearAll)` so the pre-clear state
+    // is always snapshotted to Backups/ first.
 }
