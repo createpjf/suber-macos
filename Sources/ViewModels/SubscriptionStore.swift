@@ -346,11 +346,15 @@ final class SubscriptionStore: ObservableObject {
         let fresh = remote.filter { !existingHashes.contains($0.dedupHash) }
         guard !fresh.isEmpty else { return }
         changes.append(contentsOf: fresh)
-        // Don't re-push: the remote already has its own copy. Just persist
-        // locally so next app launch sees the merged state.
-        // v1.6.2: file-based via AppGroupStore (see that file's header for
-        // the macOS 26.4 cfprefsd regression context).
-        if let data = try? JSONEncoder.suberEncoder.encode(changes) {
+        // v1.9.2: apply H5 prune-on-write (was a raw AppGroupStore.set that
+        // skipped prune → the merged log could exceed the 200-entry cap and
+        // blow the iCloud KVS 1 MB budget). We prune both in-memory and the
+        // persisted blob, but deliberately do NOT re-push to KVS — the remote
+        // already holds its own copy (avoiding a sync ping-pong). The direct
+        // AppGroupStore.set still triggers DataBackupManager.snapshot.
+        let pruned = StorageService.prune(changes)
+        changes = pruned
+        if let data = try? JSONEncoder.suberEncoder.encode(pruned) {
             AppGroupStore.set(data, forKey: "suber-changes")
         }
     }

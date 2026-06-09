@@ -81,6 +81,31 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
                                  "H5: prune-on-write caps at 200 entries")
     }
 
+    func testMergeRemoteChangesPrunesTo200() {
+        // 250 distinct remote changes merged into an empty log must end up
+        // pruned to the 200-entry cap — both in memory and on disk. Guards the
+        // v1.9.2 fix: mergeRemoteChanges used to bypass H5 prune.
+        var remote: [SubscriptionChange] = []
+        let base = Date()
+        for i in 0..<250 {
+            remote.append(SubscriptionChange(
+                subscriptionID: UUID(), type: .priceChange,
+                detectedAt: base.addingTimeInterval(-TimeInterval(i)),
+                previousValue: nil, newValue: "\(i)",
+                source: .csvImport,
+                previousBaseAmount: Double(i), newBaseAmount: Double(i + 1)
+            ))
+        }
+
+        store.mergeRemoteChanges(remote)
+
+        XCTAssertLessThanOrEqual(store.changes.count, 200,
+                                 "in-memory log must be pruned to 200")
+        let reloaded = StorageService.shared.loadChanges()
+        XCTAssertLessThanOrEqual(reloaded.count, 200,
+                                 "persisted log must be pruned to 200")
+    }
+
     func testPruneRetainsAllEntriesWithin14Days() {
         // 50 entries all within today → no pruning by count (under 200),
         // no pruning by age (all < 14d).
