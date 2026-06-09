@@ -18,6 +18,15 @@ final class StorageServiceTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "suber-settings")
     }
 
+    override func tearDown() {
+        // Belt-and-suspenders: ensure no test leaves the static file-IO
+        // overrides set (the per-test defer already resets them, but a future
+        // early-return/throw could skip it and contaminate sibling tests).
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        super.tearDown()
+    }
+
     func testSaveAndLoadSubscriptions() {
         let sub = Subscription(
             id: UUID(),

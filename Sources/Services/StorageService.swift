@@ -99,14 +99,21 @@ final class StorageService {
         }
     }
 
-    /// v1.9.2: atomic-ish append for AppIntents (Siri/Shortcuts). Loads the
-    /// freshest on-disk list, appends, and saves in ONE call — narrowing the
-    /// load→save window vs doing it across two StorageService calls in the
-    /// Intent body. NOTE: this is not a cross-process lock; if the main app
-    /// and an out-of-process Intent invocation race, a lost update is still
-    /// theoretically possible. The window is now microseconds and both paths
-    /// are additive, so the worst case is one of two near-simultaneous *adds*
-    /// is dropped — never existing-data loss.
+    /// v1.9.2: single-call append for AppIntents (Siri/Shortcuts). Loads the
+    /// freshest on-disk list, appends, and saves in ONE call — this removes the
+    /// load→save gap that previously sat *inside* the Intent body (two
+    /// StorageService calls with Subscription construction between them).
+    ///
+    /// IMPORTANT — this does NOT fix the broader app↔Intent lost-update hazard.
+    /// The running app holds its subscription list in memory (loaded at launch)
+    /// and every `SubscriptionStore.save()` writes that whole snapshot. So if
+    /// this Intent appends to disk while the app is open, the app's NEXT save
+    /// can silently overwrite the Intent's addition — at any time, not just
+    /// during a microsecond race. A full fix needs the app to reconcile-on-save
+    /// (load + merge) or reload after an Intent write; that's a deliberate
+    /// follow-up, out of scope for this patch. What this method DOES guarantee
+    /// is that the Intent's own write is internally consistent (no torn
+    /// read-modify-write within the Intent itself).
     @discardableResult
     func appendSubscription(_ sub: Subscription) -> [Subscription] {
         var subs = loadSubscriptions()
