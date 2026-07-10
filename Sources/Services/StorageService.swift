@@ -1,5 +1,14 @@
 import Foundation
 
+extension Notification.Name {
+    /// Posted after an out-of-store write to the subscriptions file (currently
+    /// only AppIntents via `appendSubscription`). The running SubscriptionStore
+    /// reloads from disk on this so its next wholesale save() can't drop the
+    /// externally-added entry (AUDIT-v1.9.2 C-03).
+    static let suberSubscriptionsChangedExternally =
+        Notification.Name("com.suber.subscriptionsChangedExternally")
+}
+
 final class StorageService {
     static let shared = StorageService()
 
@@ -52,7 +61,12 @@ final class StorageService {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
         f.locale = Locale(identifier: "en_US_POSIX")
-        f.timeZone = TimeZone(secondsFromGMT: 0)
+        // AUDIT-v1.9.2 C-20: local midnight, NOT UTC. Date-only strings are
+        // day-granular; UTC midnight lands the previous local day everywhere
+        // west of UTC, shifting every imported date (and trial reminders) a
+        // day early. Must match the app-wide startOfDay/local-calendar
+        // semantics. Kept in lockstep with JSONDecoder.suberDecoder.
+        f.timeZone = .current
         return f
     }()
 
@@ -92,10 +106,25 @@ final class StorageService {
         return (try? decoder.decode([Subscription].self, from: data)) ?? []
     }
 
-    func saveSubscriptions(_ subs: [Subscription]) {
-        if let data = try? encoder.encode(subs) {
-            AppGroupStore.set(data, forKey: subscriptionsKey)
+    /// AUDIT-v1.9.2 C-10: persistence failures were double-swallowed (`try?`
+    /// encode + ignored `AppGroupStore.set` Bool), and iCloud KVS was still
+    /// pushed after a failed disk write — leaving cloud ahead of the on-disk
+    /// truth while the session's changes silently vanish on restart. Contract
+    /// now: log every failure, skip the KVS push when disk didn't take the
+    /// write, and report success to callers.
+    @discardableResult
+    func saveSubscriptions(_ subs: [Subscription]) -> Bool {
+        do {
+            let data = try encoder.encode(subs)
+            guard AppGroupStore.set(data, forKey: subscriptionsKey) else {
+                NSLog("Suber ⚠️ saveSubscriptions: DISK WRITE FAILED — memory ahead of disk; skipping KVS push")
+                return false
+            }
             CloudSyncService.shared.pushSubscriptions(data)
+            return true
+        } catch {
+            NSLog("Suber ⚠️ saveSubscriptions: encode failed: \(error) — nothing persisted")
+            return false
         }
     }
 
@@ -104,21 +133,17 @@ final class StorageService {
     /// load→save gap that previously sat *inside* the Intent body (two
     /// StorageService calls with Subscription construction between them).
     ///
-    /// IMPORTANT — this does NOT fix the broader app↔Intent lost-update hazard.
-    /// The running app holds its subscription list in memory (loaded at launch)
-    /// and every `SubscriptionStore.save()` writes that whole snapshot. So if
-    /// this Intent appends to disk while the app is open, the app's NEXT save
-    /// can silently overwrite the Intent's addition — at any time, not just
-    /// during a microsecond race. A full fix needs the app to reconcile-on-save
-    /// (load + merge) or reload after an Intent write; that's a deliberate
-    /// follow-up, out of scope for this patch. What this method DOES guarantee
-    /// is that the Intent's own write is internally consistent (no torn
-    /// read-modify-write within the Intent itself).
+    /// AUDIT-v1.9.2 C-03: the broader app↔Intent lost-update hazard is closed
+    /// by the notification below. AppIntents run in-process with the menu-bar
+    /// app, so the running SubscriptionStore (which holds the list in memory
+    /// and snapshot-saves it wholesale) observes this and reloads from disk —
+    /// otherwise its next save() would silently drop the Intent's addition.
     @discardableResult
     func appendSubscription(_ sub: Subscription) -> [Subscription] {
         var subs = loadSubscriptions()
         subs.append(sub)
         saveSubscriptions(subs)
+        NotificationCenter.default.post(name: .suberSubscriptionsChangedExternally, object: nil)
         return subs
     }
 
@@ -134,20 +159,34 @@ final class StorageService {
 
     /// Persist the change log, applying H5 prune-on-write BEFORE save.
     ///
-    /// Prune rule: keep any entry that is (within the last 14 days OR among
-    /// the 200 most-recent). Sorted newest-first so the view doesn't need
-    /// to re-sort on every render.
-    func saveChanges(_ changes: [SubscriptionChange]) {
+    /// Prune rule (AUDIT-v1.9.2 C-30): HARD CAP — keep only the 200
+    /// most-recent entries by detectedAt, regardless of age (KVS 1 MB budget
+    /// first). The 14-day window is purely the badge policy in
+    /// SubscriptionStore.unreadChangeCount, NOT a retention rule here.
+    /// Sorted newest-first so the view doesn't re-sort on every render.
+    /// Same C-10 failure contract as saveSubscriptions.
+    @discardableResult
+    func saveChanges(_ changes: [SubscriptionChange]) -> Bool {
         let pruned = Self.prune(changes)
-        if let data = try? encoder.encode(pruned) {
-            AppGroupStore.set(data, forKey: changesKey)
+        do {
+            let data = try encoder.encode(pruned)
+            guard AppGroupStore.set(data, forKey: changesKey) else {
+                NSLog("Suber ⚠️ saveChanges: DISK WRITE FAILED — skipping KVS push")
+                return false
+            }
             CloudSyncService.shared.pushChanges(data)
+            return true
+        } catch {
+            NSLog("Suber ⚠️ saveChanges: encode failed: \(error) — nothing persisted")
+            return false
         }
     }
 
     /// Exposed for unit tests of the prune policy.
-    /// Hard cap: 200 most-recent entries. Anything beyond gets dropped.
-    static func prune(_ changes: [SubscriptionChange], now: Date = Date()) -> [SubscriptionChange] {
+    /// Hard cap: 200 most-recent by detectedAt — deliberately no age
+    /// component (AUDIT-v1.9.2 C-30: the old unused `now:` parameter and
+    /// "14 days OR" docstring wrongly implied one).
+    static func prune(_ changes: [SubscriptionChange]) -> [SubscriptionChange] {
         let sorted = changes.sorted { $0.detectedAt > $1.detectedAt }
         return Array(sorted.prefix(changeLogMaxEntries))
     }
@@ -159,10 +198,20 @@ final class StorageService {
         return (try? decoder.decode(AppSettings.self, from: data)) ?? AppSettings()
     }
 
-    func saveSettings(_ settings: AppSettings) {
-        if let data = try? encoder.encode(settings) {
-            AppGroupStore.set(data, forKey: settingsKey)
+    /// Same C-10 failure contract as saveSubscriptions.
+    @discardableResult
+    func saveSettings(_ settings: AppSettings) -> Bool {
+        do {
+            let data = try encoder.encode(settings)
+            guard AppGroupStore.set(data, forKey: settingsKey) else {
+                NSLog("Suber ⚠️ saveSettings: DISK WRITE FAILED — skipping KVS push")
+                return false
+            }
             CloudSyncService.shared.pushSettings(data)
+            return true
+        } catch {
+            NSLog("Suber ⚠️ saveSettings: encode failed: \(error) — nothing persisted")
+            return false
         }
     }
 

@@ -18,7 +18,7 @@ import CryptoKit
 // │    Mail Watchdog scan  ─┤                     │                            │
 // │    Background ticks    ─┘                     ▼                            │
 // │                                 SubscriptionStore.recordAndPersist(...)    │
-// │                                          (H5 prune-on-write, 200/14d)      │
+// │                                          (H5 prune-on-write, 200 cap)      │
 // │                                                                            │
 // │  Dedup hash (M3 fix): uses USD-canonical amount, NOT the display string.   │
 // │  Prevents same-change re-insertion when user flips display currency.       │

@@ -217,7 +217,12 @@ struct SubscriptionFormData {
     }
 
     var parsedAmount: Double? {
-        Double(amount)
+        // AUDIT-v1.9.2 C-09: Double("inf")/"1e999" parse to ±∞ (and "nan" to
+        // NaN); JSONEncoder's default .throw strategy then fails on EVERY
+        // subsequent save/backup/cloud push. Non-finite values must never
+        // enter the model.
+        guard let value = Double(amount), value.isFinite else { return nil }
+        return value
     }
 
     var isValid: Bool {

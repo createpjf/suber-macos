@@ -60,9 +60,17 @@ final class UpdateService: NSObject, ObservableObject {
         super.init()
     }
 
-    /// Start the Sparkle background updater. Called once at app launch from
-    /// MenuBarContainerView.onAppear.
+    /// AUDIT-v1.9.2 C-33: idempotence latch. MenuBarExtra re-fires onAppear on
+    /// every popover open; each unguarded start() added 2 more KVO
+    /// subscriptions via assign(to: &$…) that never release (their lifetime is
+    /// bound to this singleton's @Published properties).
+    private var started = false
+
+    /// Start the Sparkle background updater. Idempotent — safe against
+    /// repeated MenuBarContainerView.onAppear calls.
     func start() {
+        guard !started else { return }
+        started = true
         updaterController.startUpdater()
         // Wire @Published mirrors so SwiftUI views reactively update.
         // Sparkle's Updater is KVO-compliant on these keys.

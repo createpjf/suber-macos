@@ -13,8 +13,18 @@ final class ExchangeRateService {
     private let updatedAtKey = "suber-rates-updated-at"
     private let refreshInterval: TimeInterval = 86400 // 24 hours
 
-    /// Rates relative to USD (1 USD = X units of currency)
-    private(set) var rates: [String: Double]
+    // AUDIT-v1.9.2 C-04: `rates` is written by refreshRates() on a cooperative
+    // pool thread and read by @MainActor view models / the GetSpend intent —
+    // an unsynchronized Dictionary read/write race. All access goes through
+    // the lock; readers take a single locked snapshot.
+    private let ratesLock = NSLock()
+    private var _rates: [String: Double]
+
+    /// Rates relative to USD (1 USD = X units of currency). Thread-safe snapshot.
+    private(set) var rates: [String: Double] {
+        get { ratesLock.withLock { _rates } }
+        set { ratesLock.withLock { _rates = newValue } }
+    }
 
     // MARK: - Hardcoded Fallback (approximate)
 
@@ -45,10 +55,20 @@ final class ExchangeRateService {
         // Load cached rates, or fall back to hardcoded
         if let data = AppGroupStore.data(forKey: ratesKey),
            let cached = try? JSONDecoder().decode([String: Double].self, from: data) {
-            rates = cached
+            _rates = cached
         } else {
-            rates = Self.fallbackRates
+            _rates = Self.fallbackRates
         }
+    }
+
+    // MARK: - Freshness
+
+    /// AUDIT-v1.9.2 U-11: rate-freshness accessor for Settings. nil means no
+    /// successful fetch has ever landed — conversions are running on the
+    /// hardcoded approximate fallback rates.
+    var lastUpdatedAt: Date? {
+        let ti = AppGroupStore.double(forKey: updatedAtKey)
+        return ti > 0 ? Date(timeIntervalSince1970: ti) : nil
     }
 
     // MARK: - Conversion
@@ -57,8 +77,9 @@ final class ExchangeRateService {
     func convert(_ amount: Double, from: String, to: String) -> Double {
         guard from != to else { return amount }
 
-        let fromRate = rates[from] ?? 1.0
-        let toRate = rates[to] ?? 1.0
+        let snapshot = rates  // single locked read
+        let fromRate = snapshot[from] ?? 1.0
+        let toRate = snapshot[to] ?? 1.0
 
         // Convert: amount in `from` → USD → `to`
         let usdAmount = amount / fromRate

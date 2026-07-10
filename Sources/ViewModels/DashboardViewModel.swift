@@ -79,8 +79,18 @@ final class DashboardViewModel: ObservableObject {
 
     // MARK: - Private
 
+    // Fixed Gregorian matching BillingCalculator — Calendar.current under
+    // Japanese/Buddhist system calendars yields era years (8 / 2569) that make
+    // getBillingDatesInMonth return nothing and zero the trend
+    // (AUDIT-v1.9.2 C-19).
+    private static let gregorian: Calendar = {
+        var cal = Calendar(identifier: .gregorian)
+        cal.firstWeekday = 2 // Monday
+        return cal
+    }()
+
     private func computeMonthTrend(subscriptions: [Subscription], currency: String) -> [MonthData] {
-        let cal = Calendar.current
+        let cal = Self.gregorian
         let now = Date()
         let currentYear = cal.component(.year, from: now)
         let currentMonth = cal.component(.month, from: now)
@@ -112,7 +122,11 @@ final class DashboardViewModel: ObservableObject {
         for sub in subscriptions where sub.status == .active || sub.status == .trial {
             let occurrences = BillingCalculator.getBillingDatesInMonth(sub, year: year, month: month).count
             guard occurrences > 0 else { continue }
-            let amountInTarget = ExchangeRateService.shared.convert(sub.amount, from: sub.currency, to: currency)
+            // effectiveAmount (split-adjusted), matching monthlySpend / Top 5 /
+            // category breakdown — sub.amount made the trend bar 4× the
+            // headline for a splitCount=4 sub on the same screen
+            // (AUDIT-v1.9.2 C-18).
+            let amountInTarget = ExchangeRateService.shared.convert(sub.effectiveAmount, from: sub.currency, to: currency)
             total += Double(occurrences) * amountInTarget
         }
 
