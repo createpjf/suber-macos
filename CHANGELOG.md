@@ -2,6 +2,42 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [1.10.0] — 2026-07-10 — 第二轮独立审计：删除墓碑、IMAP 崩溃面、本地化补全
+
+v1.9.2 自称"audit hardening"，但一次新的独立复审（6 个领域并行深读 + 每条 finding 对抗验证，完整报告见 `docs/AUDIT-v1.9.2.md`）又挖出 58 个问题，其中最讽刺的一个是审计本身教会我们的：**跑测试套件会删除开发机上的真实订阅数据**——测试的 setUp/tearDown 直接读写真实 App Group 容器，而发布流程恰恰要求每次发版前跑测试。没有任何"零缺陷"的审计，只有下一双眼睛还没看过的代码；这次的结论是把"对抗验证"做成常态，而不是信任第一遍通过。
+
+6 条高危中另外 5 条是真实的数据完整性缺口：云同步删除从不跨设备传播、且已删订阅会在别的设备"复活"；Siri/快捷指令加的订阅会被 App 下一次保存静默覆盖；Changes 窗口接受涨价从不落盘；金额为 ∞ 时永久打死后续所有保存；取消验证在年付订阅续费月之前就被误判为"成功"。本版把这些全部收口，并顺带把本地化从 99 个 key 补到 417 个——绝大多数中文用户此前看到的其实是中英混排界面。
+
+58 个发现全部修复（6 高危 / 24 警告 / 28 建议），**274/274 测试全绿**（233 baseline + 41 新增回归测试）。
+
+### Added
+
+- **删除墓碑（deletion tombstones）**——`CloudSyncMerger` 新增独立 iCloud KVS key（`suber-deleted-ids`），删除操作记录墓碑并双向传播；合并逻辑在既有三规则前先按墓碑过滤本地和远端两侧。跨版本安全：`[Subscription]` 线格式完全未动，旧版本客户端永远不会因为新 key 而崩溃解码，只是暂时看不到这次的墓碑机制。
+- Settings 页新增汇率新鲜度提示（刷新失败静默、兜底汇率可能已过期数月都无提示）与 iCloud 同步状态展示（合并/冲突事件此前只进 NSLog，界面永远是静态文案）。
+- 两个 Widget 加 `widgetURL` 深链（`suber://changes`）——此前点按 LSUIElement 应用没有任何可见反应。
+- IMAP 账号删除、"Mark as cancelled"（右键菜单 + 日详情两处）新增确认弹窗——此前无确认直接改数据，IMAP 删除还会同步销毁 Keychain 里的 App 密码且不可恢复。
+
+### Fixed
+
+- **测试沙箱化**：6 个测试文件的 setUp/tearDown 之前直接读写真实 App Group 容器、跑一次测试就刷穿真实 Backups/ 轮换环——现在全部指向一次性临时目录。副作用：全量测试套件从 73 秒降到 1.6 秒。
+- **IMAP/Mail**：osascript 输出超过 64KB 内核管道缓冲区必然死锁（改并发排水）；IMAP literal 长度接受负数导致 Range 崩溃（钳制到 0…16M）；connect() 超时闭包无条件 cancel 连接，会杀掉刚握手成功、仍在自身预算内的健康会话。
+- **金额/日期正确性**：`getTotalSpent` 用多单位 `dateComponents` 层级分解，超过一年的月付/周付/季付订阅累计消费严重算错，改为逐周期计数；`getDaysUntilBilling` 用 `ceil(秒差/86400)`，DST 回拨日多算一天，改日历日差；周付年化 Dashboard 用 4.33×12、AnnualCost 用 52，同一订阅两处显示不同年费，统一为 52/12；date-only 字符串按 UTC 午夜解析，UTC 以西时区导入日期全部提前一天。
+- **解析器**：欧式小数逗号（"1.234,56"）被当千分位剥掉导致金额放大 100 倍；OCR 金额正则截断千分位（"¥1,299" 曾预填成 1.29）；多订阅解析价格行扩展越界导致 Range 崩溃；Vision 识别失败路径 continuation 双重 resume 导致崩溃；大 CSV 导入曾在主线程做 O(n²) 扫描冻结 UI。
+- **视觉/无障碍**：状态色浅色模式对比度仅 1.67–2.54:1（低于 WCAG 底线），主流程图标按钮全部无 accessibility 标注——两者均已修复；圆角/间距/图表配色散落各视图硬编码，收进 `Theme`。
+
+### Cleanup
+
+- 本地化目录 `Localizable.xcstrings`：99 → 417 key，全部补齐 zh-Hans 翻译；修掉 14 处"死翻译通道"（组件的 String 类型参数导致目录里的翻译永远无法生效）；修掉 5 处字符串拼接 bug 和 7 处仅英文有效的复数后缀 hack。
+- Widget target 此前资源列表不含本地化目录，Widget 内文案回退英文——已加入 `project.yml` 的 SuberWidget 资源并验证 417 个 key 全部编译进 `.appex`。
+
+### Notes
+
+- 已知遗留：Swift 6 严格并发迁移未启动（多个修复点标注了未来 `Sendable` 需求）；`clearAll`/整表替换路径不记删除墓碑（云端可合法地在 Clear All 后重新水合数据，这是预期行为而非 bug）。
+- 本版**未**执行 `docs/RELEASE-PROCESS.md` Rule 3 要求的人工 QA 项（Mail/IMAP 真实收发、Sparkle 升级路径、iCloud 多设备收敛、强杀进程）——本轮审计范围从一开始就限定为静态代码审查 + 自动化构建/测试，这些场景请在使用中留意并反馈。
+- 7-day feature freeze clock 重置为 2026-07-10。
+
+---
+
 ## [1.9.2] — 2026-06-09 — Audit hardening：补全数据完整性缺口
 
 v1.9.1 之后做了一次完整代码审计（SwiftUI 崩溃预防 + UX/功能两个 lens）。崩溃面干净：0 个 `try!`/`as!`，所有数组 force-unwrap 都被 `switch count` 证明性守卫，所有 ObservableObject 都正确标 `@MainActor`。本版修掉审计发现的 7 个数据完整性/正确性缺口，外加实现过程中发现的 1 个潜在数据丢失 bug，无新功能 —— 属 `docs/RELEASE-PROCESS.md` 的 P0 数据安全例外，7-day freeze clock 重置。
