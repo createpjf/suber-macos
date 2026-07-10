@@ -39,6 +39,9 @@ struct DataRestoreView: View {
     @State private var pendingSource: BackupSource?
     @State private var showConfirm = false
     @State private var restoreSummary: String?  // success toast
+    /// AUDIT-v1.9.2 U-08: decode failures render through this separate error
+    /// state (warning-styled banner) — never through the green success banner.
+    @State private var restoreError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -55,6 +58,9 @@ struct DataRestoreView: View {
                         .foregroundColor(Theme.textDim)
                 }
                 .buttonStyle(.plain)
+                // AUDIT-v1.9.2 U-10: icon-only close button needs a label.
+                .accessibilityLabel(Text("Close"))
+                .help("Close")
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
@@ -81,6 +87,9 @@ struct DataRestoreView: View {
                     if let summary = restoreSummary {
                         successBanner(summary)
                     }
+                    if let error = restoreError {
+                        errorBanner(error)
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
@@ -98,9 +107,8 @@ struct DataRestoreView: View {
             }
         } message: { source in
             // Honest copy: explicitly name what's being replaced + with what.
-            Text("This will replace your current \(subscriptionStore.subscriptions.count) subscriptions "
-                 + "with this backup's \(source.subscriptionCount) subscriptions. "
-                 + "Your current data will be saved as a new local backup automatically.")
+            // U-03: single literal (no `+` concat) so the catalog key resolves.
+            Text("This will replace your current \(subscriptionStore.subscriptions.count) subscriptions with this backup's \(source.subscriptionCount) subscriptions. Your current data will be saved as a new local backup automatically.")
         }
     }
 
@@ -117,8 +125,8 @@ struct DataRestoreView: View {
                     Text("No backups found")
                         .font(AppFont.medium(13))
                         .foregroundColor(Theme.textPrimary)
-                    Text("Local backups are created automatically when subscriptions are saved. " +
-                         "iCloud backups require iCloud sync to be on.")
+                    // U-03: single literal (no `+` concat) so the catalog key resolves.
+                    Text("Local backups are created automatically when subscriptions are saved. iCloud backups require iCloud sync to be on.")
                         .font(AppFont.regular(11))
                         .foregroundColor(Theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -193,14 +201,18 @@ struct DataRestoreView: View {
     }
 
     private func detailLine(for source: BackupSource) -> String {
+        // AUDIT-v1.9.2 U-03: String(localized:) per piece; plural handled with
+        // two full keys instead of the untranslatable "%@"-suffix hack.
         let count = source.subscriptionCount
-        let subs = "\(count) subscription\(count == 1 ? "" : "s")"
+        let subs = count == 1
+            ? String(localized: "1 subscription")
+            : String(localized: "\(count) subscriptions")
         var pieces: [String] = [subs]
         if source.settingsData != nil {
-            pieces.append("settings included")
+            pieces.append(String(localized: "settings included"))
         }
         if source.changesData != nil {
-            pieces.append("change log included")
+            pieces.append(String(localized: "change log included"))
         }
         return pieces.joined(separator: " · ")
     }
@@ -222,6 +234,25 @@ struct DataRestoreView: View {
         )
     }
 
+    /// Warning-styled banner for restore failures, visually distinct from the
+    /// green success banner (AUDIT-v1.9.2 U-08).
+    @ViewBuilder
+    private func errorBanner(_ text: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(Theme.warning)
+            Text(text)
+                .font(AppFont.regular(12))
+                .foregroundColor(Theme.textPrimary)
+            Spacer()
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Theme.warning.opacity(0.15))
+        )
+    }
+
     // MARK: - Actions
 
     private func reload() {
@@ -236,9 +267,13 @@ struct DataRestoreView: View {
         // the error and let the user pick another source.
         guard let subs = try? JSONDecoder.suberDecoder
             .decode([Subscription].self, from: source.subscriptionsData) else {
-            restoreSummary = "Couldn't read this backup — try another source."
+            // Error state, not restoreSummary — the summary renders as a
+            // green success banner (AUDIT-v1.9.2 U-08).
+            restoreError = String(localized: "Couldn't read this backup — try another source.")
+            restoreSummary = nil
             return
         }
+        restoreError = nil
 
         // 1) Subscriptions — this is the critical payload.
         // replaceAll snapshots the outgoing list to Backups/ before overwriting
@@ -264,7 +299,9 @@ struct DataRestoreView: View {
             StorageService.shared.saveChanges(changes)
         }
 
-        restoreSummary = "Restored \(subs.count) subscription\(subs.count == 1 ? "" : "s") from \(source.label)."
+        restoreSummary = subs.count == 1
+            ? String(localized: "Restored 1 subscription from \(source.label).")
+            : String(localized: "Restored \(subs.count) subscriptions from \(source.label).")
         pendingSource = nil
         // Don't auto-close — let the user see the success banner and review.
         // They can close manually via the X button.

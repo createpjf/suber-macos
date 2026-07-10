@@ -13,7 +13,10 @@ struct ImportWindowView: View {
 
     var body: some View {
         content
-            .frame(minWidth: 520, minHeight: 520)
+            // AUDIT-v1.9.2 U-19: outer min width must cover the widest child
+            // (ChangesListView needs 640) or the window can shrink below it
+            // and clip row-end buttons.
+            .frame(minWidth: 640, minHeight: 520)
             .background(Theme.bgPrimary)
             .onDisappear {
                 // Covers the case where the user clicks the red title-bar
@@ -72,6 +75,10 @@ struct ImportWindowView: View {
                 },
                 onCancel: closeWindow
             )
+            // AUDIT-v1.9.2 C-23: key view identity to the candidate batch so a
+            // new batch arriving while the window stays open rebuilds @State
+            // rows instead of showing/submitting the stale previous batch.
+            .id(candidates.map(\.id))
 
         case .reviewChanges(let changes):
             // v1.6 Sentinel: Changes Window for reviewing detected price rises,

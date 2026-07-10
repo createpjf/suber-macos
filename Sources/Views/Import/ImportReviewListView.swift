@@ -47,17 +47,24 @@ struct ImportReviewListView: View {
             ScrollView {
                 VStack(spacing: 6) {
                     ForEach(visibleRows) { row in
-                        RowView(
-                            row: binding(for: row.id),
-                            onSelect: { toggle(row.id) }
-                        )
+                        if let rowBinding = binding(for: row.id) {
+                            RowView(
+                                row: rowBinding,
+                                onSelect: { toggle(row.id) }
+                            )
+                        }
                     }
 
                     if hiddenLowConfidenceCount > 0 {
                         Button(action: { showLowConfidence.toggle() }) {
+                            // U-03: full literals per plural branch — the old
+                            // suffix-interpolation hack ("match%@") can't be
+                            // translated without leaking the "es" into zh.
                             Text(showLowConfidence
                                  ? "Hide low-confidence matches"
-                                 : "Show \(hiddenLowConfidenceCount) low-confidence match\(hiddenLowConfidenceCount == 1 ? "" : "es")")
+                                 : (hiddenLowConfidenceCount == 1
+                                    ? "Show 1 low-confidence match"
+                                    : "Show \(hiddenLowConfidenceCount) low-confidence matches"))
                                 .font(AppFont.regular(11))
                                 .foregroundColor(Theme.textDim)
                                 .padding(.vertical, 10)
@@ -79,7 +86,9 @@ struct ImportReviewListView: View {
 
     private var summaryBar: some View {
         HStack {
-            Text("Found \(candidates.count) possible subscription\(candidates.count == 1 ? "" : "s")")
+            Text(candidates.count == 1
+                 ? "Found 1 possible subscription"
+                 : "Found \(candidates.count) possible subscriptions")
                 .font(AppFont.regular(12))
                 .foregroundColor(Theme.textSecondary)
             Spacer()
@@ -115,9 +124,9 @@ struct ImportReviewListView: View {
             .buttonStyle(.plain)
 
             Button(action: commit) {
-                Text(selectedCount > 0
-                     ? "Add \(selectedCount) subscription\(selectedCount == 1 ? "" : "s")"
-                     : "Add subscriptions")
+                Text(selectedCount > 1
+                     ? "Add \(selectedCount) subscriptions"
+                     : (selectedCount == 1 ? "Add 1 subscription" : "Add subscriptions"))
                     .font(AppFont.medium(13))
                     .foregroundColor(Theme.bgPrimary)
                     .frame(maxWidth: .infinity)
@@ -149,10 +158,10 @@ struct ImportReviewListView: View {
         return !selectable.isEmpty && selectable.allSatisfy { $0.isSelected }
     }
 
-    private func binding(for id: UUID) -> Binding<ReviewRow> {
-        guard let idx = rows.firstIndex(where: { $0.id == id }) else {
-            fatalError("Row \(id) not found")
-        }
+    // AUDIT-v1.9.2 C-23: returns nil instead of fatalError — any row/identity
+    // mismatch must degrade to a skipped row, never a crash.
+    private func binding(for id: UUID) -> Binding<ReviewRow>? {
+        guard let idx = rows.firstIndex(where: { $0.id == id }) else { return nil }
         return $rows[idx]
     }
 
@@ -244,11 +253,11 @@ private struct RowView: View {
                     if !row.alreadyAdded {
                         Menu {
                             ForEach(AppConstants.categories, id: \.self) { cat in
-                                Button(cat) { row.category = cat }
+                                Button(AppConstants.localizedCategory(cat)) { row.category = cat }
                             }
                         } label: {
                             HStack(spacing: 2) {
-                                Text(row.category)
+                                Text(AppConstants.localizedCategory(row.category))
                                     .font(AppFont.regular(11))
                                     .foregroundColor(Theme.textSecondary)
                                 Image(systemName: "chevron.up.chevron.down")
@@ -293,22 +302,25 @@ private struct RowView: View {
     }
 
     private var subtitleText: String {
-        if row.alreadyAdded { return "Already in your list" }
+        // AUDIT-v1.9.2 U-03: computed String → String(localized:) wrappers.
+        if row.alreadyAdded { return String(localized: "Already in your list") }
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d"
+        // AUDIT-v1.9.2 U-17: locale-aware template — reorders for zh.
+        formatter.setLocalizedDateFormatFromTemplate("MMMd")
         // occurrences == 1 means this came from a one-shot OCR parse, not a
         // multi-transaction CSV run — show a screenshot-oriented subtitle.
         if row.candidate.occurrences == 1 {
-            return "From screenshot · renews \(formatter.string(from: row.candidate.startDate))"
+            return String(localized: "From screenshot · renews \(formatter.string(from: row.candidate.startDate))")
         }
         let last = formatter.string(from: row.candidate.lastChargeDate)
-        return "\(row.candidate.occurrences) charges · last \(last)"
+        return String(localized: "\(row.candidate.occurrences) charges · last \(last)")
     }
 
     @ViewBuilder
     private var confidenceBadge: some View {
         if !row.alreadyAdded {
-            let (label, color): (String, Color) = {
+            // U-03: LocalizedStringKey so the badge label localizes.
+            let (label, color): (LocalizedStringKey, Color) = {
                 switch row.candidate.confidence {
                 case .high: return ("High", Theme.success)
                 case .medium: return ("Med", Theme.warning)

@@ -146,11 +146,14 @@ struct ChangesListView: View {
     }
 
     private var summaryText: String {
+        // AUDIT-v1.9.2 U-03: String(localized:) — computed String channel.
         let count = displayedChanges.count
         if showingHistory {
-            return "\(count) changes total"
+            return String(localized: "\(count) changes total")
         }
-        return count == 1 ? "1 change to review" : "\(count) changes to review"
+        return count == 1
+            ? String(localized: "1 change to review")
+            : String(localized: "\(count) changes to review")
     }
 
     // MARK: - List
@@ -216,14 +219,16 @@ struct ChangesListView: View {
 
     private func handleAcceptNewPrice(_ change: SubscriptionChange) {
         guard let subID = change.subscriptionID,
-              let index = subscriptionStore.subscriptions.firstIndex(where: { $0.id == subID }),
+              subscriptionStore.subscriptions.contains(where: { $0.id == subID }),
               let raw = change.newValue?.split(separator: " ").first,
               let newAmount = Double(raw) else {
             subscriptionStore.markChangeAcknowledged(id: change.id)
             return
         }
-        subscriptionStore.subscriptions[index].amount = newAmount
-        subscriptionStore.subscriptions[index].updatedAt = Date()
+        // AUDIT-v1.9.2 C-06: route through the store so the accepted price is
+        // persisted (direct array mutation never called save() — the new
+        // amount rolled back to the old price on relaunch).
+        subscriptionStore.acceptNewPrice(id: subID, amount: newAmount)
         subscriptionStore.markChangeAcknowledged(id: change.id)
     }
 

@@ -26,8 +26,8 @@ import SwiftUI
 // │       so we never re-prompt.                                              │
 // │    4. Choice flows into `settingsStore.update { $0.enableCloudSync = … }`.│
 // │                                                                            │
-// │  Copy is en-only for v1.9.0; localization (zh-Hans + xcstrings entries)   │
-// │  ride along with the next translation pass.                                │
+// │  Localized since the v1.9.2 U-02 backfill — every literal below has a     │
+// │  zh-Hans entry in Localizable.xcstrings (was en-only in v1.9.0).           │
 // │                                                                            │
 // └────────────────────────────────────────────────────────────────────────────┘
 
@@ -91,7 +91,9 @@ struct CloudSyncOnboardingSheet: View {
             .padding(.horizontal, 20)
 
             // Privacy footnote
-            Text("You can change this any time in Settings → General → iCloud sync.")
+            // AUDIT-v1.9.2 U-09: v1.9.0 moved the toggle out of General into a
+            // top-level "iCloud Sync" section — keep this path in sync.
+            Text("You can change this any time in Settings → iCloud Sync.")
                 .font(AppFont.regular(11))
                 .foregroundColor(Theme.textSecondary)
                 .multilineTextAlignment(.center)
