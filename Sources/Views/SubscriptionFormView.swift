@@ -328,6 +328,11 @@ struct SubscriptionFormView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
+                            // AUDIT-v1.9.2 U-13 fix-up: no keyboard shortcut on
+                            // the destructive button — Apple HIG says
+                            // destructive actions must never be the Return-key
+                            // default. Esc (bound on Cancel above) is the only
+                            // shortcut here.
                         }
                     }
                     .padding(20)
