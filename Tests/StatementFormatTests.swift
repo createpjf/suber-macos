@@ -113,4 +113,89 @@ final class StatementFormatTests: XCTestCase {
         let format = GenericFormat()
         XCTAssertThrowsError(try format.parse(rows: rows))
     }
+
+    func test_generic_format_all_positive_amounts_treated_as_spend() throws {
+        // Sign convention is computed once per file (AUDIT-v1.9.2 C-15):
+        // no negatives anywhere → positive rows are outflow.
+        let csv = """
+        Type,Started Date,Description,Amount,Currency
+        CARD_PAYMENT,2026-01-14 10:00:00,Netflix,7.99,GBP
+        CARD_PAYMENT,2026-02-14 10:00:00,Netflix,7.99,GBP
+        TOPUP,2026-02-16 08:00:00,Top-up,100,GBP
+        """
+        let rows = CSVParser.parse(csv)
+        let txs = try GenericFormat().parse(rows: rows)
+        XCTAssertEqual(txs.count, 2, "Type filter drops TOPUP; remaining all-positive rows are spends")
+        XCTAssertEqual(txs[0].amount, 7.99, accuracy: 0.01)
+    }
+
+    func test_generic_format_eu_decimal_comma_amounts() throws {
+        // Quoted EU amounts ("-15,99") must not be read ×100 (AUDIT-v1.9.2 C-12).
+        let csv = """
+        Date,Description,Amount
+        2026-01-14,Netflix,"-15,99"
+        2026-02-14,Netflix,"-15,99"
+        """
+        let rows = CSVParser.parse(csv)
+        let txs = try GenericFormat().parse(rows: rows)
+        XCTAssertEqual(txs.count, 2)
+        XCTAssertEqual(txs[0].amount, 15.99, accuracy: 0.001)
+    }
+
+    // MARK: - StatementFieldParser.parseAmount (AUDIT-v1.9.2 C-12)
+
+    func test_parse_amount_eu_decimal_comma() throws {
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("12,34")), 12.34, accuracy: 0.001)
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("9,99")), 9.99, accuracy: 0.001)
+    }
+
+    func test_parse_amount_eu_thousands_and_decimal_comma() throws {
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("1.234,56")), 1234.56, accuracy: 0.001)
+    }
+
+    func test_parse_amount_us_thousands_unchanged() throws {
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("1,234.56")), 1234.56, accuracy: 0.001)
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("1,234")), 1234, accuracy: 0.001)
+    }
+
+    func test_parse_amount_symbol_plus_eu_comma() throws {
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("€9,99")), 9.99, accuracy: 0.001)
+    }
+
+    func test_parse_amount_parenthesized_negative_unchanged() throws {
+        XCTAssertEqual(try XCTUnwrap(StatementFieldParser.parseAmount("(9.99)")), -9.99, accuracy: 0.001)
+    }
+
+    // MARK: - StatementFieldParser.parseDate (AUDIT-v1.9.2 C-32)
+
+    func test_parse_date_unambiguous_dd_mm_yyyy() throws {
+        // 25 can only be a day — must parse as 25 March regardless of locale.
+        let d = try XCTUnwrap(StatementFieldParser.parseDate("25/03/2026"))
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: d)
+        XCTAssertEqual(c.year, 2026)
+        XCTAssertEqual(c.month, 3)
+        XCTAssertEqual(c.day, 25)
+    }
+
+    func test_parse_date_ambiguous_follows_regional_order() throws {
+        // "05/01/2026" is Jan 5 in the UK/EU, May 1 in the US — the policy is
+        // that Locale.current decides the priority order.
+        let d = try XCTUnwrap(StatementFieldParser.parseDate("05/01/2026"))
+        let c = Calendar.current.dateComponents([.month, .day], from: d)
+        if Locale.current.identifier.hasPrefix("en_US") {
+            XCTAssertEqual(c.month, 5)
+            XCTAssertEqual(c.day, 1)
+        } else {
+            XCTAssertEqual(c.month, 1)
+            XCTAssertEqual(c.day, 5)
+        }
+    }
+
+    func test_parse_date_iso_formats_unaffected() throws {
+        let d = try XCTUnwrap(StatementFieldParser.parseDate("2026-01-14 10:00:00"))
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: d)
+        XCTAssertEqual(c.year, 2026)
+        XCTAssertEqual(c.month, 1)
+        XCTAssertEqual(c.day, 14)
+    }
 }

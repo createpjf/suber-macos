@@ -64,49 +64,47 @@ final class ImageCache {
             return cached
         }
 
-        // Dedup: reuse existing in-flight task for same key
-        taskLock.lock()
-        if let existing = inFlightTasks[key] {
-            taskLock.unlock()
-            return await existing.value
-        }
+        // Dedup under the lock, but never suspend while holding it.
+        // Bare lock()/unlock() is unavailable from async contexts (Swift 6
+        // error); withLock keeps the critical section synchronous by
+        // construction. (AUDIT-v1.9.2 C-31)
+        let (task, isCreator): (Task<NSImage?, Never>, Bool) = taskLock.withLock {
+            if let existing = inFlightTasks[key] {
+                return (existing, false)
+            }
+            let task = Task<NSImage?, Never> {
+                do {
+                    let (data, response) = try await self.session.data(from: url)
 
-        let task = Task<NSImage?, Never> {
-            do {
-                let (data, response) = try await session.data(from: url)
+                    guard let httpResponse = response as? HTTPURLResponse,
+                          httpResponse.statusCode == 200,
+                          data.count > 100,
+                          let image = NSImage(data: data) else {
+                        return nil
+                    }
 
-                guard let httpResponse = response as? HTTPURLResponse,
-                      httpResponse.statusCode == 200,
-                      data.count > 100,
-                      let image = NSImage(data: data) else {
+                    // Store in memory cache with cost
+                    self.memoryCache.setObject(image, forKey: key as NSString, cost: data.count)
+
+                    // Store on disk via serial queue (fire-and-forget)
+                    let diskPath = self.diskCachePath(for: key)
+                    self.diskQueue.async {
+                        try? data.write(to: diskPath, options: .atomic)
+                    }
+
+                    return image
+                } catch {
                     return nil
                 }
-
-                // Store in memory cache with cost
-                let nsKey = key as NSString
-                memoryCache.setObject(image, forKey: nsKey, cost: data.count)
-
-                // Store on disk via serial queue (fire-and-forget)
-                let diskPath = self.diskCachePath(for: key)
-                self.diskQueue.async {
-                    try? data.write(to: diskPath, options: .atomic)
-                }
-
-                return image
-            } catch {
-                return nil
             }
+            inFlightTasks[key] = task
+            return (task, true)
         }
-        inFlightTasks[key] = task
-        taskLock.unlock()
 
         let result = await task.value
-
-        // Clean up in-flight entry
-        taskLock.lock()
-        inFlightTasks.removeValue(forKey: key)
-        taskLock.unlock()
-
+        if isCreator {
+            taskLock.withLock { _ = inFlightTasks.removeValue(forKey: key) }
+        }
         return result
     }
 

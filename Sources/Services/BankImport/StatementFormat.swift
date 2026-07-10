@@ -20,13 +20,14 @@ enum StatementFormatError: LocalizedError {
     case unrecognizedFormat
 
     var errorDescription: String? {
+        // U-02: surfaced verbatim in BankImportView's error stage — localize.
         switch self {
         case .missingColumn(let name):
-            return "Couldn't find column \"\(name)\" in the CSV."
+            return String(localized: "Couldn't find column \"\(name)\" in the CSV.")
         case .emptyFile:
-            return "The CSV has no data rows."
+            return String(localized: "The CSV has no data rows.")
         case .unrecognizedFormat:
-            return "Couldn't detect columns automatically. Try the format-specific option, or pick a different CSV."
+            return String(localized: "Couldn't detect columns automatically. Try the format-specific option, or pick a different CSV.")
         }
     }
 }
@@ -41,6 +42,16 @@ enum StatementFieldParser {
         let trimmed = raw.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return nil }
 
+        // Ambiguous slash dates (AUDIT-v1.9.2 C-32): explicit dateFormat
+        // matching ignores the formatter's locale, so array order is the only
+        // disambiguation — "05/01/2026" is Jan 5 in the UK/EU, May 1 in the US.
+        // Try the user's regional order first.
+        let slashFormats: [String]
+        if Locale.current.identifier.hasPrefix("en_US") {
+            slashFormats = ["MM/dd/yyyy", "dd/MM/yyyy", "MM-dd-yyyy"]
+        } else {
+            slashFormats = ["dd/MM/yyyy", "MM/dd/yyyy", "MM-dd-yyyy"]
+        }
         let formats = [
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd HH:mm",
@@ -48,10 +59,7 @@ enum StatementFieldParser {
             "yyyy/MM/dd HH:mm",
             "yyyy-MM-dd",
             "yyyy/MM/dd",
-            "MM/dd/yyyy",
-            "dd/MM/yyyy",
-            "MM-dd-yyyy",
-        ]
+        ] + slashFormats
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
         f.timeZone = TimeZone.current
@@ -80,7 +88,23 @@ enum StatementFieldParser {
             s.removeFirst()
             s.removeLast()
         }
-        s = s.replacingOccurrences(of: ",", with: "")
+        // Decimal-separator disambiguation (AUDIT-v1.9.2 C-12): a blanket
+        // comma-strip read EU decimal commas as thousands separators ("9,99" → 999).
+        //   "1.234,56" (EU) → 1234.56   "9,99" (EU) → 9.99
+        //   "1,234.56" (US) → 1234.56   "1,234" (US) → 1234
+        if let lastComma = s.lastIndex(of: ","), let lastDot = s.lastIndex(of: "."), lastComma > lastDot {
+            // EU style: dots are thousands separators, comma is the decimal point
+            s = s.replacingOccurrences(of: ".", with: "")
+            s = s.replacingOccurrences(of: ",", with: ".")
+        } else if !s.contains("."),
+                  s.filter({ $0 == "," }).count == 1,
+                  let lastComma = s.lastIndex(of: ","),
+                  s.distance(from: s.index(after: lastComma), to: s.endIndex) == 2 {
+            // Lone comma with exactly 2 trailing digits: decimal comma ("9,99")
+            s = s.replacingOccurrences(of: ",", with: ".")
+        } else {
+            s = s.replacingOccurrences(of: ",", with: "")
+        }
         s = s.trimmingCharacters(in: .whitespaces)
         guard let n = Double(s) else { return nil }
         return paren ? -abs(n) : n
