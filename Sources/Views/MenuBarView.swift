@@ -41,8 +41,12 @@ struct MenuBarView: View {
 
                 switch currentView {
                 case .calendar:
-                    CalendarView(onEdit: { editingSubscription = $0 })
-                        .frame(maxWidth: .infinity)
+                    // AUDIT-v1.9.2 U-15: calendar empty state hosts the Add CTA.
+                    CalendarView(
+                        onEdit: { editingSubscription = $0 },
+                        onAdd: { showAddForm = true }
+                    )
+                    .frame(maxWidth: .infinity)
                 case .list:
                     ListView(onEdit: { editingSubscription = $0 })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

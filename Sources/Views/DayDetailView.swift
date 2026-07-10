@@ -12,6 +12,11 @@ struct DayDetailView: View {
     @EnvironmentObject private var overlayPresenter: OverlayPresenter
 
     @State private var dragOffset: CGFloat = 0
+    // AUDIT-v1.9.2 U-07: the pending-cancel banner button mutated status with
+    // one click, no confirm/undo — inconsistent with CancelConfirmationSheet's
+    // two-step protection for the same action. The button stages the sub here;
+    // the root view presents the confirm alert.
+    @State private var pendingMarkCancelled: Subscription?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,6 +44,9 @@ struct DayDetailView: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
+                // AUDIT-v1.9.2 U-10: icon-only close button needs a label.
+                .accessibilityLabel(Text("Close"))
+                .help("Close")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 6)
@@ -58,7 +66,7 @@ struct DayDetailView: View {
                                         Text(sub.name)
                                             .font(AppFont.medium(13))
                                             .foregroundColor(Theme.textPrimary)
-                                        Text(sub.category)
+                                        Text(AppConstants.localizedCategory(sub.category))
                                             .font(AppFont.regular(10))
                                             .foregroundColor(Theme.textSecondary)
                                     }
@@ -66,9 +74,19 @@ struct DayDetailView: View {
                                     Spacer()
 
                                     VStack(alignment: .trailing, spacing: 2) {
-                                        Text(CurrencyFormatter.formatShort(sub.amount, currency: sub.currency))
-                                            .font(AppFont.medium(13))
-                                            .foregroundColor(Theme.textPrimary)
+                                        // AUDIT-v1.9.2 U-06: show the user's split
+                                        // share (effectiveAmount, ÷N hint) like
+                                        // SubCardView — not the un-split face price.
+                                        HStack(spacing: 3) {
+                                            if sub.splitCount > 1 {
+                                                Text("÷\(sub.splitCount)")
+                                                    .font(AppFont.regular(9))
+                                                    .foregroundColor(Theme.textDim)
+                                            }
+                                            Text(CurrencyFormatter.formatShort(sub.effectiveAmount, currency: sub.currency))
+                                                .font(AppFont.medium(13))
+                                                .foregroundColor(Theme.textPrimary)
+                                        }
                                         Text(sub.cycle.shortLabel)
                                             .font(AppFont.regular(10))
                                             .foregroundColor(Theme.textSecondary)
@@ -127,6 +145,21 @@ struct DayDetailView: View {
                 }
         )
         // v1.8.0: CancelConfirmationSheet 走 OverlayPresenter (popover root).
+        .alert(
+            "Mark \(pendingMarkCancelled?.name ?? "") as cancelled?",
+            isPresented: Binding(
+                get: { pendingMarkCancelled != nil },
+                set: { if !$0 { pendingMarkCancelled = nil } }
+            ),
+            presenting: pendingMarkCancelled
+        ) { sub in
+            Button("Cancel", role: .cancel) {}
+            Button("Mark as cancelled", role: .destructive) {
+                subscriptionStore.markCancelledManually(id: sub.id)
+            }
+        } message: { sub in
+            Text("Suber will stop tracking charges for \(sub.name). If you haven't actually cancelled, you'll see the next bill on your card and can undo this.")
+        }
     }
 
     /// v1.8.0: presents CancelConfirmationSheet via OverlayPresenter so it
@@ -195,7 +228,9 @@ struct DayDetailView: View {
                 // A4 nudge: manual-mark path for users without a data source.
                 if !hasDataSource {
                     Button(action: {
-                        subscriptionStore.markCancelledManually(id: sub.id)
+                        // AUDIT-v1.9.2 U-07: confirm before mutating (see
+                        // pendingMarkCancelled).
+                        pendingMarkCancelled = sub
                     }) {
                         Text("Mark as cancelled")
                             .font(AppFont.regular(11))
@@ -222,7 +257,9 @@ struct DayDetailView: View {
         }
     }
 
-    private func cancelButtonLabel(for sub: Subscription) -> String {
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — both values are
+    // translated catalog keys, but Text(String) never looked them up.
+    private func cancelButtonLabel(for sub: Subscription) -> LocalizedStringKey {
         OneTapCancelService.hasKnownCancelPage(for: sub)
             ? "Open cancel page…"
             : "Find cancel page…"

@@ -29,6 +29,11 @@ struct AutopilotSettingsSection: View {
     /// header for why deep-nested sheets need to be hoisted to MenuBarView root.
     @EnvironmentObject var overlayPresenter: OverlayPresenter
 
+    // AUDIT-v1.9.2 U-01: the trash button destroys the Keychain app password
+    // irreversibly (providers never re-show app passwords) — gate it behind
+    // a confirm. .alert is NSAlert-backed and safe inside the popover.
+    @State private var showRemoveIMAPConfirm = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
 
@@ -196,14 +201,22 @@ struct AutopilotSettingsSection: View {
             .controlSize(.small)
 
             Button {
-                IMAPCredentialStore.delete(email: account.email)
-                settingsStore.update { $0.autopilot.imapAccount = nil }
+                showRemoveIMAPConfirm = true
             } label: {
                 Image(systemName: "trash")
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
             .help("Remove account and delete password from Keychain")
+            .alert("Remove \(account.displayName)?", isPresented: $showRemoveIMAPConfirm) {
+                Button("Cancel", role: .cancel) {}
+                Button("Remove account", role: .destructive) {
+                    IMAPCredentialStore.delete(email: account.email)
+                    settingsStore.update { $0.autopilot.imapAccount = nil }
+                }
+            } message: {
+                Text("The app password will be deleted from your Keychain. Providers don't show app passwords again — you'll need to generate a new one to reconnect.")
+            }
         }
         .padding(8)
         .background(
@@ -321,14 +334,19 @@ struct AutopilotSettingsSection: View {
     }
 
     private var lastScanText: String {
+        // AUDIT-v1.9.2 U-03: computed String renders verbatim — every literal
+        // here goes through String(localized:) so the zh-Hans catalog entries
+        // actually resolve at runtime.
         switch watchdog.state {
         case .scanning(_, let seen):
-            return seen > 0 ? "Scanning… \(seen) messages" : "Scanning…"
+            return seen > 0
+                ? String(localized: "Scanning… \(seen) messages")
+                : String(localized: "Scanning…")
         case .requestingPermission:
             // First-run TCC prompt is up. Make it crystal clear what to do —
             // the previous "Waiting for permission…" copy left users staring
             // at a blank label while the macOS dialog blocked osascript.
-            return "Look for the macOS permission dialog and click OK."
+            return String(localized: "Look for the macOS permission dialog and click OK.")
         case .error(let message):
             // Surface the error directly. Errors include the actionable next
             // step (e.g. "Connection timed out. Make sure Mail.app is open").
@@ -338,15 +356,19 @@ struct AutopilotSettingsSection: View {
         }
         guard let last = watchdog.lastCompletedAt else {
             return settingsStore.settings.autopilot.watchAppleMail
-                ? "Never scanned yet"
-                : "Off"
+                ? String(localized: "Never scanned yet")
+                : String(localized: "Off")
         }
         let rel = RelativeDateTimeFormatter()
         rel.unitsStyle = .short
         let ago = rel.localizedString(for: last, relativeTo: Date())
         let count = watchdog.lastScanChangesCount
-        let countPart = count > 0 ? " · found \(count) change\(count == 1 ? "" : "s")" : ""
-        return "Last scan: \(ago)\(countPart)"
+        if count > 0 {
+            return count == 1
+                ? String(localized: "Last scan: \(ago) · found 1 change")
+                : String(localized: "Last scan: \(ago) · found \(count) changes")
+        }
+        return String(localized: "Last scan: \(ago)")
     }
 
     // MARK: - Binding helpers
@@ -358,7 +380,9 @@ struct AutopilotSettingsSection: View {
         )
     }
 
-    private func groupHeader(_ title: String) -> some View {
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — callers pass
+    // catalog-key literals; Text(String) never looked them up.
+    private func groupHeader(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(AppFont.medium(11))
             .foregroundColor(Theme.textSecondary)

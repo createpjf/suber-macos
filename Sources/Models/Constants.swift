@@ -19,11 +19,36 @@ enum AppConstants {
         "AI", "Education", "News", "Gaming", "Fitness", "Finance", "Other",
     ]
 
+    /// AUDIT-v1.9.2 U-02: display-only localization for the preset categories.
+    /// The stored `Subscription.category` value stays the English identifier
+    /// (search, filters, and synced data are unaffected); views route display
+    /// through this helper. Unknown/legacy values pass through unchanged.
+    static func localizedCategory(_ raw: String) -> String {
+        switch raw {
+        case "Streaming": return String(localized: "Streaming")
+        case "Music": return String(localized: "Music")
+        case "Software": return String(localized: "Software")
+        case "Cloud Storage": return String(localized: "Cloud Storage")
+        case "Productivity": return String(localized: "Productivity")
+        case "AI": return String(localized: "AI")
+        case "Education": return String(localized: "Education")
+        case "News": return String(localized: "News")
+        case "Gaming": return String(localized: "Gaming")
+        case "Fitness": return String(localized: "Fitness")
+        case "Finance": return String(localized: "Finance")
+        case "Other": return String(localized: "Other")
+        default: return raw
+        }
+    }
+
+    // AUDIT-v1.9.2 U-14: route through Theme so status colors adapt per
+    // appearance — the old fixed hex values had 1.67–2.54:1 contrast on a
+    // white background.
     static let statusColors: [SubscriptionStatus: Color] = [
-        .active: Color(hex: "4ade80"),
-        .paused: Color(hex: "fbbf24"),
-        .cancelled: Color(hex: "ff5555"),
-        .trial: Color(hex: "60a5fa"),
+        .active: Theme.success,
+        .paused: Theme.warning,
+        .cancelled: Theme.danger,
+        .trial: Theme.trial,
     ]
 }
 
@@ -110,11 +135,78 @@ enum Theme {
             : NSColor(red: 0.88, green: 0.88, blue: 0.90, alpha: 1)      // #e0e0e6
     })
 
-    // MARK: - Status Colors (same in both modes)
-    static let danger = Color(hex: "ff5555")
-    static let success = Color(hex: "4ade80")
-    static let warning = Color(hex: "fbbf24")
-    static let trial = Color(hex: "60a5fa")
+    // MARK: - Status Colors
+    // AUDIT-v1.9.2 U-14: previously fixed hex in both modes — 1.67–2.54:1
+    // contrast on white (below the WCAG 3:1 non-text floor, and these also
+    // serve as text in the import confidence badges and "Clear all data").
+    // Light mode now uses darker variants (≥4.1:1 on white); dark mode keeps
+    // the original values (>9:1 on #1a1a1a).
+
+    /// Danger/destructive — dark: #ff5555, light: #dc2626 (~4.8:1 on white)
+    static let danger = Color(nsColor: NSColor(name: nil) { appearance in
+        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            ? NSColor(red: 1.0, green: 0.333, blue: 0.333, alpha: 1)     // #ff5555
+            : NSColor(red: 0.863, green: 0.149, blue: 0.149, alpha: 1)   // #dc2626
+    })
+
+    /// Success/active — dark: #4ade80, light: ~#178c45 (~4.1:1 on white)
+    static let success = Color(nsColor: NSColor(name: nil) { appearance in
+        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            ? NSColor(red: 0.29, green: 0.87, blue: 0.50, alpha: 1)      // #4ade80
+            : NSColor(red: 0.09, green: 0.55, blue: 0.27, alpha: 1)      // ~#178c45
+    })
+
+    /// Warning/paused — dark: #fbbf24, light: #b45309 (~5.0:1 on white)
+    static let warning = Color(nsColor: NSColor(name: nil) { appearance in
+        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            ? NSColor(red: 0.984, green: 0.749, blue: 0.141, alpha: 1)   // #fbbf24
+            : NSColor(red: 0.706, green: 0.325, blue: 0.035, alpha: 1)   // #b45309
+    })
+
+    /// Trial — dark: #60a5fa, light: #2563eb (~5.2:1 on white)
+    static let trial = Color(nsColor: NSColor(name: nil) { appearance in
+        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            ? NSColor(red: 0.376, green: 0.647, blue: 0.980, alpha: 1)   // #60a5fa
+            : NSColor(red: 0.145, green: 0.388, blue: 0.922, alpha: 1)   // #2563eb
+    })
+
+    // MARK: - Chart & Accent Colors
+    // AUDIT-v1.9.2 U-14: hex colors that lived at call sites (DashboardView
+    // chart wheel + trend bar, SubscriptionFormView steppers) now live here
+    // so Theme is the single source of color truth.
+
+    /// Category chart palette (Dashboard stacked bar + legend).
+    static let chartPalette: [Color] = [
+        Color(hex: "6366f1"),  // indigo
+        Color(hex: "f59e0b"),  // amber
+        Color(hex: "10b981"),  // emerald
+        Color(hex: "ef4444"),  // red
+        Color(hex: "8b5cf6"),  // violet
+        Color(hex: "06b6d4"),  // cyan
+        Color(hex: "f97316"),  // orange
+        Color(hex: "ec4899"),  // pink
+        Color(hex: "14b8a6"),  // teal
+        Color(hex: "84cc16"),  // lime
+        Color(hex: "a855f7"),  // purple
+        Color(hex: "64748b"),  // slate
+    ]
+
+    /// Current-month highlight bar in the Dashboard trend chart
+    /// (same indigo as chartPalette[0]).
+    static let chartHighlight = Color(hex: "6366f1")
+
+    /// Price stepper accent in SubscriptionFormView.
+    static let accentTeal = Color(hex: "38b2ac")
+
+    // MARK: - Corner Radius Tokens
+    // AUDIT-v1.9.2 U-14: 11 ad-hoc corner-radius values existed across views;
+    // new/edited code should pick from these instead of literals.
+    enum Radius {
+        static let s: CGFloat = 6
+        static let m: CGFloat = 8
+        static let l: CGFloat = 12
+        static let xl: CGFloat = 16
+    }
 }
 
 extension Color {

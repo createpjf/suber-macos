@@ -7,6 +7,18 @@ enum SortBy: String, CaseIterable, Identifiable {
     case dateAdded = "Date Added"
 
     var id: String { rawValue }
+
+    /// AUDIT-v1.9.2 U-03: rawValue rendered as a runtime String and bypassed
+    /// the String Catalog. rawValue stays the stable identifier; display goes
+    /// through these literal keys (identical English copy).
+    var label: LocalizedStringKey {
+        switch self {
+        case .nextBilling: return "Next Billing"
+        case .name: return "Name"
+        case .amount: return "Amount"
+        case .dateAdded: return "Date Added"
+        }
+    }
 }
 
 struct ListView: View {
@@ -34,15 +46,15 @@ struct ListView: View {
                         ForEach(SortBy.allCases) { sort in
                             Button(action: { sortBy = sort }) {
                                 if sort == sortBy {
-                                    Label(sort.rawValue, systemImage: "checkmark")
+                                    Label(sort.label, systemImage: "checkmark")
                                 } else {
-                                    Text(sort.rawValue)
+                                    Text(sort.label)
                                 }
                             }
                         }
                     } label: {
                         HStack(spacing: 4) {
-                            Text(sortBy.rawValue)
+                            Text(sortBy.label)
                                 .font(AppFont.regular(12))
                                 .foregroundColor(Theme.textPrimary)
                             Image(systemName: "chevron.up.chevron.down")
@@ -64,8 +76,12 @@ struct ListView: View {
             if filteredSubscriptions.isEmpty {
                 Spacer()
                 VStack(spacing: 8) {
-                    Text(subscriptionStore.subscriptions.isEmpty ? "📦" : "🔍")
-                        .font(AppFont.regular(32))
+                    // AUDIT-v1.9.2 U-16: SF Symbols instead of emoji — matches
+                    // the Dashboard/Restore/Changes empty states and follows
+                    // appearance + text color.
+                    Image(systemName: subscriptionStore.subscriptions.isEmpty ? "shippingbox" : "magnifyingglass")
+                        .font(.system(size: 32, weight: .light))
+                        .foregroundColor(Theme.textDim)
                     Text(subscriptionStore.subscriptions.isEmpty ? "No subscriptions yet" : "No matching subscriptions")
                         .font(AppFont.regular(13))
                         .foregroundColor(Theme.textSecondary)
@@ -82,7 +98,11 @@ struct ListView: View {
                         ForEach(filteredSubscriptions) { sub in
                             SubCardView(
                                 subscription: sub,
-                                onOpenCancelPage: { presentCancelConfirmation(for: sub) }
+                                onOpenCancelPage: { presentCancelConfirmation(for: sub) },
+                                // AUDIT-v1.9.2 U-16: edit affordance (hover
+                                // cursor + context-menu entry) for the
+                                // tap-to-edit card.
+                                onEdit: { onEdit(sub) }
                             )
                             .environmentObject(subscriptionStore)
                             .onTapGesture { onEdit(sub) }

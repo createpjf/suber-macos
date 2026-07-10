@@ -5,6 +5,10 @@ struct CalendarView: View {
     @EnvironmentObject var settingsStore: SettingsStore
 
     let onEdit: (Subscription) -> Void
+    /// AUDIT-v1.9.2 U-15: opens the add-subscription form — the default tab's
+    /// empty state now carries the primary CTA instead of hiding it behind
+    /// the Dashboard icon.
+    let onAdd: () -> Void
 
     @State private var currentMonth = Date()
     @State private var selectedDate: Date?
@@ -15,7 +19,10 @@ struct CalendarView: View {
     }
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
-    private let weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+    // AUDIT-v1.9.2 U-02/U-03: [LocalizedStringKey] (was [String]) — Text(day)
+    // rendered the raw String verbatim, so the weekday strip could never
+    // localize. The English literals stay the catalog keys.
+    private let weekdays: [LocalizedStringKey] = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -42,8 +49,10 @@ struct CalendarView: View {
         }
         .animation(.easeOut(duration: 0.2), value: selectedDate)
         .onAppear { recomputeCache() }
-        .onChange(of: currentMonth) { _ in recomputeCache() }
-        .onChange(of: subscriptionStore.subscriptions) { _ in recomputeCache() }
+        // AUDIT-v1.9.2 C-39: zero-param onChange — single-param form is
+        // deprecated on macOS 14 and the values aren't used.
+        .onChange(of: currentMonth) { recomputeCache() }
+        .onChange(of: subscriptionStore.subscriptions) { recomputeCache() }
     }
 
     private var monthTransition: AnyTransition {
@@ -75,6 +84,10 @@ struct CalendarView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    // AUDIT-v1.9.2 U-10: icon-only month nav — label the
+                    // function for VoiceOver + tooltip.
+                    .accessibilityLabel(Text("Previous month"))
+                    .help("Previous month")
 
                     Button(action: nextMonth) {
                         Image(systemName: "chevron.down")
@@ -84,6 +97,8 @@ struct CalendarView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Next month"))
+                    .help("Next month")
                 }
 
                 Text(DateHelpers.formatMonthYear(currentMonth))
@@ -111,8 +126,9 @@ struct CalendarView: View {
 
     private var weekdayHeader: some View {
         LazyVGrid(columns: columns, spacing: 0) {
-            ForEach(weekdays, id: \.self) { day in
-                Text(day)
+            // LocalizedStringKey isn't Hashable — iterate by index.
+            ForEach(weekdays.indices, id: \.self) { i in
+                Text(weekdays[i])
                     .font(AppFont.medium(10))
                     .foregroundColor(Theme.textDim)
                     .frame(maxWidth: .infinity)
@@ -147,17 +163,34 @@ struct CalendarView: View {
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
 
-            // Empty state hint when no subscriptions
+            // AUDIT-v1.9.2 U-15: first-run empty state on the default tab was
+            // one gray line ("Tap + …" — desktop app, no tapping) while the
+            // real Add CTA hid behind the unlabeled Dashboard icon. Reuse the
+            // Dashboard empty state's capsule CTA here.
             if subscriptionStore.subscriptions.isEmpty {
-                VStack(spacing: 6) {
+                VStack(spacing: 10) {
                     Text("No subscriptions yet")
-                        .font(AppFont.regular(12))
-                        .foregroundColor(Theme.textSecondary)
-                    Text("Tap + or ⌘N to add your first one")
+                        .font(AppFont.medium(13))
+                        .foregroundColor(Theme.textPrimary)
+                    Button(action: onAdd) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 11, weight: .semibold))
+                            Text("Add subscription")
+                                .font(AppFont.medium(12))
+                        }
+                        .foregroundColor(Theme.bgPrimary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Theme.textPrimary)
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    Text("or press ⌘N")
                         .font(AppFont.regular(11))
                         .foregroundColor(Theme.textDim)
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 12)
             }
         }
     }
@@ -180,11 +213,16 @@ struct CalendarView: View {
             .filter { $0.status == .active || $0.status == .trial }
         let primaryCurrency = settingsStore.settings.primaryCurrency
         let hasMultipleCurrencies = Set(activeSubs.map(\.currency)).count > 1
-        let total = activeSubs
-            .filter { !hasMultipleCurrencies || $0.currency == primaryCurrency }
-            .reduce(0.0) { $0 + BillingCalculator.getMonthlyEquivalent($1) }
+        // AUDIT-v1.9.2 U-05: convert every sub into the primary currency (same
+        // math as DashboardViewModel.update) instead of silently dropping
+        // non-primary-currency subs — the two tabs disagreed on "monthly spend".
+        // "~" marks the total as FX-estimated.
+        let total = activeSubs.reduce(0.0) { sum, sub in
+            let equiv = BillingCalculator.getMonthlyEquivalent(sub)
+            return sum + ExchangeRateService.shared.convert(equiv, from: sub.currency, to: primaryCurrency)
+        }
         let formatted = CurrencyFormatter.formatShort(total, currency: primaryCurrency)
-        cachedMonthlySpend = (hasMultipleCurrencies && total > 0) ? "~\(formatted)" : formatted
+        cachedMonthlySpend = hasMultipleCurrencies ? "~\(formatted)" : formatted
     }
 
     // MARK: - Actions

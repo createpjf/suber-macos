@@ -23,6 +23,10 @@ struct SubscriptionFormView: View {
     @State private var showImageInput = false
     @State private var showEmailInput = false
     @State private var showSplit = false
+    // AUDIT-v1.9.2 C-38: delayed overlay close must be cancellable — the old
+    // asyncAfter callbacks outlived a close/reopen and yanked the fresh panel
+    // shut, or wrote to unmounted @State after the popover closed early.
+    @State private var overlayDismissTask: Task<Void, Never>? = nil
 
     init(
         mode: FormMode,
@@ -54,7 +58,9 @@ struct SubscriptionFormView: View {
                     .foregroundColor(Theme.textPrimary)
                 Spacer()
                 if !isEdit {
-                    Button(action: { showEmailInput = true }) {
+                    // C-38: cancel any stale delayed close so it can't shut the
+                    // panel being (re)opened here.
+                    Button(action: { overlayDismissTask?.cancel(); showEmailInput = true }) {
                         Image(systemName: "envelope.open")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Theme.textSecondary)
@@ -63,9 +69,10 @@ struct SubscriptionFormView: View {
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Parse billing email text"))
                     .help("Parse billing email text")
 
-                    Button(action: { showImageInput = true }) {
+                    Button(action: { overlayDismissTask?.cancel(); showImageInput = true }) {
                         Image(systemName: "doc.viewfinder")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Theme.textSecondary)
@@ -74,6 +81,7 @@ struct SubscriptionFormView: View {
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Scan image to auto-fill"))
                     .help("Scan image to auto-fill")
                 }
                 Button(action: onCancel) {
@@ -85,6 +93,10 @@ struct SubscriptionFormView: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
+                // AUDIT-v1.9.2 U-10: icon-only close button — label the
+                // function, not the glyph.
+                .accessibilityLabel(Text("Close"))
+                .help("Close")
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
@@ -116,12 +128,17 @@ struct SubscriptionFormView: View {
                                 Button(action: { adjustAmount(-1) }) {
                                     Image(systemName: "minus")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Color(hex: "38b2ac"))
+                                        // AUDIT-v1.9.2 U-14: teal now a Theme token.
+                                        .foregroundColor(Theme.accentTeal)
                                         .frame(width: 24, height: 24)
                                         .background(Theme.bgPrimary)
                                         .clipShape(Circle())
                                 }
                                 .buttonStyle(.plain)
+                                // AUDIT-v1.9.2 U-10: icon-only stepper needs a
+                                // functional label for VoiceOver.
+                                .accessibilityLabel(Text("Decrease price"))
+                                .help("Decrease price")
 
                                 HStack(spacing: 2) {
                                     Text(AppConstants.currencySymbols[formData.currency] ?? "$")
@@ -131,7 +148,9 @@ struct SubscriptionFormView: View {
                                         .textFieldStyle(.plain)
                                         .font(AppFont.regular(14))
                                         .foregroundColor(Theme.textPrimary)
-                                        .onChange(of: formData.amount) { newValue in
+                                        // AUDIT-v1.9.2 C-39: two-param onChange —
+                                        // single-param form is deprecated on macOS 14.
+                                        .onChange(of: formData.amount) { _, newValue in
                                             let filtered = newValue.filter { $0.isNumber || $0 == "." }
                                             // Allow only one decimal point
                                             let parts = filtered.split(separator: ".", omittingEmptySubsequences: false)
@@ -146,12 +165,14 @@ struct SubscriptionFormView: View {
                                 Button(action: { adjustAmount(1) }) {
                                     Image(systemName: "plus")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Color(hex: "38b2ac"))
+                                        .foregroundColor(Theme.accentTeal)
                                         .frame(width: 24, height: 24)
                                         .background(Theme.bgPrimary)
                                         .clipShape(Circle())
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(Text("Increase price"))
+                                .help("Increase price")
                             }
                         }
 
@@ -183,9 +204,12 @@ struct SubscriptionFormView: View {
 
                     // Category + Status + Currency
                     HStack(alignment: .top, spacing: 16) {
-                        menuField("Category", displayText: formData.category) {
+                        // U-02: categories display-localize through
+                        // AppConstants.localizedCategory; the stored value
+                        // stays the English identifier.
+                        menuField("Category", displayText: AppConstants.localizedCategory(formData.category)) {
                             ForEach(AppConstants.categories, id: \.self) { cat in
-                                Button(cat) { formData.category = cat }
+                                Button(AppConstants.localizedCategory(cat)) { formData.category = cat }
                             }
                         }
 
@@ -288,6 +312,9 @@ struct SubscriptionFormView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
+                            // AUDIT-v1.9.2 U-13: Esc/Return parity with the
+                            // NSAlert-backed confirms elsewhere in the app.
+                            .keyboardShortcut(.cancelAction)
                             Button(action: {
                                 showDeleteConfirm = false
                                 onDelete?()
@@ -301,6 +328,7 @@ struct SubscriptionFormView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
+                            .keyboardShortcut(.defaultAction)
                         }
                     }
                     .padding(20)
@@ -335,9 +363,8 @@ struct SubscriptionFormView: View {
                 EmailParseView(
                     onResult: { parsed in
                         applyParsedData(parsed)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            showEmailInput = false
-                        }
+                        // C-38: cancellable — replaces asyncAfter.
+                        scheduleOverlayDismiss(after: 0.5) { showEmailInput = false }
                     },
                     onCancel: { showEmailInput = false }
                 )
@@ -360,9 +387,21 @@ struct SubscriptionFormView: View {
         if let category = parsed.category { formData.category = category }
         if let status = parsed.status { formData.status = status }
 
-        // Dismiss the image input after a brief delay so user sees the success message
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            showImageInput = false
+        // Dismiss the image input after a brief delay so user sees the success
+        // message. C-38: cancellable — replaces asyncAfter.
+        scheduleOverlayDismiss(after: 1.0) { showImageInput = false }
+    }
+
+    /// AUDIT-v1.9.2 C-38: single-slot delayed close. Scheduling cancels any
+    /// prior pending close; the open buttons cancel it too, so a stale
+    /// callback can never close a newly reopened panel or write to @State
+    /// after cancellation.
+    private func scheduleOverlayDismiss(after seconds: Double, _ close: @escaping () -> Void) {
+        overlayDismissTask?.cancel()
+        overlayDismissTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            close()
         }
     }
 
@@ -403,8 +442,11 @@ struct SubscriptionFormView: View {
 
     // MARK: - Field Components
 
+    // AUDIT-v1.9.2 U-03: the three field-label params below are
+    // LocalizedStringKey (were String) — all call sites pass literals, and
+    // Text(String) skipped the catalog so the form stayed English for zh users.
     @ViewBuilder
-    private func field<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+    private func field<Content: View>(_ label: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label)
                 .font(AppFont.medium(13))
@@ -419,7 +461,7 @@ struct SubscriptionFormView: View {
     }
 
     @ViewBuilder
-    private func dateField(_ label: String, selection: Binding<Date>, showPicker: Binding<Bool>) -> some View {
+    private func dateField(_ label: LocalizedStringKey, selection: Binding<Date>, showPicker: Binding<Bool>) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label)
                 .font(AppFont.medium(13))
@@ -467,7 +509,7 @@ struct SubscriptionFormView: View {
     }
 
     @ViewBuilder
-    private func menuField<MenuContent: View>(_ label: String, displayText: String, @ViewBuilder content: () -> MenuContent) -> some View {
+    private func menuField<MenuContent: View>(_ label: LocalizedStringKey, displayText: String, @ViewBuilder content: () -> MenuContent) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label)
                 .font(AppFont.medium(13))
@@ -494,23 +536,10 @@ struct SubscriptionFormView: View {
         }
     }
 
-    private static let formDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy/MM/dd"
-        return f
-    }()
-
-    private static let longDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "EEEE, MMM d, yyyy"
-        return f
-    }()
-
+    // AUDIT-v1.9.2 U-17: the fixed "yyyy/MM/dd" pattern was one of ~10 date
+    // formats in the app and didn't reorder for zh. Route through the shared
+    // locale-aware formatter. The unused longDateFormatter was dead code.
     private func formatDate(_ date: Date) -> String {
-        Self.formDateFormatter.string(from: date)
-    }
-
-    private func longFormatDate(_ date: Date) -> String {
-        Self.longDateFormatter.string(from: date)
+        DateHelpers.formatDate(date)
     }
 }

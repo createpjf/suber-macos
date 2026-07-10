@@ -9,20 +9,7 @@ struct DashboardView: View {
     var onAdd: (() -> Void)? = nil
     var onImport: (() -> Void)? = nil
 
-    private let categoryColors: [Color] = [
-        Color(hex: "6366f1"),  // indigo
-        Color(hex: "f59e0b"),  // amber
-        Color(hex: "10b981"),  // emerald
-        Color(hex: "ef4444"),  // red
-        Color(hex: "8b5cf6"),  // violet
-        Color(hex: "06b6d4"),  // cyan
-        Color(hex: "f97316"),  // orange
-        Color(hex: "ec4899"),  // pink
-        Color(hex: "14b8a6"),  // teal
-        Color(hex: "84cc16"),  // lime
-        Color(hex: "a855f7"),  // purple
-        Color(hex: "64748b"),  // slate
-    ]
+    // AUDIT-v1.9.2 U-14: chart colors centralized in Theme.chartPalette.
 
     var body: some View {
         ScrollView {
@@ -154,7 +141,8 @@ struct DashboardView: View {
         .padding(.vertical, 18)
     }
 
-    private func statusBadge(count: Int, label: String, color: Color) -> some View {
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — literal labels.
+    private func statusBadge(count: Int, label: LocalizedStringKey, color: Color) -> some View {
         HStack(spacing: 5) {
             Circle()
                 .fill(color)
@@ -202,7 +190,7 @@ struct DashboardView: View {
 
                             if month.total > 0 {
                                 RoundedRectangle(cornerRadius: 4)
-                                    .fill(month.isCurrent ? Color(hex: "6366f1") : Theme.bgCell)
+                                    .fill(month.isCurrent ? Theme.chartHighlight : Theme.bgCell)
                                     .frame(height: max(4, CGFloat(month.total / max(maxVal, 1)) * 80))
                             } else {
                                 Rectangle()
@@ -256,7 +244,7 @@ struct DashboardView: View {
                             Circle()
                                 .fill(colorForCategory(cat.color))
                                 .frame(width: 8, height: 8)
-                            Text(cat.name)
+                            Text(AppConstants.localizedCategory(cat.name))
                                 .font(AppFont.regular(11))
                                 .foregroundColor(Theme.textPrimary)
                             Spacer()
@@ -305,7 +293,9 @@ struct DashboardView: View {
 
                             Spacer()
 
-                            Text(CurrencyFormatter.formatShort(item.monthlyEquivalent, currency: item.subscription.currency) + "/mo")
+                            // U-03: interpolation (not `+` concat) so the
+                            // "%@/mo" catalog key resolves.
+                            Text("\(CurrencyFormatter.formatShort(item.monthlyEquivalent, currency: item.subscription.currency))/mo")
                                 .font(AppFont.medium(11))
                                 .foregroundColor(Theme.textSecondary)
                         }
@@ -325,6 +315,6 @@ struct DashboardView: View {
     // MARK: - Helpers
 
     private func colorForCategory(_ index: Int) -> Color {
-        categoryColors[index % categoryColors.count]
+        Theme.chartPalette[index % Theme.chartPalette.count]
     }
 }

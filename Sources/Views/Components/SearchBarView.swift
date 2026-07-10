@@ -21,6 +21,10 @@ struct SearchBarView: View {
                         .foregroundColor(Theme.textSecondary)
                 }
                 .buttonStyle(.plain)
+                // AUDIT-v1.9.2 U-10: icon-only clear button needs a label.
+                // U-03: Text(...) wrapper so the String Catalog extracts it.
+                .accessibilityLabel(Text("Clear search"))
+                .help("Clear search")
             }
         }
         .padding(.horizontal, 10)
