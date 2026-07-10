@@ -65,8 +65,13 @@ final class NotificationService {
     /// Design review Pass 1 (obvious-fix): type-grouped summary ordered by
     /// severity. Truncation at 5+ changes.
     static func composeChangesBody(from changes: [SubscriptionChange]) -> (title: String, body: String) {
+        // AUDIT-v1.9.2 U-02: notification copy is runtime-built — every
+        // literal goes through String(localized:). Plural-suffix hacks are
+        // split into full singular/plural keys so zh-Hans can translate them.
         let count = changes.count
-        let title = count == 1 ? "Suber found 1 change" : "Suber found \(count) changes"
+        let title = count == 1
+            ? String(localized: "Suber found 1 change")
+            : String(localized: "Suber found \(count) changes")
 
         // Single change: spell out what happened.
         if count == 1, let c = changes.first {
@@ -82,10 +87,22 @@ final class NotificationService {
         // >5 changes: compact summary.
         if count > 5 {
             var parts: [String] = []
-            if !priceChanges.isEmpty { parts.append("\(priceChanges.count) price change\(priceChanges.count == 1 ? "" : "s")") }
-            if !newCharges.isEmpty   { parts.append("\(newCharges.count) new sub\(newCharges.count == 1 ? "" : "s")") }
-            if !duplicates.isEmpty   { parts.append("\(duplicates.count) duplicate\(duplicates.count == 1 ? "" : "s")") }
-            if !trials.isEmpty       { parts.append("\(trials.count) trial ending") }
+            if !priceChanges.isEmpty {
+                parts.append(priceChanges.count == 1
+                    ? String(localized: "1 price change")
+                    : String(localized: "\(priceChanges.count) price changes"))
+            }
+            if !newCharges.isEmpty {
+                parts.append(newCharges.count == 1
+                    ? String(localized: "1 new sub")
+                    : String(localized: "\(newCharges.count) new subs"))
+            }
+            if !duplicates.isEmpty {
+                parts.append(duplicates.count == 1
+                    ? String(localized: "1 duplicate")
+                    : String(localized: "\(duplicates.count) duplicates"))
+            }
+            if !trials.isEmpty       { parts.append(String(localized: "\(trials.count) trial ending")) }
             return (title, parts.joined(separator: ", "))
         }
 
@@ -93,20 +110,22 @@ final class NotificationService {
         var fragments: [String] = []
         if !priceChanges.isEmpty {
             if priceChanges.count == 1 {
-                fragments.append("\(nameOrFallback(priceChanges[0])) raised prices")
+                fragments.append(String(localized: "\(nameOrFallback(priceChanges[0])) raised prices"))
             } else {
                 let names = priceChanges.prefix(2).map { nameOrFallback($0) }
-                fragments.append(oxford(names) + " raised prices")
+                fragments.append(String(localized: "\(oxford(names)) raised prices"))
             }
         }
         if !newCharges.isEmpty {
-            fragments.append("\(newCharges.count) new sub\(newCharges.count == 1 ? "" : "s")")
+            fragments.append(newCharges.count == 1
+                ? String(localized: "1 new sub")
+                : String(localized: "\(newCharges.count) new subs"))
         }
         if !duplicates.isEmpty {
-            fragments.append("\(duplicates.count) duplicate")
+            fragments.append(String(localized: "\(duplicates.count) duplicate"))
         }
         if !trials.isEmpty {
-            fragments.append("\(trials.count) trial ending")
+            fragments.append(String(localized: "\(trials.count) trial ending"))
         }
         return (title, fragments.joined(separator: ", "))
     }
@@ -119,32 +138,35 @@ final class NotificationService {
         case .priceChange:
             let delta = priceDeltaPercent(change)
             let sign = delta >= 0 ? "+" : ""
+            // Percent composed separately (language-neutral) — keeps a literal
+            // "%" out of the localized format string.
+            let pct = "\(sign)\(delta)%"
             if let name = nameFromChange(change) {
-                return "\(name) raised to \(change.newValue ?? "?") (\(sign)\(delta)%)"
+                return String(localized: "\(name) raised to \(change.newValue ?? "?") (\(pct))")
             }
-            return "Price changed to \(change.newValue ?? "?") (\(sign)\(delta)%)"
+            return String(localized: "Price changed to \(change.newValue ?? "?") (\(pct))")
         case .newCharge:
             if let name = change.pendingSubscriptionData?.name {
-                return "\(name) — new subscription detected"
+                return String(localized: "\(name) — new subscription detected")
             }
-            return "New subscription detected"
+            return String(localized: "New subscription detected")
         case .duplicate:
-            return change.newValue ?? "Duplicate charge detected"
+            return change.newValue ?? String(localized: "Duplicate charge detected")
         case .trialExpiring:
             if let name = nameFromChange(change) {
-                return "\(name) trial ends soon"
+                return String(localized: "\(name) trial ends soon")
             }
-            return "Trial ending soon"
+            return String(localized: "Trial ending soon")
         case .cancellationConfirmed:
             if let name = nameFromChange(change) {
-                return "\(name) cancelled — confirmed by Suber"
+                return String(localized: "\(name) cancelled — confirmed by Suber")
             }
-            return "Cancellation confirmed"
+            return String(localized: "Cancellation confirmed")
         case .cancellationFailed:
             if let name = nameFromChange(change) {
-                return "\(name) didn't cancel — still active"
+                return String(localized: "\(name) didn't cancel — still active")
             }
-            return "A cancellation didn't take effect"
+            return String(localized: "A cancellation didn't take effect")
         }
     }
 
@@ -155,7 +177,7 @@ final class NotificationService {
     }
 
     private static func nameOrFallback(_ change: SubscriptionChange) -> String {
-        nameFromChange(change) ?? "A subscription"
+        nameFromChange(change) ?? String(localized: "A subscription")
     }
 
     private static func priceDeltaPercent(_ change: SubscriptionChange) -> Int {
@@ -170,10 +192,10 @@ final class NotificationService {
         switch items.count {
         case 0: return ""
         case 1: return items[0]
-        case 2: return "\(items[0]) and \(items[1])"
+        case 2: return String(localized: "\(items[0]) and \(items[1])")
         default:
             let head = items.dropLast().joined(separator: ", ")
-            return "\(head), and \(items.last!)"
+            return String(localized: "\(head), and \(items.last!)")
         }
     }
 
@@ -200,13 +222,13 @@ final class NotificationService {
                 expectedIDs.insert(id)
 
                 let content = UNMutableNotificationContent()
-                content.title = "Subscription Reminder"
+                content.title = String(localized: "Subscription Reminder")
                 if days == 0 {
-                    content.body = "\(sub.name) is billing today - \(CurrencyFormatter.format(sub.amount, currency: sub.currency))"
+                    content.body = String(localized: "\(sub.name) is billing today - \(CurrencyFormatter.format(sub.amount, currency: sub.currency))")
                 } else if days == 1 {
-                    content.body = "\(sub.name) is billing tomorrow - \(CurrencyFormatter.format(sub.amount, currency: sub.currency))"
+                    content.body = String(localized: "\(sub.name) is billing tomorrow - \(CurrencyFormatter.format(sub.amount, currency: sub.currency))")
                 } else {
-                    content.body = "\(sub.name) is billing in \(days) days - \(CurrencyFormatter.format(sub.amount, currency: sub.currency))"
+                    content.body = String(localized: "\(sub.name) is billing in \(days) days - \(CurrencyFormatter.format(sub.amount, currency: sub.currency))")
                 }
                 content.sound = .default
 

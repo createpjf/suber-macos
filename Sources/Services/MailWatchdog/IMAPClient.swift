@@ -105,10 +105,14 @@ actor IMAPClient {
 
             conn.start(queue: .global(qos: .utility))
 
-            // Hard wall-clock timeout.
+            // Hard wall-clock timeout. AUDIT-v1.9.2 C-24: the timer also fires
+            // after a successful connect — only cancel when the timeout
+            // actually won, or it kills a healthy session still inside a later
+            // command's own budget.
             DispatchQueue.global().asyncAfter(deadline: .now() + timeout) { [weak conn] in
-                conn?.cancel()                       // IMAP-03
-                guarded.resume(throwing: MailBridgeError.timeout(resumeToken: [:]))
+                if guarded.resume(throwing: MailBridgeError.timeout(resumeToken: [:])) {
+                    conn?.cancel()                   // IMAP-03: timeout won → kill the zombie socket
+                }
             }
         }
 
@@ -334,14 +338,21 @@ actor IMAPClient {
     }
 
     /// "BODY[TEXT] {1234}" → 1234. Returns nil if no `{N}` literal at end.
-    private func parseTrailingLiteralSize(_ line: String) -> Int? {
+    /// nonisolated (pure string parsing, no actor state) so tests can call it
+    /// synchronously.
+    nonisolated func parseTrailingLiteralSize(_ line: String) -> Int? {
         guard let openBrace = line.lastIndex(of: "{"),
               let closeBrace = line.lastIndex(of: "}"),
               closeBrace > openBrace,
               closeBrace == line.index(before: line.endIndex)
         else { return nil }
         let inside = line[line.index(after: openBrace)..<closeBrace]
-        return Int(inside)
+        // AUDIT-v1.9.2 C-08: reject negative / absurd literal sizes from broken
+        // or hostile servers — a negative count would trap in readExactBytes'
+        // `0..<count` Range, and an unbounded one lets the server balloon
+        // receiveBuffer until timeout.
+        guard let size = Int(inside), (0...16_000_000).contains(size) else { return nil }
+        return size
     }
 
     private func parseTaggedStatusLine(_ rest: String) -> (CommandStatus, String) {
@@ -393,6 +404,12 @@ actor IMAPClient {
 
     /// Read exactly `count` bytes (used for IMAP literals).
     private func readExactBytes(_ count: Int, timeout: TimeInterval) async throws -> Data {
+        // AUDIT-v1.9.2 C-08 belt-and-suspenders: a negative count would trap
+        // in the `0..<count` Range below. parseTrailingLiteralSize already
+        // rejects these, but guard here too in case a new caller appears.
+        guard count >= 0 else {
+            throw MailBridgeError.unknown("negative IMAP literal size \(count)")
+        }
         let deadline = Date().addingTimeInterval(max(timeout, 1))
         while receiveBuffer.count < count, Date() < deadline {
             try await readMoreIntoBuffer(timeout: deadline.timeIntervalSinceNow)

@@ -18,6 +18,17 @@ final class AnnualCostTests: XCTestCase {
         XCTAssertEqual(BillingCycle.weekly.annualAmount(5), 260)
     }
 
+    func testWeeklyAnnualAgreesAcrossDashboardAndAnnualCost() {
+        // AUDIT-v1.9.2 C-36: Dashboard annualizes via getMonthlyEquivalent × 12,
+        // banners via annualAmount. 4.33 vs 52 weeks/year gave the same sub two
+        // yearly figures ($519.60 vs $520.00) — both paths must agree.
+        let sub = makeSub(amount: 10, currency: "USD", cycle: .weekly)
+        let dashboardAnnual = BillingCalculator.getMonthlyEquivalent(sub) * 12
+        let bannerAnnual = BillingCycle.weekly.annualAmount(10)
+        XCTAssertEqual(dashboardAnnual, bannerAnnual, accuracy: 0.0001)
+        XCTAssertEqual(bannerAnnual, 520)
+    }
+
     func testQuarterlyCycleMultipliesBy4() {
         XCTAssertEqual(BillingCycle.quarterly.annualAmount(30), 120)
     }

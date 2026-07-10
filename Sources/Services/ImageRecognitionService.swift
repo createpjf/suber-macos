@@ -101,14 +101,24 @@ enum ImageRecognitionService {
         }
 
         return try await withCheckedThrowingContinuation { continuation in
+            // Vision calls the request's completionHandler synchronously on this
+            // same thread even when perform(_:) ALSO throws — guard against
+            // double resume (SWIFT TASK CONTINUATION MISUSE). (AUDIT-v1.9.2 C-14)
+            var didResume = false
+            func resumeOnce(_ result: Result<RecognitionResult, Error>) {
+                guard !didResume else { return }
+                didResume = true
+                continuation.resume(with: result)
+            }
+
             let request = VNRecognizeTextRequest { request, error in
                 if let error = error {
-                    continuation.resume(throwing: RecognitionError.recognitionFailed(error.localizedDescription))
+                    resumeOnce(.failure(RecognitionError.recognitionFailed(error.localizedDescription)))
                     return
                 }
 
                 guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                    continuation.resume(returning: RecognitionResult(lines: []))
+                    resumeOnce(.success(RecognitionResult(lines: [])))
                     return
                 }
 
@@ -126,7 +136,7 @@ enum ImageRecognitionService {
                     )
                 }
 
-                continuation.resume(returning: RecognitionResult(lines: lines))
+                resumeOnce(.success(RecognitionResult(lines: lines)))
             }
 
             request.recognitionLevel = .accurate
@@ -137,7 +147,7 @@ enum ImageRecognitionService {
             do {
                 try handler.perform([request])
             } catch {
-                continuation.resume(throwing: RecognitionError.recognitionFailed(error.localizedDescription))
+                resumeOnce(.failure(RecognitionError.recognitionFailed(error.localizedDescription)))
             }
         }
     }

@@ -146,6 +146,57 @@ final class MailWatchdogTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: "mailwatchdog.cursor.TestAccount"), "<newest>")
     }
 
+    // MARK: - AppleMailBridge output parsing (AUDIT-v1.9.2 C-25)
+
+    /// NSDataDetector is the single date-parse path (the unconfigured
+    /// DateFormatter that used to sit in front of it never matched anything).
+    /// Locale-formatted and ISO-ish date strings must both parse; records
+    /// with unparseable dates are skipped, not crashed on.
+    func testParseOutputParsesDatesViaDetector() {
+        let bridge = AppleMailBridge()
+        let fs = "\u{001F}"   // field separator (matches AppleMailBridge)
+        let rs = "\u{001E}"   // record separator
+        let raw = [
+            // Mail.app locale-formatted date.
+            "<a@x>\(fs)Gmail\(fs)Sunday, March 16, 2025 at 10:24:33 PM\(fs)Receipt\(fs)a@x.com\(fs)$9.99",
+            // ISO-ish date.
+            "<b@x>\(fs)Gmail\(fs)2025-03-17 08:00:00\(fs)Receipt\(fs)b@x.com\(fs)$5.00",
+            // Unparseable date → record skipped.
+            "<c@x>\(fs)Gmail\(fs)not a date at all\(fs)Receipt\(fs)c@x.com\(fs)$1.00",
+        ].joined(separator: rs) + rs
+
+        let messages = bridge.parseOutput(raw)
+
+        XCTAssertEqual(messages.count, 2, "Two parseable dates, one skipped")
+        XCTAssertEqual(Set(messages.map(\.id)), ["<a@x>", "<b@x>"])
+        let first = messages.first { $0.id == "<a@x>" }!
+        let ymd = Calendar.current.dateComponents([.year, .month, .day], from: first.dateReceived)
+        XCTAssertEqual(ymd.year, 2025)
+        XCTAssertEqual(ymd.month, 3)
+        XCTAssertEqual(ymd.day, 16)
+    }
+
+    // MARK: - AppleMailBridge osascript pipe drain (AUDIT-v1.9.2 C-07)
+
+    /// Output beyond the ~64 KB kernel pipe buffer must not deadlock —
+    /// stdout/stderr are drained while osascript runs. Before the fix this
+    /// test burned the full timeout and threw .timeout.
+    func testRunOSAScriptDrainsLargeOutputWithoutDeadlock() async throws {
+        let bridge = AppleMailBridge()
+        // 16 chars doubled 13 times = 131,072 chars — well past the 64 KB
+        // pipe buffer. Pure string work; no Apple Events, no TCC prompt.
+        let script = """
+        set s to "0123456789abcdef"
+        repeat 13 times
+            set s to s & s
+        end repeat
+        return s
+        """
+        let output = try await bridge.runOSAScript(script, timeout: 30)
+        XCTAssertGreaterThan(output.count, 65_536,
+                             "Full >64 KB output must come through without deadlocking")
+    }
+
     // MARK: - Helpers
 
     private func makeMessage(

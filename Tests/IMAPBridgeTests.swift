@@ -165,6 +165,29 @@ final class IMAPBridgeTests: XCTestCase {
         XCTAssertTrue(criteria.contains("\\\""), "Inner quotes must be backslash-escaped")
     }
 
+    // MARK: - IMAPClient literal-size parsing (AUDIT-v1.9.2 C-08)
+
+    /// A broken/hostile server sending `{-1}` used to reach readExactBytes'
+    /// `0..<count` Range construction and trap. Negative and absurdly large
+    /// literal sizes must be rejected at the parse boundary.
+    func testParseTrailingLiteralSizeRejectsNegativeAndHugeSizes() {
+        let client = IMAPClient(host: "example.invalid", port: 993)
+
+        // Valid literals still parse.
+        XCTAssertEqual(client.parseTrailingLiteralSize("BODY[TEXT] {1234}"), 1234)
+        XCTAssertEqual(client.parseTrailingLiteralSize("BODY[TEXT] {0}"), 0)
+        XCTAssertEqual(client.parseTrailingLiteralSize("BODY[TEXT] {16000000}"), 16_000_000)
+
+        // Negative → nil (would trap in readExactBytes' 0..<count Range).
+        XCTAssertNil(client.parseTrailingLiteralSize("BODY[TEXT] {-1}"))
+        // Over the 16 MB cap → nil (server could balloon receiveBuffer).
+        XCTAssertNil(client.parseTrailingLiteralSize("BODY[TEXT] {16000001}"))
+        XCTAssertNil(client.parseTrailingLiteralSize("BODY[TEXT] {999999999}"))
+        // Non-numeric / no literal → nil.
+        XCTAssertNil(client.parseTrailingLiteralSize("BODY[TEXT] {abc}"))
+        XCTAssertNil(client.parseTrailingLiteralSize("S1 OK FETCH completed."))
+    }
+
     // MARK: - CompositeMailBridge
 
     @MainActor

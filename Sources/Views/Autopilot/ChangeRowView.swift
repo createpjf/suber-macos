@@ -253,14 +253,18 @@ struct ChangeRowView: View {
     }
 
     private var priceChangeHeadline: String {
+        // AUDIT-v1.9.2 U-03: all copy helpers below build runtime Strings —
+        // wrap in String(localized:) so the zh-Hans catalog resolves them.
         guard let curr = parseAmount(change.newValue) else {
-            return "\(serviceName) price changed"
+            return String(localized: "\(serviceName) price changed")
         }
         let currency = parseCurrency(change.newValue) ?? subscription?.currency ?? primaryCurrency
         let cycleLabel = subscription?.cycle.shortLabel ?? ""
         let priceStr = String(format: "%.2f", curr)
-        let verb = priceDirection >= 0 ? "raised to" : "lowered to"
-        return "\(serviceName) \(verb) \(symbol(for: currency))\(priceStr)\(cycleLabel)"
+        let price = "\(symbol(for: currency))\(priceStr)\(cycleLabel)"
+        return priceDirection >= 0
+            ? String(localized: "\(serviceName) raised to \(price)")
+            : String(localized: "\(serviceName) lowered to \(price)")
     }
 
     private var priceChangeSupport: String {
@@ -271,41 +275,55 @@ struct ChangeRowView: View {
         let pct = prev > 0 ? Int(((curr - prev) / prev * 100).rounded()) : 0
         let sign = pct >= 0 ? "+" : ""
         let annualSavings = annualImpact()
-        let annualStr = annualSavings >= 0 ? "+$\(annualSavings)/year" : "-$\(-annualSavings)/year"
-        return "was \(symbol(for: currency))\(prevStr) · \(sign)\(pct)% · \(annualStr)"
+        // AUDIT-v1.9.2 U-04: annualImpact() is converted into primaryCurrency —
+        // label it with that currency's symbol, not a hardcoded "$".
+        let annualSym = symbol(for: primaryCurrency)
+        let annualStr = annualSavings >= 0
+            ? String(localized: "+\(annualSym)\(annualSavings)/year")
+            : String(localized: "-\(annualSym)\(-annualSavings)/year")
+        // Percent part composed separately (language-neutral) — keeps a literal
+        // "%" out of the localized format string.
+        let pctStr = "\(sign)\(pct)%"
+        let prevPrice = "\(symbol(for: currency))\(prevStr)"
+        return String(localized: "was \(prevPrice) · \(pctStr) · \(annualStr)")
     }
 
     private var newChargeHeadline: String {
-        let hydratedName = change.pendingSubscriptionData?.name ?? "Unknown service"
-        return "New sub: \(hydratedName)"
+        let hydratedName = change.pendingSubscriptionData?.name ?? String(localized: "Unknown service")
+        return String(localized: "New sub: \(hydratedName)")
     }
 
     private var newChargeSupport: String {
         guard let data = change.pendingSubscriptionData else { return change.newValue ?? "" }
         let amount = data.amount.isEmpty ? "?" : data.amount
-        return "\(symbol(for: data.currency))\(amount)\(data.cycle.shortLabel) · detected via \(sourceLabel)"
+        let price = "\(symbol(for: data.currency))\(amount)\(data.cycle.shortLabel)"
+        return String(localized: "\(price) · detected via \(sourceLabel)")
     }
 
     private var trialExpiringHeadline: String {
-        "\(serviceName) trial ending"
+        String(localized: "\(serviceName) trial ending")
     }
 
     private var trialExpiringSupport: String {
-        change.newValue ?? "Trial ends soon"
+        change.newValue ?? String(localized: "Trial ends soon")
     }
 
     private var confirmedHeadline: String {
         let annual = annualImpact()
-        let savings = annual != 0 ? " · saved $\(abs(annual))/year" : ""
-        return "✓ Cancelled: \(serviceName)\(savings)"
+        // AUDIT-v1.9.2 U-04: primary-currency symbol, not hardcoded "$".
+        if annual != 0 {
+            let saved = "\(symbol(for: primaryCurrency))\(abs(annual))"
+            return String(localized: "✓ Cancelled: \(serviceName) · saved \(saved)/year")
+        }
+        return String(localized: "✓ Cancelled: \(serviceName)")
     }
 
     private var failedHeadline: String {
-        "\(serviceName) didn't cancel — still active"
+        String(localized: "\(serviceName) didn't cancel — still active")
     }
 
     private var failedSupport: String {
-        "Charge detected after cancellation window"
+        String(localized: "Charge detected after cancellation window")
     }
 
     // MARK: - Parsing helpers
@@ -342,21 +360,17 @@ struct ChangeRowView: View {
 
     private var sourceLabel: String {
         switch change.source {
-        case .csvImport: return "CSV import"
-        case .ocrImport: return "screenshot"
-        case .mailWatchdog: return "Apple Mail"
-        case .backgroundCheck: return "Suber"
+        case .csvImport: return String(localized: "CSV import")
+        case .ocrImport: return String(localized: "screenshot")
+        case .mailWatchdog: return String(localized: "Apple Mail")
+        case .backgroundCheck: return "Suber"  // brand name — not localized
         }
     }
 
+    // AUDIT-v1.9.2 U-04: reuse the app-wide 20-currency symbol table instead
+    // of a private 5-currency switch (KRW/CAD/etc. rendered as "KRW 12000").
     private func symbol(for currency: String) -> String {
-        switch currency.uppercased() {
-        case "USD": return "$"
-        case "EUR": return "€"
-        case "GBP": return "£"
-        case "JPY", "CNY": return "¥"
-        default: return "\(currency) "
-        }
+        AppConstants.currencySymbols[currency.uppercased()] ?? "\(currency) "
     }
 
     /// Mark the change acknowledged on any user action. Callers wrap this in

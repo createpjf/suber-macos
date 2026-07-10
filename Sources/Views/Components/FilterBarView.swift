@@ -9,7 +9,7 @@ struct FilterBarView: View {
         HStack(spacing: 4) {
             ForEach(filters, id: \.self) { filter in
                 FilterChip(
-                    label: filter.capitalized,
+                    label: label(for: filter),
                     isSelected: selected == filter,
                     action: { selected = filter }
                 )
@@ -17,10 +17,25 @@ struct FilterBarView: View {
             Spacer()
         }
     }
+
+    // AUDIT-v1.9.2 U-03: `filter.capitalized` produced a runtime String that
+    // bypassed the String Catalog. The raw values stay stable identifiers
+    // (they match SubscriptionStatus.rawValue for filtering); display goes
+    // through literal LocalizedStringKeys so zh-Hans resolves.
+    private func label(for filter: String) -> LocalizedStringKey {
+        switch filter {
+        case "all": return "All"
+        case "active": return "Active"
+        case "paused": return "Paused"
+        case "trial": return "Trial"
+        case "cancelled": return "Cancelled"
+        default: return LocalizedStringKey(filter.capitalized)
+        }
+    }
 }
 
 private struct FilterChip: View {
-    let label: String
+    let label: LocalizedStringKey
     let isSelected: Bool
     let action: () -> Void
 

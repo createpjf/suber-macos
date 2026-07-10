@@ -96,11 +96,13 @@ struct CancelConfirmationSheet: View {
     // MARK: - Body copy
 
     private var bodyCopy: String {
+        // AUDIT-v1.9.2 U-03: String(localized:) — both keys were already in
+        // the catalog but this computed String rendered verbatim (English).
         if hasDataSource {
-            return "Suber will open \(subscription.name)'s cancellation page in your browser. You'll cancel there. Suber will check next month and confirm when the charges stop."
+            return String(localized: "Suber will open \(subscription.name)'s cancellation page in your browser. You'll cancel there. Suber will check next month and confirm when the charges stop.")
         }
         // A4: no data source → honest about the limitation.
-        return "Suber will open \(subscription.name)'s cancellation page in your browser. You'll cancel there. Suber can't verify automatically — tap Mark as cancelled below when you're done."
+        return String(localized: "Suber will open \(subscription.name)'s cancellation page in your browser. You'll cancel there. Suber can't verify automatically — tap Mark as cancelled below when you're done.")
     }
 
     // MARK: - Tertiary

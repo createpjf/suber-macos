@@ -10,8 +10,10 @@ import Foundation
 ///
 /// Detection is purely by header name; assumes first non-blank row is the header.
 struct GenericFormat: StatementFormat {
-    let displayName = "Generic CSV"
-    let subtitle = "Chase · Amex · Revolut · any statement with Date / Description / Amount"
+    // U-02: the only English-first format entry (Alipay/WeChat are already
+    // bilingual by design).
+    let displayName = String(localized: "Generic CSV")
+    let subtitle = String(localized: "Chase · Amex · Revolut · any statement with Date / Description / Amount")
 
     func parse(rows: [[String]]) throws -> [StatementTransaction] {
         guard let header = rows.first, !header.isEmpty else {
@@ -50,6 +52,13 @@ struct GenericFormat: StatementFormat {
             else if amountHeader.contains("cny") || amountHeader.contains("rmb") { defaultCurrency = "CNY" }
         }
 
+        // Compute the sign convention ONCE per file — the old per-row
+        // rowHasNoNegatives rescan was O(n²) and froze the UI on big CSVs.
+        // (AUDIT-v1.9.2 C-15)
+        let fileHasNegatives = rows.dropFirst().contains { row in
+            row.count > amountCol && (StatementFieldParser.parseAmount(row[amountCol]) ?? 0) < 0
+        }
+
         var transactions: [StatementTransaction] = []
         for row in rows.dropFirst() where row.count > max(dateCol, merchantCol, amountCol) {
             guard let date = StatementFieldParser.parseDate(row[dateCol]),
@@ -73,7 +82,7 @@ struct GenericFormat: StatementFormat {
             // but some (Revolut CSV) use positive amounts with a separate Type column.
             // Strategy: if any negative amounts exist in the file, treat negatives as outflow;
             // else treat all as outflow (already implicitly pre-filtered by type above).
-            let isSpend = rawAmount < 0 || rowHasNoNegatives(rows: rows, amountCol: amountCol)
+            let isSpend = rawAmount < 0 || !fileHasNegatives
             guard isSpend else { continue }
 
             let currency: String
@@ -93,16 +102,6 @@ struct GenericFormat: StatementFormat {
 
         if transactions.isEmpty { throw StatementFormatError.emptyFile }
         return transactions
-    }
-
-    /// Cached per-file check — if the file never uses negative amounts, the sign convention is "all positive = all spend".
-    private func rowHasNoNegatives(rows: [[String]], amountCol: Int) -> Bool {
-        for row in rows.dropFirst() where row.count > amountCol {
-            if let amt = StatementFieldParser.parseAmount(row[amountCol]), amt < 0 {
-                return false
-            }
-        }
-        return true
     }
 }
 

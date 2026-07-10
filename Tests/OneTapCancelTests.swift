@@ -5,19 +5,28 @@ import XCTest
 /// D5 idempotent markPendingCancellation: re-tap doesn't reset the anchor.
 final class OneTapCancelTests: XCTestCase {
 
-    // v1.9.2: the one store-using test below writes to the file-based
-    // AppGroupStore (since v1.6.2). Clear it around every test so a leaked
-    // subscription can't contaminate order-dependent assertions in sibling
-    // test classes (the same isolation gap that made AutoTransitionTests flaky).
+    // AUDIT-v1.9.2 C-01: sandbox ALL file I/O into fresh per-test temp dirs.
+    // The old setUp/tearDown cleared the user's REAL App Group container
+    // (removeObject has no snapshot hook); the sandbox gives the same
+    // cross-test isolation without ever touching real data.
+    private var tempStoreDir: URL!
+    private var tempBackupDir: URL!
+
     override func setUp() {
         super.setUp()
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-changes")
+        tempStoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-onetapcancel-store-\(UUID().uuidString)")
+        tempBackupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-onetapcancel-backup-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = tempStoreDir
+        DataBackupManager.testOverrideDirectory = tempBackupDir
     }
 
     override func tearDown() {
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-changes")
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        if let d = tempStoreDir { try? FileManager.default.removeItem(at: d) }
+        if let d = tempBackupDir { try? FileManager.default.removeItem(at: d) }
         super.tearDown()
     }
 

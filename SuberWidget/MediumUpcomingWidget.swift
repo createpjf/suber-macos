@@ -17,7 +17,8 @@ struct MediumUpcomingWidgetView: View {
 
                 Spacer()
 
-                Text(CurrencyFormatter.formatShort(entry.monthlySpend, currency: entry.currency) + "/mo")
+                // U-03: interpolation (not `+` concat) so "%@/mo" resolves.
+                Text("\(CurrencyFormatter.formatShort(entry.monthlySpend, currency: entry.currency))/mo")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.secondary)
             }
@@ -72,8 +73,11 @@ struct MediumUpcomingWidgetView: View {
     }
 
     private func daysText(_ days: Int) -> String {
-        if days == 0 { return "Today" }
-        if days == 1 { return "Tomorrow" }
-        return "in \(days)d"
+        // U-03: String(localized:) — note the widget bundle currently ships
+        // without the catalog (see project.yml), so this falls back to
+        // English until the catalog is added to the SuberWidget target.
+        if days == 0 { return String(localized: "Today") }
+        if days == 1 { return String(localized: "Tomorrow") }
+        return String(localized: "in \(days)d")
     }
 }

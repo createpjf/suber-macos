@@ -100,24 +100,28 @@ enum DateHelpers {
 
     // MARK: - Cached DateFormatters
 
+    // AUDIT-v1.9.2 U-17: locale-aware templates instead of fixed patterns.
+    // A fixed "MMMM yyyy" doesn't reorder for Chinese ("七月 2026" instead of
+    // "2026年7月"); setLocalizedDateFormatFromTemplate lets the locale decide
+    // element order and separators.
     private static let monthYearFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "MMMM yyyy"
+        f.setLocalizedDateFormatFromTemplate("yMMMM")   // en: July 2026 / zh: 2026年7月
         return f
     }()
 
     private static let shortDateFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "MMM d, yyyy"
+        f.setLocalizedDateFormatFromTemplate("yMMMd")   // en: Jul 10, 2026 / zh: 2026年7月10日
         return f
     }()
 
-    /// Format date as "MMMM yyyy" for month header display.
+    /// Format date as a localized month + year for month header display.
     static func formatMonthYear(_ date: Date) -> String {
         monthYearFormatter.string(from: date)
     }
 
-    /// Format date as "MMM d, yyyy" for general display.
+    /// Format date as a localized abbreviated date for general display.
     static func formatDate(_ date: Date) -> String {
         shortDateFormatter.string(from: date)
     }

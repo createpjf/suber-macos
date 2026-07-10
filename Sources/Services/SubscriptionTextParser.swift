@@ -102,9 +102,11 @@ enum SubscriptionTextParser {
 
             // Try each symbol pattern
             for (symbol, code) in symbolToCode {
-                // Pattern: symbol + optional space + number
+                // Pattern: symbol + optional space + number.
+                // Match thousands-separated forms first ("1,299") so the group
+                // isn't truncated to "1,29". (AUDIT-v1.9.2 C-34)
                 let escaped = NSRegularExpression.escapedPattern(for: symbol)
-                let pattern = "\(escaped)\\s*(\\d{1,}(?:[.,]\\d{1,2})?)"
+                let pattern = "\(escaped)\\s*(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)"
                 if let match = firstMatch(pattern: pattern, in: line) {
                     let numStr = normalizeNumber(match)
                     candidates.append(AmountCandidate(value: numStr, currency: code, priority: basePriority + 5))
@@ -112,7 +114,8 @@ enum SubscriptionTextParser {
             }
 
             // Pattern: number + optional space + currency code
-            let codePattern = "(\\d{1,}(?:[.,]\\d{1,2})?)\\s*(USD|EUR|GBP|CNY|JPY|KRW|CAD|AUD|CHF|HKD|SGD|SEK|NOK|DKK|INR|BRL|MXN|TWD|THB|RUB)"
+            // (thousands-separated form first — AUDIT-v1.9.2 C-34)
+            let codePattern = "(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)\\s*(USD|EUR|GBP|CNY|JPY|KRW|CAD|AUD|CHF|HKD|SGD|SEK|NOK|DKK|INR|BRL|MXN|TWD|THB|RUB)"
             if let regex = try? NSRegularExpression(pattern: codePattern, options: .caseInsensitive),
                let match = regex.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)) {
                 if let numRange = Range(match.range(at: 1), in: line),
@@ -124,8 +127,11 @@ enum SubscriptionTextParser {
             }
 
             // Fallback: standalone number near price keywords
+            // (thousands-separated form first — AUDIT-v1.9.2 C-34; the bare
+            // branch still requires a decimal part so plain integers in
+            // keyword lines don't become amount candidates)
             if hasPriorityKeyword {
-                let numPattern = "(\\d{1,}[.,]\\d{2})"
+                let numPattern = "(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+[.,]\\d{2})"
                 if let match = firstMatch(pattern: numPattern, in: line) {
                     let numStr = normalizeNumber(match)
                     candidates.append(AmountCandidate(value: numStr, currency: nil, priority: basePriority))
@@ -427,8 +433,12 @@ enum SubscriptionTextParser {
     }
 
     private static func normalizeNumber(_ str: String) -> String {
-        // Convert comma decimals to period: "9,99" -> "9.99"
-        str.replacingOccurrences(of: ",", with: ".")
+        // "1,299" / "1,299.00" → thousands separators; "9,99" → decimal comma.
+        // A blanket comma→dot turned "1,299" into 1.299. (AUDIT-v1.9.2 C-34)
+        if str.range(of: #"^\d{1,3}(,\d{3})+(\.\d{1,2})?$"#, options: .regularExpression) != nil {
+            return str.replacingOccurrences(of: ",", with: "")
+        }
+        return str.replacingOccurrences(of: ",", with: ".")
     }
 
     private static func monthNumber(_ name: String) -> Int? {

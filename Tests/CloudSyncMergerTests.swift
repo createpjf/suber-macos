@@ -14,6 +14,30 @@ import XCTest
 /// re-introduces the unconditional overwrite path, these tests catch it.
 final class CloudSyncMergerTests: XCTestCase {
 
+    private var tempStoreDir: URL!
+    private var tempBackupDir: URL!
+
+    override func setUp() {
+        super.setUp()
+        // AUDIT-v1.9.2 C-02: the tombstone-store tests below hit the real
+        // AppGroupStore read/write path — sandbox into per-test temp dirs so
+        // they never touch the user's live container (C-01 lesson).
+        tempStoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-merger-store-\(UUID().uuidString)")
+        tempBackupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-merger-backup-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = tempStoreDir
+        DataBackupManager.testOverrideDirectory = tempBackupDir
+    }
+
+    override func tearDown() {
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        if let d = tempStoreDir { try? FileManager.default.removeItem(at: d) }
+        if let d = tempBackupDir { try? FileManager.default.removeItem(at: d) }
+        super.tearDown()
+    }
+
     // MARK: - Fixtures
 
     /// Build a Subscription with a deterministic id and an explicit
@@ -156,6 +180,152 @@ final class CloudSyncMergerTests: XCTestCase {
     func testNoOpWhenBothSidesEmpty() {
         let result = CloudSyncMerger.mergeSubscriptions(local: [], remote: [])
         XCTAssertEqual(result, .noOp)
+    }
+
+    // MARK: - Deletion tombstones (AUDIT-v1.9.2 C-02)
+
+    /// Delete PROPAGATION. Peer deleted Netflix: its push arrives one entry
+    /// shorter plus the tombstone. Pre-tombstone, Rule 2 saw remote < local
+    /// and rejected — the delete could never reach this device. The tombstone
+    /// must filter the local side so the merge applies the delete.
+    func testTombstone_deletePropagatesToPeerDevice() {
+        let netflix = makeSub(idSeed: 1, name: "Netflix", amount: 15.99)
+        let spotify = makeSub(idSeed: 2, name: "Spotify", amount: 9.99)
+        let local = [netflix, spotify]        // still has the deleted sub
+        let remote = [spotify]                // peer already dropped it
+
+        let result = CloudSyncMerger.mergeSubscriptions(
+            local: local, remote: remote, tombstones: [netflix.id])
+
+        guard case .applied(let merged) = result else {
+            return XCTFail("Tombstoned delete must merge, not reject. got \(result)")
+        }
+        XCTAssertEqual(merged.map(\.name), ["Spotify"],
+                       "Peer's delete must propagate — Netflix removed locally")
+    }
+
+    /// RESURRECTION prevention. This device deleted Netflix; the peer hasn't
+    /// synced yet and pushes a list that still contains it (with a newer
+    /// updatedAt, the worst case for last-write-wins). Rule 3's union used to
+    /// re-add it — corrupting monthly totals with a sub the user deleted.
+    func testTombstone_preventsResurrectionOnDeletingDevice() {
+        let newer = Date(timeIntervalSince1970: 1_800_000_000)
+        let netflix = makeSub(idSeed: 1, name: "Netflix", amount: 15.99, updatedAt: newer)
+        let spotify = makeSub(idSeed: 2, name: "Spotify", amount: 9.99)
+        let local = [spotify]                 // post-delete
+        let remote = [netflix, spotify]       // stale peer still has Netflix
+
+        let result = CloudSyncMerger.mergeSubscriptions(
+            local: local, remote: remote, tombstones: [netflix.id])
+
+        guard case .applied(let merged) = result else {
+            return XCTFail("Expected .applied, got \(result)")
+        }
+        XCTAssertEqual(merged.map(\.name), ["Spotify"],
+                       "Deleted sub must NOT resurrect via Rule 3 union")
+    }
+
+    /// Rule 1 (fresh device) must not hydrate deleted subs either.
+    func testTombstone_filtersFreshDeviceHydration() {
+        let netflix = makeSub(idSeed: 1, name: "Netflix", amount: 15.99)
+        let spotify = makeSub(idSeed: 2, name: "Spotify", amount: 9.99)
+
+        let result = CloudSyncMerger.mergeSubscriptions(
+            local: [], remote: [netflix, spotify], tombstones: [netflix.id])
+
+        guard case .applied(let merged) = result else {
+            return XCTFail("Expected .applied, got \(result)")
+        }
+        XCTAssertEqual(merged.map(\.name), ["Spotify"])
+    }
+
+    /// CROSS-VERSION guard: a pre-tombstone peer pushes the same
+    /// `[Subscription]` JSON wire shape as ever — no tombstone field anywhere
+    /// in the payload. It must decode and merge exactly as before (the
+    /// tombstone set is a separate, additive KVS key; the subscriptions
+    /// format is untouched in both directions).
+    func testOldPayloadWithoutTombstonesStillDecodesAndMerges() throws {
+        let legacyJSON = """
+        [{
+            "id": "00000000-0000-0000-0000-000000000042",
+            "name": "Legacy Sub",
+            "amount": 4.99,
+            "currency": "USD",
+            "cycle": "monthly",
+            "billingDay": 5,
+            "startDate": "2026-01-05T00:00:00Z",
+            "category": "Test",
+            "status": "active",
+            "createdAt": "2026-01-05T00:00:00Z",
+            "updatedAt": "2026-01-05T00:00:00Z"
+        }]
+        """
+        let remote = try JSONDecoder.suberDecoder
+            .decode([Subscription].self, from: Data(legacyJSON.utf8))
+
+        let result = CloudSyncMerger.mergeSubscriptions(local: [], remote: remote)
+        guard case .applied(let merged) = result else {
+            return XCTFail("Legacy payload must merge as before, got \(result)")
+        }
+        XCTAssertEqual(merged.map(\.name), ["Legacy Sub"])
+    }
+
+    // MARK: - DeletionTombstones store
+
+    func testTombstoneStore_recordPersistsAndLoads() {
+        let id = UUID()
+        DeletionTombstones.record(id)
+
+        XCTAssertTrue(DeletionTombstones.activeIDs().contains(id))
+        // Survives a reload from disk (fresh decode, not in-memory state).
+        XCTAssertTrue(DeletionTombstones.load().contains { $0.id == id })
+    }
+
+    func testTombstoneStore_pruneDropsExpiredAndCapsCount() {
+        let now = Date()
+        let fresh = DeletionTombstone(id: UUID(), deletedAt: now)
+        let expired = DeletionTombstone(
+            id: UUID(), deletedAt: now.addingTimeInterval(-DeletionTombstones.maxAge - 1))
+
+        let pruned = DeletionTombstones.prune([fresh, expired], now: now)
+        XCTAssertEqual(pruned.map(\.id), [fresh.id], "expired tombstone must drop")
+
+        let many = (0..<(DeletionTombstones.maxEntries + 50)).map {
+            DeletionTombstone(id: UUID(), deletedAt: now.addingTimeInterval(-Double($0)))
+        }
+        XCTAssertEqual(DeletionTombstones.prune(many, now: now).count,
+                       DeletionTombstones.maxEntries,
+                       "hard cap keeps the newest \(DeletionTombstones.maxEntries)")
+    }
+
+    func testTombstoneStore_mergeRemoteUnionsWithLocal() throws {
+        let localID = UUID()
+        let remoteID = UUID()
+        DeletionTombstones.record(localID)
+
+        let remoteData = try JSONEncoder.suberEncoder.encode(
+            [DeletionTombstone(id: remoteID, deletedAt: Date())])
+        let merged = DeletionTombstones.mergeRemote(remoteData)
+
+        XCTAssertTrue(merged.contains(localID))
+        XCTAssertTrue(merged.contains(remoteID))
+        // Union must also persist so a relaunch still knows the peer's delete.
+        XCTAssertTrue(DeletionTombstones.activeIDs().contains(remoteID))
+    }
+
+    func testTombstoneStore_mergeRemoteWithNilDataDegradesToLocalSet() {
+        let localID = UUID()
+        DeletionTombstones.record(localID)
+        // Pre-tombstone peers never write the KVS key → nil data.
+        XCTAssertEqual(DeletionTombstones.mergeRemote(nil), [localID])
+    }
+
+    func testTombstoneStore_removeMatchingClearsRestoredIDs() {
+        let id = UUID()
+        DeletionTombstones.record(id)
+        DeletionTombstones.removeMatching([id])
+        XCTAssertFalse(DeletionTombstones.activeIDs().contains(id),
+                       "user Restore/Import must lift the tombstone or the next merge re-deletes")
     }
 
     // MARK: - Settings merger

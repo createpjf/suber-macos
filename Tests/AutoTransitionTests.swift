@@ -12,30 +12,30 @@ import XCTest
 final class AutoTransitionTests: XCTestCase {
 
     var store: SubscriptionStore!
-    let suiteName = "group.com.suber.app"
+    private var tempStoreDir: URL!
+    private var tempBackupDir: URL!
 
     override func setUp() {
         super.setUp()
-        // v1.9.2: SubscriptionStore loads from the file-based AppGroupStore
-        // (since v1.6.2), NOT legacy UserDefaults — so clearing only the
-        // UserDefaults suite left `suber-changes` dirty between test methods.
-        // A cancellationConfirmed written by testZeroCharges… leaked through
-        // the AppGroupStore file and tripped testNoDataSourceLeavesSubPending
-        // (depending on method execution order). Clear BOTH stores.
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-changes")
-        let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-changes")
+        // AUDIT-v1.9.2 C-01: sandbox ALL file I/O into fresh per-test temp
+        // dirs. This both protects the user's REAL App Group container /
+        // Backups/ ring (the old setUp cleared live keys with no snapshot)
+        // and gives stronger cross-test isolation than key-clearing ever did
+        // (the v1.9.2 `suber-changes` leak between test methods).
+        tempStoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-autotransition-store-\(UUID().uuidString)")
+        tempBackupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-autotransition-backup-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = tempStoreDir
+        DataBackupManager.testOverrideDirectory = tempBackupDir
         store = SubscriptionStore()
     }
 
     override func tearDown() {
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-changes")
-        let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-changes")
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        if let d = tempStoreDir { try? FileManager.default.removeItem(at: d) }
+        if let d = tempBackupDir { try? FileManager.default.removeItem(at: d) }
         super.tearDown()
     }
 
@@ -211,16 +211,160 @@ final class AutoTransitionTests: XCTestCase {
                        "Merchant normalizer collapses ALIPAY*NETFLIX* to netflix")
     }
 
+    // MARK: - AUDIT-v1.9.2 C-05: cycle-aware billing-due gate
+
+    /// Yearly sub, cancel tapped mid-cycle in March, anniversary in November.
+    /// The old computeBillingDue ignored the cycle and produced a synthetic
+    /// March date → a scan right after it saw zero charges (of course — the
+    /// real renewal is in November) and falsely confirmed the cancellation.
+    func testYearlySubVerifiesAtAnniversaryNotSyntheticMonthlyDate() {
+        let sub = makePendingSub(
+            name: "Dropbox",
+            setAt: date(2026, 3, 10, 14, 0),
+            billingDay: 20,
+            cycle: .yearly,
+            startDate: date(2025, 11, 20)
+        )
+        addSubscription(sub)
+
+        // Scan lands right after the OLD synthetic monthly due (2026-03-20).
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 3, 21, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .pendingCancellation,
+                       "Yearly sub must NOT be evaluated in March — its renewal is in November")
+
+        // After the true anniversary (+1-day grace) it may evaluate.
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 11, 21, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .cancelled,
+                       "After the November anniversary + grace day, zero charges → confirmed")
+    }
+
+    /// A scan on the billing day's early morning must not confirm — that
+    /// day's charge email may not have arrived yet. Evaluation opens the
+    /// day AFTER the billing day (1-day grace).
+    func testScanOnBillingDayMorningDoesNotConfirmEarly() {
+        let sub = makePendingSub(
+            name: "Netflix",
+            setAt: date(2026, 3, 10, 14, 0),
+            billingDay: 15,
+            startDate: date(2026, 1, 15)
+        )
+        addSubscription(sub)
+
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 3, 15, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .pendingCancellation,
+                       "Billing-day 09:00 scan is too early — the 14:00 charge email hasn't arrived")
+
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 3, 16, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .cancelled,
+                       "Day after the billing day, zero charges → confirmed")
+    }
+
+    /// Cancel tapped ON the billing day: that day's charge is ambiguous
+    /// relative to the tap (day-granular statement data can't order them),
+    /// so verification waits one full cycle instead of confirming days later.
+    func testSameDayCancelWaitsFullCycle() {
+        let sub = makePendingSub(
+            name: "Netflix",
+            setAt: date(2026, 3, 15, 14, 0),   // tapped ON the billing day
+            billingDay: 15,
+            startDate: date(2026, 1, 15)
+        )
+        addSubscription(sub)
+
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 3, 20, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .pendingCancellation,
+                       "Same-day cancel: wait for the NEXT cycle, not this ambiguous one")
+
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 4, 16, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .cancelled,
+                       "After the next cycle's billing day + grace, zero charges → confirmed")
+    }
+
+    /// billingDay=31 in February: the old DateComponents(2026-02-31) path
+    /// normalized to March 3. The cycle-aware gate clamps to Feb 28 like the
+    /// rest of BillingCalculator, so evaluation opens March 1.
+    func testFeb31OverflowClampsToFebEnd() {
+        let sub = makePendingSub(
+            name: "Adobe",
+            setAt: date(2026, 2, 10, 12, 0),
+            billingDay: 31,
+            startDate: date(2026, 1, 31)
+        )
+        addSubscription(sub)
+
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 2, 28, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .pendingCancellation,
+                       "Feb 28 morning is still within the clamped billing day")
+
+        store.checkPendingCancellationTransitions(
+            transactions: [],
+            dataSourceCoversWindow: true,
+            now: date(2026, 3, 1, 9, 0)
+        )
+        XCTAssertEqual(store.subscriptions.first(where: { $0.id == sub.id })!.status,
+                       .cancelled,
+                       "Clamped Feb-28 billing day + grace → evaluation opens Mar 1, not Mar 4")
+    }
+
     // MARK: - Helpers
 
-    private func makePendingSub(name: String, setAt: Date, billingDay: Int) -> Subscription {
+    private func makePendingSub(
+        name: String,
+        setAt: Date,
+        billingDay: Int,
+        cycle: BillingCycle = .monthly,
+        startDate: Date? = nil
+    ) -> Subscription {
         Subscription(
             id: UUID(), name: name, amount: 22.99, currency: "USD",
-            cycle: .monthly, billingDay: billingDay, startDate: setAt,
+            cycle: cycle, billingDay: billingDay, startDate: startDate ?? setAt,
             category: "Entertainment", status: .pendingCancellation,
             createdAt: setAt, updatedAt: setAt,
             pendingCancellationSetAt: setAt
         )
+    }
+
+    private func date(_ year: Int, _ month: Int, _ day: Int,
+                      _ hour: Int = 0, _ minute: Int = 0) -> Date {
+        var comps = DateComponents()
+        comps.year = year; comps.month = month; comps.day = day
+        comps.hour = hour; comps.minute = minute
+        return Calendar(identifier: .gregorian).date(from: comps)!
     }
 
     /// Add via direct mutation (bypasses form-data path — tests need the

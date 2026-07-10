@@ -36,7 +36,10 @@ enum LanguageOverride {
         /// matches Mac System Settings' language picker.
         var displayName: String {
             switch self {
-            case .system:  return "System default"
+            // U-03: "System default" is a translated catalog key; the computed
+            // String channel needs an explicit lookup. The two language names
+            // stay hard-coded IN THE TARGET LANGUAGE by design (see above).
+            case .system:  return String(localized: "System default")
             case .english: return "English"
             case .chinese: return "简体中文"
             }
@@ -86,9 +89,16 @@ enum LanguageOverride {
         // Tiny launchd-friendly relauncher: wait for our PID, then reopen us.
         let task = Process()
         task.launchPath = "/bin/sh"
+        // Pass the path and PID as sh positional parameters — never interpolate
+        // them into the script, or a bundle path containing an apostrophe
+        // ("Leo's Tools") breaks quoting and the app never relaunches.
+        // (sh -c: the first operand after the script is $0, the next is $1.)
+        // (AUDIT-v1.9.2 C-16)
         task.arguments = [
             "-c",
-            "while kill -0 \(pid) 2>/dev/null; do sleep 0.2; done; /usr/bin/open '\(bundlePath)'"
+            #"while kill -0 "$1" 2>/dev/null; do sleep 0.2; done; /usr/bin/open "$0""#,
+            bundlePath,
+            String(pid)
         ]
         do {
             try task.run()

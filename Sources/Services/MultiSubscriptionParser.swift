@@ -71,6 +71,12 @@ enum MultiSubscriptionParser {
         var blocks: [[String]] = []
         var cursor = 0
         for anchorIdx in anchorLineIndices {
+            // A price-line extension may have already consumed this anchor
+            // (a line like "$14.99/renewal" matches BOTH looksLikePriceLine and
+            // an anchor regex). Skip anchors before the cursor, otherwise
+            // lines[cursor...endIdx] traps with lowerBound > upperBound.
+            // (AUDIT-v1.9.2 C-13)
+            guard anchorIdx >= cursor else { continue }
             var endIdx = anchorIdx
             let peekIdx = anchorIdx + 1
             if peekIdx < lines.count && looksLikePriceLine(lines[peekIdx]) {

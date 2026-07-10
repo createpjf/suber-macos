@@ -4,18 +4,30 @@ import XCTest
 @MainActor
 final class SubscriptionStoreTests: XCTestCase {
     var store: SubscriptionStore!
+    private var tempStoreDir: URL!
+    private var tempBackupDir: URL!
 
     override func setUp() {
         super.setUp()
-        // v1.6.2: clear AppGroupStore (file-based) + legacy UserDefaults
-        // so a fresh store reads empty state.
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-settings")
-        AppGroupStore.removeObject(forKey: "suber-changes")
-        let defaults = UserDefaults(suiteName: "group.com.suber.app") ?? UserDefaults.standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-settings")
+        // AUDIT-v1.9.2 C-01: sandbox ALL file I/O into fresh temp dirs.
+        // The previous setUp cleared the user's REAL App Group container
+        // (removeObject has no snapshot hook) and every save() here rotated
+        // real Backups/ snapshots — running the suite destroyed real data.
+        tempStoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-store-tests-\(UUID().uuidString)")
+        tempBackupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-backup-tests-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = tempStoreDir
+        DataBackupManager.testOverrideDirectory = tempBackupDir
         store = SubscriptionStore()
+    }
+
+    override func tearDown() {
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        if let d = tempStoreDir { try? FileManager.default.removeItem(at: d) }
+        if let d = tempBackupDir { try? FileManager.default.removeItem(at: d) }
+        super.tearDown()
     }
 
     func testAddSubscription() {

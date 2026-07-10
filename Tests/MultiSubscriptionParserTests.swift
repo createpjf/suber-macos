@@ -129,6 +129,46 @@ final class MultiSubscriptionParserTests: XCTestCase {
         XCTAssertTrue(results.isEmpty)
     }
 
+    // MARK: - Anchor/price-line overlap (AUDIT-v1.9.2 C-13)
+
+    func test_price_line_that_is_also_anchor_does_not_trap() {
+        // "$14.99/renewal" matches BOTH looksLikePriceLine and the renew
+        // anchor. Before the C-13 guard, the second anchor produced
+        // lines[3...2] — a fatal Range trap.
+        let text = """
+        Namecheap Domains
+        Renews Mar 3, 2027
+        $14.99/renewal
+        example.com
+        """
+        let results = MultiSubscriptionParser.parseMultiple(text)
+        // The consumed anchor is skipped, leaving a single block.
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results[0].amount, "14.99")
+        XCTAssertNotNil(results[0].name)
+    }
+
+    // MARK: - Amount normalization (AUDIT-v1.9.2 C-34)
+
+    func test_thousands_separator_amount_not_truncated() {
+        // "¥1,299/年" used to be captured as "1,29" then comma→dot'd to 1.29.
+        let (amount, currency) = SubscriptionTextParser.parseAmount("¥1,299/年")
+        XCTAssertEqual(amount, "1299")
+        XCTAssertEqual(currency, "CNY")
+    }
+
+    func test_thousands_with_decimal_amount() {
+        let (amount, currency) = SubscriptionTextParser.parseAmount("Total: $1,299.00")
+        XCTAssertEqual(amount, "1299.00")
+        XCTAssertEqual(currency, "USD")
+    }
+
+    func test_decimal_comma_amount_still_normalized() {
+        let (amount, currency) = SubscriptionTextParser.parseAmount("€9,99 per month")
+        XCTAssertEqual(amount, "9.99")
+        XCTAssertEqual(currency, "EUR")
+    }
+
     func test_chrome_name_without_amount_dropped() {
         // Two real anchors but the first block's only content is page chrome
         // ("Subscriptions" as inferred name, no amount). Chrome filter drops it.

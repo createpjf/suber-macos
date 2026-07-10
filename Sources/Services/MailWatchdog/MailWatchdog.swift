@@ -161,11 +161,11 @@ final class MailWatchdog: ObservableObject {
         } catch MailBridgeError.permissionDenied(_) {
             state = .permissionDenied
         } catch MailBridgeError.mailNotRunning {
-            state = .error("Mail not running — open Mail.app once, then tap Scan now.")
+            state = .error(String(localized: "Mail not running — open Mail.app once, then tap Scan now."))
         } catch MailBridgeError.timeout {
             // TCC prompt was up but timed out — user took too long, OR Mail
             // isn't responding. Either way the right next step is "try again".
-            state = .error("Connection timed out. Make sure Mail.app is open and try again.")
+            state = .error(String(localized: "Connection timed out. Make sure Mail.app is open and try again."))
         } catch {
             state = .error(humanMessage(from: error))
         }
@@ -235,12 +235,12 @@ final class MailWatchdog: ObservableObject {
             state = .permissionDenied
             throw MailBridgeError.permissionDenied(detail: nil)
         } catch MailBridgeError.mailNotRunning {
-            state = .error("Mail not running — open Mail.app once, then tap Scan now.")
+            state = .error(String(localized: "Mail not running — open Mail.app once, then tap Scan now."))
             throw MailBridgeError.mailNotRunning
         } catch MailBridgeError.timeout(let cursors) {
             // Save whatever we got. Next scan picks up from here.
             persistCursors(cursors)
-            state = .error("Scan timed out — will retry in the background.")
+            state = .error(String(localized: "Scan timed out — will retry in the background."))
             throw MailBridgeError.timeout(resumeToken: cursors)
         } catch {
             state = .error(humanMessage(from: error))
@@ -322,10 +322,10 @@ final class MailWatchdog: ObservableObject {
     private func humanMessage(from error: Error) -> String {
         if let bridge = error as? MailBridgeError {
             switch bridge {
-            case .permissionDenied: return "Suber can't access Mail. Open System Settings to allow it."
-            case .mailNotRunning:   return "Mail not running — open Mail.app once, then tap Scan now."
-            case .noAccountsConfigured: return "No Mail accounts configured."
-            case .timeout:          return "Scan timed out — will retry in the background."
+            case .permissionDenied: return String(localized: "Suber can't access Mail. Open System Settings to allow it.")
+            case .mailNotRunning:   return String(localized: "Mail not running — open Mail.app once, then tap Scan now.")
+            case .noAccountsConfigured: return String(localized: "No Mail accounts configured.")
+            case .timeout:          return String(localized: "Scan timed out — will retry in the background.")
             case .unknown(let m):   return m
             }
         }

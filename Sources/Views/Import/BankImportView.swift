@@ -65,6 +65,9 @@ struct BankImportView: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
+                // AUDIT-v1.9.2 U-10: icon-only back/close buttons need labels.
+                .accessibilityLabel(Text("Back"))
+                .help("Back")
             }
 
             Text(headerTitle)
@@ -82,6 +85,8 @@ struct BankImportView: View {
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(Text("Close"))
+            .help("Close")
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
@@ -89,11 +94,13 @@ struct BankImportView: View {
     }
 
     private var headerTitle: String {
+        // AUDIT-v1.9.2 U-03: String(localized:) — this computed String feeds
+        // Text(headerTitle), which renders verbatim without explicit lookup.
         switch stage {
-        case .formatPicker, .error: return "Import bank statement"
+        case .formatPicker, .error: return String(localized: "Import bank statement")
         case .dropZone(let f): return f.displayName
-        case .processing: return "Scanning for subscriptions…"
-        case .review: return "Review detected subscriptions"
+        case .processing: return String(localized: "Scanning for subscriptions…")
+        case .review: return String(localized: "Review detected subscriptions")
         }
     }
 
@@ -302,7 +309,7 @@ struct BankImportView: View {
         panel.allowedContentTypes = [.commaSeparatedText, .plainText]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.message = "Select a CSV statement file"
+        panel.message = String(localized: "Select a CSV statement file")
 
         if panel.runModal() == .OK, let url = panel.url {
             processFile(at: url, format: format)
@@ -312,7 +319,11 @@ struct BankImportView: View {
     private func processFile(at url: URL, format: StatementFormat) {
         stage = .processing
 
-        Task {
+        // AUDIT-v1.9.2 C-22: View is @MainActor, so a plain `Task {}` inherits
+        // main-actor isolation — the synchronous Data(contentsOf:) + CSV parse
+        // would freeze the whole UI on large statements. Detach so the heavy
+        // work runs off-main; hop back to main only for `stage` updates.
+        Task.detached(priority: .userInitiated) {
             do {
                 let data = try Data(contentsOf: url)
                 let text = try CSVParser.decode(data)
@@ -323,7 +334,7 @@ struct BankImportView: View {
                 await MainActor.run {
                     if candidates.isEmpty {
                         stage = .error(
-                            "Found \(transactions.count) transactions but no recurring charges. Make sure the CSV covers at least 2 months.",
+                            String(localized: "Found \(transactions.count) transactions but no recurring charges. Make sure the CSV covers at least 2 months."),
                             format
                         )
                     } else {

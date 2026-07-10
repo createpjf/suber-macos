@@ -17,9 +17,10 @@ enum CSVParser {
         case decodingFailed
 
         var errorDescription: String? {
+            // U-02: surfaced verbatim in BankImportView's error stage.
             switch self {
-            case .emptyFile: return "File is empty."
-            case .decodingFailed: return "Could not decode file as UTF-8."
+            case .emptyFile: return String(localized: "File is empty.")
+            case .decodingFailed: return String(localized: "Could not decode file as UTF-8.")
             }
         }
     }

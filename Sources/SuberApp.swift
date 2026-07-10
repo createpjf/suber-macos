@@ -69,7 +69,9 @@ struct SuberApp: App {
                 .environmentObject(importPresenter)
                 .environmentObject(mailWatchdog)
         }
-        .defaultSize(width: 620, height: 620)
+        // AUDIT-v1.9.2 U-19: D12 spec is default 760×520 — the old 620×620 was
+        // narrower than ChangesListView's 640 min width, clipping row-end buttons.
+        .defaultSize(width: 760, height: 520)
         .windowResizability(.contentMinSize)
     }
 
@@ -90,7 +92,9 @@ struct SuberApp: App {
         return bridges.count == 1 ? bridges[0] : CompositeMailBridge(bridges: bridges)
     }
 
-    /// Called from MenuBarContainerView.onAppear (once per app launch).
+    /// Called from MenuBarContainerView.onAppear — once per app launch,
+    /// enforced by the C-27 `didRunLaunchSetup` latch (MenuBarExtra fires
+    /// onAppear on every popover open, so "once" needs the guard).
     /// Wires the onScanComplete callback so scans route through the Sentinel
     /// loop: recordAndPersist (dedup + prune) → grouped notification → badge.
     /// Also restarts the daily scheduler if Watch is enabled.
@@ -198,8 +202,8 @@ struct SuberApp: App {
         //   3. otherwise                       → merge by id, last-write-wins
         // Plus: take a pre-merge snapshot of local data so even if the rules
         // are wrong, recovery is one Restore-UI click away.
-        CloudSyncService.shared.onRemoteChange = { [weak subscriptionStore, weak settingsStore] subsData, settingsData, changesData in
-            handleRemoteSubscriptions(subsData, store: subscriptionStore)
+        CloudSyncService.shared.onRemoteChange = { [weak subscriptionStore, weak settingsStore] subsData, settingsData, changesData, tombstonesData in
+            handleRemoteSubscriptions(subsData, tombstonesData: tombstonesData, store: subscriptionStore)
             handleRemoteSettings(settingsData, store: settingsStore)
             // SubscriptionChange log: existing path is already safe — it
             // merges by dedup hash and prunes to 200, so it can't
@@ -215,8 +219,14 @@ struct SuberApp: App {
     /// the .applied branch (or rejects/no-ops). The pre-replace snapshot lives
     /// in SubscriptionStore.replaceAll, so this method no longer snapshots
     /// directly. The rule logic itself is in `CloudSyncMerger` (pure, testable).
-    private func handleRemoteSubscriptions(_ data: Data?, store: SubscriptionStore?) {
-        guard let data, let store else { return }
+    private func handleRemoteSubscriptions(_ data: Data?, tombstonesData: Data?, store: SubscriptionStore?) {
+        guard let store else { return }
+        // AUDIT-v1.9.2 C-02: merge the peer's deletion tombstones FIRST
+        // (union + prune, persisted locally, no KVS re-push) so the merge
+        // below applies deletes instead of resurrecting them. nil/undecodable
+        // remote data (pre-tombstone peer) degrades to the local set.
+        let tombstones = DeletionTombstones.mergeRemote(tombstonesData)
+        guard let data else { return }
         guard let remote = try? JSONDecoder.suberDecoder.decode([Subscription].self, from: data) else {
             NSLog("Suber CloudSync: subs decode failed; ignoring remote update")
             return
@@ -228,14 +238,31 @@ struct SuberApp: App {
         // and churned the 10-slot rotating ring. The .rejectedAsStale / .noOp
         // paths don't mutate local, so the live file + its existing backup
         // already cover recovery.
-        switch CloudSyncMerger.mergeSubscriptions(local: local, remote: remote) {
+        switch CloudSyncMerger.mergeSubscriptions(local: local, remote: remote, tombstones: tombstones) {
         case .applied(let merged):
-            NSLog("Suber CloudSync: merge applied (local=\(local.count) remote=\(remote.count) → merged=\(merged.count))")
+            // AUDIT-v1.9.2 C-26: a no-change merge must NOT write. replaceAll
+            // burns 2 backup-ring slots + 1 KVS push-back per call, so 5 echo
+            // notifications would flush the entire 10-slot backup ring (and
+            // the push-back ping-pongs to the peer). Skip when nothing changed.
+            guard merged != local else { break }
+            NSLog("Suber CloudSync: merge applied (local=\(local.count) remote=\(remote.count) tombstones=\(tombstones.count) → merged=\(merged.count))")
             store.replaceAll(merged, reason: .cloudMerge)
+            // AUDIT-v1.9.2 U-12: surface the outcome in Settings, not just the log.
+            Task { @MainActor in
+                // U-02: String(localized:) — runtime String surfaces in the
+                // Settings iCloud row via Text(event).
+                CloudSyncUIStatus.shared.report(String(localized: "Synced \(merged.count) subscriptions"))
+            }
         case .rejectedAsStale(let l, let r):
             NSLog("Suber CloudSync: REJECTED stale remote (local=\(l) remote=\(r)). Use Settings → Data → Restore if intentional.")
-            // Future improvement: surface a non-blocking banner inviting
-            // the user to inspect via Restore UI. Logging is enough for v1.9.1.
+            // AUDIT-v1.9.2 U-12: conflict was NSLog-only — the user had no way
+            // to know the two Macs diverged. Settings iCloud section shows this.
+            Task { @MainActor in
+                CloudSyncUIStatus.shared.report(
+                    String(localized: "Sync conflict: another Mac has \(r) subscriptions, this Mac has \(l). Kept local — use Restore to inspect."),
+                    isWarning: true
+                )
+            }
         case .noOp:
             break
         }
@@ -263,27 +290,43 @@ struct SuberApp: App {
 // MARK: - Shared Decoder
 
 extension JSONDecoder {
+    // AUDIT-v1.9.2 C-29: formatters are cached statically — the old code
+    // allocated up to 3 formatters (ISO8601DateFormatter construction is
+    // expensive) inside the per-date closure, i.e. thousands of redundant
+    // allocs on the main thread when a cloud callback decodes a 200-entry
+    // change log. StorageService already had the static-cache twin fix.
+    private static let suberISOFractional: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let suberISO: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
+    private static let suberDateOnly: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        // AUDIT-v1.9.2 C-20: local midnight, NOT UTC — matches the app-wide
+        // day-granular semantics. Kept in lockstep with
+        // StorageService.dateOnlyFormatter (see rationale there).
+        f.timeZone = .current
+        return f
+    }()
+
     /// Shared decoder matching StorageService's date handling.
     static let suberDecoder: JSONDecoder = {
         let d = JSONDecoder()
         d.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let str = try container.decode(String.self)
-
-            let isoFractional = ISO8601DateFormatter()
-            isoFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            if let date = isoFractional.date(from: str) { return date }
-
-            let iso = ISO8601DateFormatter()
-            iso.formatOptions = [.withInternetDateTime]
-            if let date = iso.date(from: str) { return date }
-
-            let dateOnly = DateFormatter()
-            dateOnly.dateFormat = "yyyy-MM-dd"
-            dateOnly.locale = Locale(identifier: "en_US_POSIX")
-            dateOnly.timeZone = TimeZone(secondsFromGMT: 0)
-            if let date = dateOnly.date(from: str) { return date }
-
+            if let date = suberISOFractional.date(from: str) { return date }
+            if let date = suberISO.date(from: str) { return date }
+            if let date = suberDateOnly.date(from: str) { return date }
             throw DecodingError.dataCorruptedError(
                 in: container,
                 debugDescription: "Cannot decode date: \(str)"
@@ -323,6 +366,13 @@ private struct MenuBarContainerView: View {
     /// start/stopSync on the actual toggle transition (not every settings tweak).
     @State private var lastCloudSyncEnabled: Bool?
 
+    /// AUDIT-v1.9.2 C-27: MenuBarExtra(.window) fires onAppear on EVERY
+    /// popover open, not once per launch as the setup comments assumed —
+    /// re-running setup cancel+recreates MailWatchdog's daily scheduler and
+    /// re-piles service wiring. One-shot latch; @State survives popover
+    /// open/close because the MenuBarExtra view hierarchy stays alive.
+    @State private var didRunLaunchSetup = false
+
     /// v1.9.0 — first-launch iCloud onboarding gate. Persists in standard
     /// UserDefaults (not the App Group container) because it's a UI prompt
     /// flag, not data the widget needs. Default false → first launch shows
@@ -341,6 +391,9 @@ private struct MenuBarContainerView: View {
             .fixedSize(horizontal: false, vertical: true)
             .background(Theme.bgPrimary)
             .onAppear {
+                // AUDIT-v1.9.2 C-27: launch setup runs exactly once (see latch).
+                guard !didRunLaunchSetup else { return }
+                didRunLaunchSetup = true
                 setupCloudSync()
                 setupWatchdog()
                 lastIMAPAccountID = settingsStore.settings.autopilot.imapAccount?.id

@@ -43,39 +43,41 @@ struct CancellationSuccessBanner: View {
     // MARK: - Copy generation
 
     private var title: String {
-        let savingsPart = annualSavings > 0
-            ? " You'll save $\(annualSavings)/year."
-            : ""
-        return "\(servicesPhrase) cancelled.\(savingsPart)"
+        // AUDIT-v1.9.2 U-03: String(localized:) — computed String channel.
+        return annualSavings > 0
+            ? String(localized: "\(servicesPhrase) cancelled. You'll save $\(annualSavings)/year.")
+            : String(localized: "\(servicesPhrase) cancelled.")
     }
 
     /// Natural-language service list. Oxford comma for 3; digit for 4+.
     private var servicesPhrase: String {
         switch serviceNames.count {
+        // case 0 is unlocalized on purpose: a "Subscription" catalog key would
+        // trip LocalizationCatalogTests' H1 extractor-keyword fence, and the
+        // coordinator never emits an empty batch.
         case 0: return "Subscription"
         case 1: return "✓ \(serviceNames[0])"
-        case 2: return "✓ \(serviceNames[0]) and \(serviceNames[1])"
-        case 3: return "✓ \(serviceNames[0]), \(serviceNames[1]), and \(serviceNames[2])"
-        default: return "✓ \(serviceNames.count) subs"
+        case 2: return String(localized: "✓ \(serviceNames[0]) and \(serviceNames[1])")
+        case 3: return String(localized: "✓ \(serviceNames[0]), \(serviceNames[1]), and \(serviceNames[2])")
+        default: return String(localized: "✓ \(serviceNames.count) subs")
         }
     }
 
     /// VoiceOver-friendly variant: spells out "will save X dollars per year"
     /// so screen readers don't trip on the "$X/year" abbreviation.
     private var accessibleLabel: String {
-        let savingsPart = annualSavings > 0
-            ? " You will save \(annualSavings) dollars per year."
-            : ""
         let namesPart: String = {
             switch serviceNames.count {
-            case 0: return "Subscription"
+            case 0: return "Subscription"  // see servicesPhrase note
             case 1: return serviceNames[0]
-            case 2: return "\(serviceNames[0]) and \(serviceNames[1])"
-            case 3: return "\(serviceNames[0]), \(serviceNames[1]), and \(serviceNames[2])"
-            default: return "\(serviceNames.count) subscriptions"
+            case 2: return String(localized: "\(serviceNames[0]) and \(serviceNames[1])")
+            case 3: return String(localized: "\(serviceNames[0]), \(serviceNames[1]), and \(serviceNames[2])")
+            default: return String(localized: "\(serviceNames.count) subscriptions")
             }
         }()
-        return "\(namesPart) cancelled.\(savingsPart) Button, dismiss."
+        return annualSavings > 0
+            ? String(localized: "\(namesPart) cancelled. You will save \(annualSavings) dollars per year. Button, dismiss.")
+            : String(localized: "\(namesPart) cancelled. Button, dismiss.")
     }
 }
 

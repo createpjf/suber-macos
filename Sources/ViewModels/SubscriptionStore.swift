@@ -34,9 +34,32 @@ final class SubscriptionStore: ObservableObject {
         return changes.filter { !$0.acknowledged && $0.detectedAt >= threshold }.count
     }
 
+    /// AUDIT-v1.9.2 C-03: AppIntents (Siri/Shortcuts) append to the on-disk
+    /// list from outside this store while the menu-bar app keeps running.
+    /// Without a reload, the next save() writes the stale in-memory snapshot
+    /// and silently drops the Intent's addition. Every store mutation saves
+    /// immediately (memory == disk), so reloading here is lossless.
+    private var externalChangeObserver: NSObjectProtocol?
+
     init() {
         subscriptions = StorageService.shared.loadSubscriptions()
         changes = StorageService.shared.loadChanges()
+
+        externalChangeObserver = NotificationCenter.default.addObserver(
+            forName: .suberSubscriptionsChangedExternally, object: nil, queue: .main
+        ) { [weak self] _ in
+            // queue: .main guarantees the main thread; hop into the actor
+            // statically so the @Published mutation is isolation-checked.
+            MainActor.assumeIsolated {
+                self?.subscriptions = StorageService.shared.loadSubscriptions()
+            }
+        }
+    }
+
+    deinit {
+        if let observer = externalChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     func add(_ data: SubscriptionFormData) {
@@ -88,6 +111,21 @@ final class SubscriptionStore: ObservableObject {
 
     func delete(id: UUID) {
         subscriptions.removeAll { $0.id == id }
+        // AUDIT-v1.9.2 C-02: record a deletion tombstone so cloud merges
+        // propagate this delete to peers and Rule 3's union-by-id can never
+        // resurrect the sub here when a peer pushes its (still-containing) list.
+        DeletionTombstones.record(id)
+        save()
+    }
+
+    /// Accept an autopilot-detected price change. AUDIT-v1.9.2 C-06: the
+    /// Changes Window previously mutated `subscriptions` directly, which
+    /// never persisted — the accepted price silently rolled back on relaunch.
+    /// All mutations must flow through a store method that save()s.
+    func acceptNewPrice(id: UUID, amount: Double) {
+        guard let index = subscriptions.firstIndex(where: { $0.id == id }) else { return }
+        subscriptions[index].amount = amount
+        subscriptions[index].updatedAt = Date()
         save()
     }
 
@@ -125,9 +163,19 @@ final class SubscriptionStore: ObservableObject {
         }
 
         if reason == .cloudMerge && newCount < oldCount {
-            NSLog("Suber ⚠️ replaceAll TRIPWIRE: cloudMerge shrank \(oldCount) → \(newCount). CloudSyncMerger should have rejected this — investigate.")
+            // C-02 note: a shrink is legitimate when it comes from deletion-
+            // tombstone propagation (the preceding "CloudSync: merge applied"
+            // log line shows the tombstone count); anything else is suspect.
+            NSLog("Suber ⚠️ replaceAll TRIPWIRE: cloudMerge shrank \(oldCount) → \(newCount). Legitimate only for tombstone deletes — otherwise CloudSyncMerger should have rejected; investigate.")
         } else {
             NSLog("Suber replaceAll: \(oldCount) → \(newCount) (reason=\(reason.rawValue))")
+        }
+
+        // AUDIT-v1.9.2 C-02: a user-initiated Restore/Import deliberately
+        // brings ids back — drop matching tombstones or the next cloud merge
+        // would silently re-delete what the user just restored.
+        if reason == .userImport || reason == .userRestore {
+            DeletionTombstones.removeMatching(Set(subs.map(\.id)))
         }
 
         subscriptions = subs
@@ -285,7 +333,13 @@ final class SubscriptionStore: ObservableObject {
             // Only evaluate once the billing day in the pending window has
             // passed — too early and we'd fire "cancellationConfirmed" before
             // the charge could even have dropped.
-            let billingDue = computeBillingDue(after: setAt, billingDay: sub.billingDay)
+            // AUDIT-v1.9.2 C-05: cycle-aware (a yearly sub verifies at its
+            // anniversary month, not a synthetic monthly date; a cancel ON a
+            // billing day waits one full cycle) + 1-day grace so a scan on
+            // the billing day's early morning can't confirm before that
+            // day's charge has even had a chance to arrive.
+            let firstDue = BillingCalculator.getNextBillingDate(sub, strictlyAfter: setAt)
+            let billingDue = Calendar.current.date(byAdding: .day, value: 1, to: firstDue) ?? firstDue
             guard now >= billingDue else { continue }
 
             // A4 gate: must have a data source that covered this window.
@@ -343,27 +397,6 @@ final class SubscriptionStore: ObservableObject {
         }
     }
 
-    /// The first billing-due date at-or-after `setAt`. Used to gate the
-    /// auto-transition evaluation — we only check AFTER the expected billing
-    /// day has passed.
-    ///
-    /// Example: pending set 2026-03-10, billingDay=15 → returns 2026-03-15.
-    /// Pending set 2026-03-20, billingDay=15 → returns 2026-04-15 (next month).
-    private func computeBillingDue(after setAt: Date, billingDay: Int) -> Date {
-        let cal = Calendar.current
-        var components = cal.dateComponents([.year, .month], from: setAt)
-        components.day = billingDay
-
-        guard let thisMonth = cal.date(from: components) else { return setAt }
-
-        // If billing day in the current month is already past `setAt`, use it.
-        // Otherwise use next month's billing day.
-        if thisMonth >= setAt {
-            return thisMonth
-        }
-        return cal.date(byAdding: .month, value: 1, to: thisMonth) ?? setAt
-    }
-
     /// iCloud-merge path. Called by SuberApp's CloudSync.onRemoteChange when
     /// another device pushes a newer change log. Dedups by `dedupHash` so the
     /// "same change" detected locally and remotely doesn't double-count.
@@ -380,8 +413,14 @@ final class SubscriptionStore: ObservableObject {
         // AppGroupStore.set still triggers DataBackupManager.snapshot.
         let pruned = StorageService.prune(changes)
         changes = pruned
+        // AUDIT-v1.9.2 C-10: don't swallow the write result — a failed set
+        // means the merged log only lives in memory and is lost on restart.
         if let data = try? JSONEncoder.suberEncoder.encode(pruned) {
-            AppGroupStore.set(data, forKey: "suber-changes")
+            if !AppGroupStore.set(data, forKey: "suber-changes") {
+                NSLog("Suber ⚠️ mergeRemoteChanges: DISK WRITE FAILED — merged log lost on restart")
+            }
+        } else {
+            NSLog("Suber ⚠️ mergeRemoteChanges: encode failed — merged log not persisted")
         }
     }
 }

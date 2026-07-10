@@ -26,6 +26,10 @@ struct SettingsView: View {
     // reactive UI binding.
     @ObservedObject private var updates = UpdateService.shared
 
+    // AUDIT-v1.9.2 U-12: observe sync events so the iCloud row can show the
+    // last merge/conflict instead of a static string.
+    @ObservedObject private var syncStatus = CloudSyncUIStatus.shared
+
     private let reminderOptions = [1, 2, 3, 5, 7]
 
     var body: some View {
@@ -60,6 +64,20 @@ struct SettingsView: View {
                         .pickerStyle(.menu)
                         .tint(Theme.textSecondary)
                         .frame(width: 100)
+                    }
+
+                    // AUDIT-v1.9.2 U-11: surface rate freshness — refresh fails
+                    // silently and conversions may run on built-in approximate
+                    // rates indefinitely with no hint.
+                    if let updated = ExchangeRateService.shared.lastUpdatedAt {
+                        Text("Rates updated \(updated.formatted(.relative(presentation: .named)))")
+                            .font(AppFont.regular(11))
+                            .foregroundColor(Theme.textDim)
+                    } else {
+                        Text("Using built-in approximate rates — multi-currency totals may be off.")
+                            .font(AppFont.regular(11))
+                            .foregroundColor(Theme.warning)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
 
@@ -283,6 +301,9 @@ struct SettingsView: View {
                                 )
                         }
                         .buttonStyle(.plain)
+                        // AUDIT-v1.9.2 U-13: Esc/Return parity with the
+                        // NSAlert-backed confirms elsewhere in the app.
+                        .keyboardShortcut(.cancelAction)
 
                         Button(action: {
                             subscriptionStore.clearAll()
@@ -298,6 +319,10 @@ struct SettingsView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
+                        // AUDIT-v1.9.2 U-13 fix-up: no keyboard shortcut on the
+                        // destructive button — Apple HIG says destructive
+                        // actions must never be the Return-key default. Esc
+                        // (bound on Cancel above) is the only shortcut here.
                     }
                 }
                 .padding(24)
@@ -310,7 +335,9 @@ struct SettingsView: View {
         .alert("Import Error", isPresented: $showImportError) {
             Button("OK") {}
         } message: {
-            Text(importError ?? "Unknown error")
+            // U-03: `importError ?? "Unknown error"` is a String expression —
+            // the fallback literal must be localized explicitly.
+            Text(importError ?? String(localized: "Unknown error"))
         }
         .alert("Replace all subscriptions?",
                isPresented: $showImportConfirm,
@@ -318,9 +345,9 @@ struct SettingsView: View {
             Button("Replace", role: .destructive) { applyPendingImport() }
             Button("Cancel", role: .cancel) { pendingImport = nil }
         } message: { result in
-            Text("This will replace your current \(subscriptionStore.subscriptions.count) "
-                 + "subscriptions with \(result.subscriptions.count) from the file. "
-                 + "Your current data is backed up automatically first.")
+            // U-03: single literal (no `+` concatenation) — a concatenated
+            // expression is a String and renders verbatim, skipping the catalog.
+            Text("This will replace your current \(subscriptionStore.subscriptions.count) subscriptions with \(result.subscriptions.count) from the file. Your current data is backed up automatically first.")
         }
         // v1.6 language switch — restart prompt.
         .alert("Restart Suber to switch language?",
@@ -338,8 +365,10 @@ struct SettingsView: View {
 
     // MARK: - Helpers
 
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — section titles are
+    // literals at every call site; Text(String) skipped the catalog.
     @ViewBuilder
-    private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+    private func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(AppFont.medium(13))
@@ -355,8 +384,10 @@ struct SettingsView: View {
         Divider().background(Theme.border)
     }
 
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — same reason as
+    // section(_:) above.
     @ViewBuilder
-    private func actionButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+    private func actionButton(_ title: LocalizedStringKey, icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
@@ -415,6 +446,15 @@ struct SettingsView: View {
                      : "Off — subscriptions stay on this Mac only.")
                     .font(AppFont.regular(11))
                     .foregroundColor(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            // AUDIT-v1.9.2 U-12: last sync event (merge applied / conflict
+            // rejected) with a relative timestamp — previously NSLog-only.
+            if isOn, let event = syncStatus.lastEvent, let at = syncStatus.lastEventAt {
+                Text("\(event) · \(at.formatted(.relative(presentation: .named)))")
+                    .font(AppFont.regular(11))
+                    .foregroundColor(syncStatus.lastEventIsWarning ? Theme.warning : Theme.textDim)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -489,7 +529,18 @@ struct SettingsView: View {
         panel.nameFieldStringValue = "suber-backup-\(formatter.string(from: Date())).json"
 
         if Self.runFilePanelFromPopover(panel) == .OK, let url = panel.url {
-            try? data.write(to: url)
+            // AUDIT-v1.9.2 C-37: try? swallowed write errors (full disk,
+            // revoked iCloud Drive permission, read-only volume) — the user
+            // thought the backup succeeded when nothing was written. Reuse
+            // the import-error alert pipeline to surface the failure.
+            do {
+                try data.write(to: url)
+            } catch {
+                // U-03: runtime-built String → String(localized:) so the
+                // prefix localizes (the description is system-localized).
+                importError = String(localized: "Export failed: \(error.localizedDescription)")
+                showImportError = true
+            }
         }
     }
 

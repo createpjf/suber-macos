@@ -3,7 +3,8 @@ import XCTest
 
 /// Covers the change-log write path on SubscriptionStore:
 ///   - recordAndPersist dedup via M3 canonical-currency hash
-///   - H5 prune-on-write at 200-entry / 14-day threshold
+///   - H5 prune-on-write 200-entry hard cap (AUDIT-v1.9.2 C-30: cap only —
+///     the 14-day window is purely the unreadChangeCount badge policy)
 ///   - unreadChangeCount 14-day badge window
 ///   - markChangeAcknowledged / markAllChangesAcknowledged
 ///   - markPendingCancellation D5 idempotency
@@ -11,27 +12,28 @@ import XCTest
 final class SubscriptionStoreChangeLogTests: XCTestCase {
 
     var store: SubscriptionStore!
-    let suiteName = "group.com.suber.app"
+    private var tempStoreDir: URL!
+    private var tempBackupDir: URL!
 
     override func setUp() {
         super.setUp()
-        // v1.6.2: clear both AppGroupStore (new file-based path) and the
-        // legacy UserDefaults app-group suite (so test machines that ran
-        // an older build don't carry stale data into the new tests).
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-changes")
-        let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-changes")
+        // AUDIT-v1.9.2 C-01: sandbox ALL file I/O into fresh per-test temp
+        // dirs — the old setUp/tearDown cleared the user's REAL App Group
+        // container and recordAndPersist rotated real Backups/ snapshots.
+        tempStoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-changelog-store-\(UUID().uuidString)")
+        tempBackupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-changelog-backup-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = tempStoreDir
+        DataBackupManager.testOverrideDirectory = tempBackupDir
         store = SubscriptionStore()
     }
 
     override func tearDown() {
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-changes")
-        let defaults = UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
-        defaults.removeObject(forKey: "suber-subscriptions")
-        defaults.removeObject(forKey: "suber-changes")
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        if let d = tempStoreDir { try? FileManager.default.removeItem(at: d) }
+        if let d = tempBackupDir { try? FileManager.default.removeItem(at: d) }
         super.tearDown()
     }
 
@@ -58,9 +60,8 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
     // MARK: - H5 prune-on-write
 
     func testPruneKeepsRecent200WhenOverflowing() {
-        // 250 distinct changes across 30 minutes → 200-entry cap kicks in
-        // after the 14-day-window layer passes them all. Pass SAVE twice to
-        // exercise the prune path inside saveChanges.
+        // 250 distinct changes across 30 minutes — all recent, so this
+        // isolates the 200-entry hard cap (the only prune rule; C-30).
         var many: [SubscriptionChange] = []
         let base = Date()
         for i in 0..<250 {
@@ -107,8 +108,8 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
     }
 
     func testPruneRetainsAllEntriesWithin14Days() {
-        // 50 entries all within today → no pruning by count (under 200),
-        // no pruning by age (all < 14d).
+        // 50 entries all within today → under the 200 cap, nothing pruned
+        // (C-30: age never prunes; only the count cap does).
         var list: [SubscriptionChange] = []
         let now = Date()
         for i in 0..<50 {
@@ -127,8 +128,9 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
         let now = Date()
         let old = calendar.date(byAdding: .day, value: -30, to: now)!
 
-        // 201 recent + 1 ancient. Prune should keep the 200-most-recent, drop
-        // the ancient one (and 1 of the recent ones, since cap is 200).
+        // 202 total (201 recent + 1 ancient) → the 200-most-recent survive;
+        // the ancient one is dropped because it sorts last, not because of
+        // its age (C-30: prune is a pure hard cap).
         var list: [SubscriptionChange] = []
         for i in 0..<201 {
             list.append(SubscriptionChange(
@@ -144,7 +146,7 @@ final class SubscriptionStoreChangeLogTests: XCTestCase {
             source: .csvImport, newBaseAmount: -1
         ))
 
-        let pruned = StorageService.prune(list, now: now)
+        let pruned = StorageService.prune(list)
         // Expect none of the ancient ones, and at most 200 total.
         XCTAssertLessThanOrEqual(pruned.count, 200)
         XCTAssertFalse(pruned.contains { $0.newValue == "ancient" },
