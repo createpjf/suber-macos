@@ -12,22 +12,35 @@ import XCTest
 final class LegacyDataMigrationTests: XCTestCase {
 
     var fixturePlistURL: URL!
+    private var tempStoreDir: URL!
+    private var tempBackupDir: URL!
 
     override func setUp() async throws {
         try await super.setUp()
         LegacyDataMigration.resetForTests()
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-settings")
-        AppGroupStore.removeObject(forKey: "suber-changes")
+        // AUDIT-v1.9.2 C-01: sandbox AppGroupStore into a fresh temp dir.
+        // The old setUp/tearDown cleared the user's REAL live keys, and
+        // testNeverOverwritesExistingAppGroupStoreData wrote fixture bytes
+        // into the user's real `suber-subscriptions`.
+        // DataBackupManager must be sandboxed too: AppGroupStore.set's
+        // post-write hook snapshots the 3 critical keys, so the fixture
+        // write would otherwise rotate into the user's real Backups/.
+        tempStoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-migration-store-\(UUID().uuidString)")
+        tempBackupDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("suber-migration-backup-\(UUID().uuidString)")
+        AppGroupStore.testOverrideDirectory = tempStoreDir
+        DataBackupManager.testOverrideDirectory = tempBackupDir
         fixturePlistURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("legacy-migration-test-\(UUID().uuidString).plist")
     }
 
     override func tearDown() async throws {
         try? FileManager.default.removeItem(at: fixturePlistURL)
-        AppGroupStore.removeObject(forKey: "suber-subscriptions")
-        AppGroupStore.removeObject(forKey: "suber-settings")
-        AppGroupStore.removeObject(forKey: "suber-changes")
+        AppGroupStore.testOverrideDirectory = nil
+        DataBackupManager.testOverrideDirectory = nil
+        if let d = tempStoreDir { try? FileManager.default.removeItem(at: d) }
+        if let d = tempBackupDir { try? FileManager.default.removeItem(at: d) }
         try await super.tearDown()
     }
 
