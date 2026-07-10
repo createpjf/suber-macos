@@ -37,22 +37,28 @@ final class IMAPContinuationGuard<T>: @unchecked Sendable {
         self.continuation = continuation
     }
 
-    /// First caller wins. Subsequent calls are silent no-ops.
-    func resume(_ result: Result<T, Error>) {
+    /// First caller wins and gets `true`; subsequent calls are silent no-ops
+    /// returning `false`. AUDIT-v1.9.2 C-24: the Bool lets timeout closures
+    /// gate their side effects (e.g. cancelling a connection) on having
+    /// actually won the race, instead of firing them unconditionally.
+    @discardableResult
+    func resume(_ result: Result<T, Error>) -> Bool {
         lock.lock()
         let isFirst = !resumed
         if isFirst { resumed = true }
         lock.unlock()
-        guard isFirst else { return }
+        guard isFirst else { return false }
         switch result {
         case .success(let value): continuation.resume(returning: value)
         case .failure(let error): continuation.resume(throwing: error)
         }
+        return true
     }
 
     /// Convenience for `Void`-returning continuations.
     func resumeSuccess() where T == Void { resume(.success(())) }
 
     /// Convenience for the failure path.
-    func resume(throwing error: Error) { resume(.failure(error)) }
+    @discardableResult
+    func resume(throwing error: Error) -> Bool { resume(.failure(error)) }
 }

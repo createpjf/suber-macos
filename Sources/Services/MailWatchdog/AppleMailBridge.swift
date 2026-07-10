@@ -148,7 +148,9 @@ final class AppleMailBridge: MailBridge {
 
     // MARK: - osascript runner
 
-    private func runOSAScript(_ script: String, timeout: TimeInterval) async throws -> String {
+    /// Internal (not private) so tests can regression-check the large-output
+    /// path without driving a full scan (AUDIT-v1.9.2 C-07).
+    func runOSAScript(_ script: String, timeout: TimeInterval) async throws -> String {
         let process = Process()
         process.launchPath = "/usr/bin/osascript"
         process.arguments = ["-e", script]
@@ -164,6 +166,12 @@ final class AppleMailBridge: MailBridge {
             throw MailBridgeError.unknown("failed to launch osascript: \(error.localizedDescription)")
         }
 
+        // AUDIT-v1.9.2 C-07: drain stdout/stderr WHILE osascript runs. Reading
+        // only after exit deadlocks: once script output exceeds the ~64 KB
+        // kernel pipe buffer, osascript blocks on write and never exits.
+        let stdoutTask = Task.detached { stdoutPipe.fileHandleForReading.readDataToEndOfFile() }
+        let stderrTask = Task.detached { stderrPipe.fileHandleForReading.readDataToEndOfFile() }
+
         // Wait with timeout. If timeout fires, terminate the process and throw.
         let deadline = Date().addingTimeInterval(timeout)
         while process.isRunning {
@@ -177,8 +185,8 @@ final class AppleMailBridge: MailBridge {
         }
 
         let status = process.terminationStatus
-        let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
-        let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+        let stdoutData = await stdoutTask.value
+        let stderrData = await stderrTask.value
         let stderrStr = String(data: stderrData, encoding: .utf8) ?? ""
 
         if status != 0 {
@@ -204,10 +212,10 @@ final class AppleMailBridge: MailBridge {
     /// malformed lines (skips them; never throws for parse errors).
     func parseOutput(_ raw: String) -> [MailMessage] {
         guard !raw.isEmpty else { return [] }
-        let dateFormatter = DateFormatter()
         // Mail.app's `date received as string` returns locale-formatted dates
-        // like "Sunday, March 16, 2025 at 10:24:33 PM" — we use DateDetector
-        // as a fallback for those, ISO parser first for the modern case.
+        // like "Sunday, March 16, 2025 at 10:24:33 PM". NSDataDetector is the
+        // single, explicit parse path — the unconfigured DateFormatter that
+        // used to sit in front of it never matched (AUDIT-v1.9.2 C-25).
         let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue)
 
         return raw.components(separatedBy: Self.recordSep)
@@ -223,9 +231,7 @@ final class AppleMailBridge: MailBridge {
                 guard !id.isEmpty else { return nil }
 
                 let date: Date
-                if let parsed = dateFormatter.date(from: dateStr) {
-                    date = parsed
-                } else if let match = detector?.firstMatch(
+                if let match = detector?.firstMatch(
                     in: dateStr,
                     range: NSRange(dateStr.startIndex..., in: dateStr)
                 ), let d = match.date {

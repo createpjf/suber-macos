@@ -65,4 +65,18 @@ final class IMAPContinuationGuardTests: XCTestCase {
             guarded.resumeSuccess()  // ignored
         }
     }
+
+    /// AUDIT-v1.9.2 C-24: resume reports whether the caller won, so timeout
+    /// closures can gate side effects (like cancelling the connection) on
+    /// having actually won — not fire them unconditionally.
+    func testResumeReturnsTrueOnlyForFirstCaller() async throws {
+        let value = try await withCheckedThrowingContinuation { (c: CheckedContinuation<Int, Error>) in
+            let guarded = IMAPContinuationGuard(c)
+            XCTAssertTrue(guarded.resume(.success(1)), "First resume must report it won")
+            XCTAssertFalse(guarded.resume(.success(2)), "Second resume must report it lost")
+            XCTAssertFalse(guarded.resume(throwing: MailBridgeError.timeout(resumeToken: [:])),
+                           "Late timeout resume must report it lost")
+        }
+        XCTAssertEqual(value, 1)
+    }
 }
