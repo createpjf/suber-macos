@@ -319,7 +319,6 @@ struct SettingsView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
-                        .keyboardShortcut(.defaultAction)
                     }
                 }
                 .padding(24)

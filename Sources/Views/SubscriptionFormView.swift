@@ -328,7 +328,6 @@ struct SubscriptionFormView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
-                            .keyboardShortcut(.defaultAction)
                         }
                     }
                     .padding(20)
