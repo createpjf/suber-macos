@@ -37,8 +37,9 @@ enum PendingCancellationIndicator {
     /// actionable windows). Caller passes in the value; helper doesn't compute.
     static func daysLeftLabel(daysLeft: Int?) -> String? {
         guard let d = daysLeft, d >= 0, d <= 30 else { return nil }
-        if d == 0 { return "Today" }
-        return "\(d)d"
+        // AUDIT-v1.9.2 U-03: String(localized:) — computed String channel.
+        if d == 0 { return String(localized: "Today") }
+        return String(localized: "\(d)d")
     }
 
     /// systemOrange tinted to 0.6 alpha — the shared semantic color for the
@@ -111,7 +112,11 @@ enum PendingCancellationIndicator {
                     .font(AppFont.medium(12))
                     .foregroundColor(Theme.textPrimary)
                 if let dueDate, let daysLeft {
-                    Text("Due by \(formatDate(dueDate)) · \(daysLeft) day\(daysLeft == 1 ? "" : "s") left")
+                    // U-03: full literal per plural branch — the "%@"-suffix
+                    // hack can't be translated without leaking the "s".
+                    Text(daysLeft == 1
+                         ? "Due by \(formatDate(dueDate)) · 1 day left"
+                         : "Due by \(formatDate(dueDate)) · \(daysLeft) days left")
                         .font(AppFont.regular(11))
                         .foregroundColor(Theme.textSecondary)
                 } else {

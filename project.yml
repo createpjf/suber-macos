@@ -69,6 +69,15 @@ targets:
       # Equatable synthesis on AutopilotSettings needs the types in scope.
       - path: Sources/Services/MailWatchdog/IMAPProvider.swift
       - path: Sources/Services/MailWatchdog/IMAPAccount.swift
+      # AUDIT-v1.9.2 Q7: widget-rendered strings ("Monthly Spend", cycle
+      # labels via shared model files) are localized keys since the U-02
+      # backfill, but fell back to English because the catalog only shipped
+      # in the app bundle. Extensions resolve strings from their own bundle.
+      # NOTE: listed under `sources:` with an explicit buildPhase — xcodegen
+      # has no target-level `resources:` key (the app target picks the catalog
+      # up via its directory-tree `sources: - path: Sources` entry).
+      - path: Sources/Resources/Localizable.xcstrings
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suber.app.widget

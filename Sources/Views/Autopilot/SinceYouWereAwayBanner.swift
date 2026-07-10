@@ -81,17 +81,18 @@ struct SinceYouWereAwayBanner: View {
     /// Design review D5: "since yesterday" for daily, "since last week" /
     /// "since you last opened Suber" for longer gaps.
     private var bodyCopy: String {
-        "new changes \(bodyCopySuffix)"
+        // AUDIT-v1.9.2 U-03: String(localized:) — computed String channel.
+        String(localized: "new changes \(bodyCopySuffix)")
     }
 
     private var bodyCopySuffix: String {
-        guard let lastShownAt else { return "since yesterday" }
+        guard let lastShownAt else { return String(localized: "since yesterday") }
         let daysSince = Calendar.current.dateComponents(
             [.day], from: lastShownAt, to: Date()
         ).day ?? 0
-        if daysSince <= 1 { return "since yesterday" }
-        if daysSince <= 7 { return "since last week" }
-        return "since you last opened Suber"
+        if daysSince <= 1 { return String(localized: "since yesterday") }
+        if daysSince <= 7 { return String(localized: "since last week") }
+        return String(localized: "since you last opened Suber")
     }
 }
 

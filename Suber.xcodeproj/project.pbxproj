@@ -36,6 +36,7 @@
 		39AC5740F10BC80F19C9FA5B /* DataRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB0C504B0DEFA93D80E9D3E /* DataRestoreView.swift */; };
 		3A2BF3BEE84D0FD7CAC4DCA8 /* MailWatchdog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3EF60CEE41FB8E2131FA2A /* MailWatchdog.swift */; };
 		3A7C1FF1C1628CBB869A4C49 /* IMAPAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B07F8DDA2C38B8775547484 /* IMAPAccount.swift */; };
+		3AF03C7A06A7D845F53B2F26 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 594CF40103D1C97D41305BD8 /* Localizable.xcstrings */; };
 		3CE50577B993B5B433259A3A /* AppGroupStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB05319D182A1924458613C /* AppGroupStore.swift */; };
 		3E6ED4C05077BFBB32B4BCEF /* EmailParseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678AF1F6B7A12245A7CFFA3F /* EmailParseView.swift */; };
 		3F94AE230B7822CA5FFCF051 /* WechatFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B6D109BF2E9C8E46FD4D9F /* WechatFormat.swift */; };
@@ -659,6 +660,7 @@
 			buildConfigurationList = 8A08930FDACBE41B0DB29430 /* Build configuration list for PBXNativeTarget "SuberWidget" */;
 			buildPhases = (
 				C3B52DBC3E5B6F71BE407928 /* Sources */,
+				A2A0E9497FFA64F49B332CA2 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -717,6 +719,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A2A0E9497FFA64F49B332CA2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AF03C7A06A7D845F53B2F26 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C456F27055D7130D06329CC7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;

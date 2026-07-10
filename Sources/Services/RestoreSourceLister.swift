@@ -58,8 +58,8 @@ struct BackupSource: Identifiable, Equatable {
     let settingsData: Data?
     let changesData: Data?
     /// Human-readable label rendered in the row ("Local backup · 12 min ago",
-    /// "iCloud · 2026-04-25 14:32", "Legacy data (v1.6.x)"). Localizable in
-    /// a future pass; v1.9.0 ships en-only.
+    /// "iCloud · 2026-04-25 14:32", "Legacy data (v1.6.x)"). Localized since
+    /// the v1.9.2 U-02 backfill (String(localized:) at every build site).
     let label: String
 }
 
@@ -105,7 +105,7 @@ enum RestoreSourceLister {
                 subscriptionsData: data,
                 settingsData: settings,
                 changesData: changes,
-                label: "Local backup · \(relativeTime(mtime))"
+                label: String(localized: "Local backup · \(relativeTime(mtime))")
             )
         }
     }
@@ -141,7 +141,9 @@ enum RestoreSourceLister {
             subscriptionsData: data,
             settingsData: settings,
             changesData: changes,
-            label: "iCloud · \(count) subscription\(count == 1 ? "" : "s")"
+            label: count == 1
+                ? String(localized: "iCloud · 1 subscription")
+                : String(localized: "iCloud · \(count) subscriptions")
         )
     }
 
@@ -174,7 +176,9 @@ enum RestoreSourceLister {
             subscriptionsData: subsData,
             settingsData: plist["suber-settings"] as? Data,
             changesData: plist["suber-changes"] as? Data,
-            label: "Legacy data (v1.6.x) · \(count) subscription\(count == 1 ? "" : "s")"
+            label: count == 1
+                ? String(localized: "Legacy data (v1.6.x) · 1 subscription")
+                : String(localized: "Legacy data (v1.6.x) · \(count) subscriptions")
         )
     }
 
@@ -202,9 +206,9 @@ enum RestoreSourceLister {
     /// with a fall-through to absolute date for older snapshots.
     private static func relativeTime(_ date: Date) -> String {
         let interval = Date().timeIntervalSince(date)
-        if interval < 60 { return "just now" }
-        if interval < 3600 { return "\(Int(interval / 60)) min ago" }
-        if interval < 86_400 { return "\(Int(interval / 3600)) hr ago" }
+        if interval < 60 { return String(localized: "just now") }
+        if interval < 3600 { return String(localized: "\(Int(interval / 60)) min ago") }
+        if interval < 86_400 { return String(localized: "\(Int(interval / 3600)) hr ago") }
         let f = DateFormatter()
         f.dateStyle = .medium
         f.timeStyle = .short

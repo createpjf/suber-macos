@@ -26,8 +26,10 @@ struct FirstCatchBanner: View {
         AutopilotBannerView(
             icon: "target",
             iconTint: .accentColor,
-            title: "Suber caught your first change.",
-            subtitle: "Tap a row to review.",
+            // U-03: AutopilotBannerView's title/subtitle are Strings (the
+            // success banner passes computed copy) — localize at this call site.
+            title: String(localized: "Suber caught your first change."),
+            subtitle: String(localized: "Tap a row to review."),
             onDismiss: onDismiss
         )
         .accessibilityElement(children: .combine)

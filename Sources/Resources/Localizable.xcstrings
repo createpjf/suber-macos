@@ -2,7 +2,6 @@
   "sourceLanguage" : "en",
   "version" : "1.0",
   "strings" : {
-
     "Let Suber watch Apple Mail for billing receipts" : {
       "comment" : "Consent modal title (D9). Highest-stakes copy in v1.6 — shown before macOS TCC prompt.",
       "localizations" : {
@@ -14,7 +13,6 @@
         }
       }
     },
-
     "So you never miss a price rise, a new sub, or a duplicate charge." : {
       "comment" : "Consent modal subtitle.",
       "localizations" : {
@@ -26,7 +24,6 @@
         }
       }
     },
-
     "Only reads receipts" : {
       "comment" : "Consent modal trust bullet 1 title.",
       "localizations" : {
@@ -38,7 +35,6 @@
         }
       }
     },
-
     "Renewals, invoices, trial endings. Suber ignores everything else." : {
       "comment" : "Consent modal trust bullet 1 body.",
       "localizations" : {
@@ -50,7 +46,6 @@
         }
       }
     },
-
     "Stays on this Mac" : {
       "comment" : "Consent modal trust bullet 2 title.",
       "localizations" : {
@@ -62,7 +57,6 @@
         }
       }
     },
-
     "Amounts and dates are saved. Nothing leaves your machine." : {
       "comment" : "Consent modal trust bullet 2 body.",
       "localizations" : {
@@ -74,7 +68,6 @@
         }
       }
     },
-
     "Turn off any time" : {
       "comment" : "Consent modal trust bullet 3 title.",
       "localizations" : {
@@ -86,7 +79,6 @@
         }
       }
     },
-
     "Settings → Autopilot. Or revoke in System Settings → Privacy → Automation." : {
       "comment" : "Consent modal trust bullet 3 body.",
       "localizations" : {
@@ -98,7 +90,6 @@
         }
       }
     },
-
     "Next, macOS will ask you to allow Suber to control Mail. Click OK in that dialog to continue." : {
       "comment" : "Consent modal footnote priming the TCC prompt.",
       "localizations" : {
@@ -110,7 +101,6 @@
         }
       }
     },
-
     "Connect Apple Mail" : {
       "comment" : "Consent modal primary button.",
       "localizations" : {
@@ -122,7 +112,6 @@
         }
       }
     },
-
     "Cancel" : {
       "comment" : "Generic cancel button.",
       "localizations" : {
@@ -134,7 +123,6 @@
         }
       }
     },
-
     "Not now" : {
       "comment" : "Cancel confirmation sheet secondary button (D10).",
       "localizations" : {
@@ -146,7 +134,6 @@
         }
       }
     },
-
     "Open cancel page" : {
       "comment" : "Cancel confirmation sheet primary button (D10). Button label matches menu action.",
       "localizations" : {
@@ -158,7 +145,6 @@
         }
       }
     },
-
     "Open cancel page…" : {
       "comment" : "Context menu / list action. Ellipsis signals 'opens a dialog'.",
       "localizations" : {
@@ -170,7 +156,6 @@
         }
       }
     },
-
     "Open cancel page again" : {
       "comment" : "DayDetail button when sub already in pendingCancellation (D5 idempotent re-open).",
       "localizations" : {
@@ -182,7 +167,6 @@
         }
       }
     },
-
     "Find cancel page…" : {
       "comment" : "Fallback when no direct URL known — opens DuckDuckGo search.",
       "localizations" : {
@@ -194,7 +178,6 @@
         }
       }
     },
-
     "Mark as cancelled" : {
       "comment" : "CancelConfirmationSheet tertiary link and A4 manual-confirm nudge.",
       "localizations" : {
@@ -206,7 +189,6 @@
         }
       }
     },
-
     "Autopilot" : {
       "comment" : "Settings section header + feature name.",
       "localizations" : {
@@ -218,7 +200,6 @@
         }
       }
     },
-
     "Apple Mail" : {
       "comment" : "Settings Autopilot group 1 header.",
       "localizations" : {
@@ -230,7 +211,6 @@
         }
       }
     },
-
     "Other email accounts" : {
       "comment" : "v1.7 Settings Autopilot group 2 header (IMAP accounts).",
       "localizations" : {
@@ -242,7 +222,6 @@
         }
       }
     },
-
     "Add IMAP account…" : {
       "comment" : "v1.7 button to open the add-IMAP-account sheet.",
       "localizations" : {
@@ -254,7 +233,6 @@
         }
       }
     },
-
     "Connect Gmail, Outlook, Yahoo, Fastmail, or any IMAP server directly. Useful when the account isn't in macOS Mail.app, or you don't run Mail.app at all. App password lives in your local Keychain." : {
       "comment" : "v1.7 IMAP section helper text.",
       "localizations" : {
@@ -266,7 +244,6 @@
         }
       }
     },
-
     "Add IMAP account" : {
       "comment" : "v1.7 IMAP add-account sheet title.",
       "localizations" : {
@@ -278,7 +255,6 @@
         }
       }
     },
-
     "Edit IMAP account" : {
       "comment" : "v1.7 IMAP edit-account sheet title.",
       "localizations" : {
@@ -290,7 +266,6 @@
         }
       }
     },
-
     "Suber connects directly via IMAP — useful when you don't run macOS Mail.app, or have an account that's not in Mail." : {
       "comment" : "v1.7 IMAP add-account sheet subtitle.",
       "localizations" : {
@@ -302,7 +277,6 @@
         }
       }
     },
-
     "Provider" : {
       "comment" : "v1.7 IMAP add-account sheet field label.",
       "localizations" : {
@@ -314,7 +288,6 @@
         }
       }
     },
-
     "Email" : {
       "comment" : "v1.7 IMAP add-account sheet field label.",
       "localizations" : {
@@ -326,7 +299,6 @@
         }
       }
     },
-
     "App password" : {
       "comment" : "v1.7 IMAP add-account sheet field label.",
       "localizations" : {
@@ -338,7 +310,6 @@
         }
       }
     },
-
     "App password (not your account password)" : {
       "comment" : "v1.7 IMAP add-account sheet password placeholder.",
       "localizations" : {
@@ -350,7 +321,6 @@
         }
       }
     },
-
     "IMAP host" : {
       "comment" : "v1.7 IMAP add-account sheet field label (Generic provider only).",
       "localizations" : {
@@ -362,7 +332,6 @@
         }
       }
     },
-
     "Port" : {
       "comment" : "v1.7 IMAP add-account sheet field label (Generic provider only).",
       "localizations" : {
@@ -374,7 +343,6 @@
         }
       }
     },
-
     "Test connection" : {
       "comment" : "v1.7 IMAP add-account sheet button — runs ping() against entered config.",
       "localizations" : {
@@ -386,7 +354,6 @@
         }
       }
     },
-
     "Testing…" : {
       "comment" : "v1.7 IMAP test-connection button label while in flight.",
       "localizations" : {
@@ -398,7 +365,6 @@
         }
       }
     },
-
     "Add account" : {
       "comment" : "v1.7 IMAP add-account sheet primary button.",
       "localizations" : {
@@ -410,7 +376,6 @@
         }
       }
     },
-
     "Save" : {
       "comment" : "v1.7 IMAP edit-account sheet primary button.",
       "localizations" : {
@@ -422,7 +387,6 @@
         }
       }
     },
-
     "Authentication failed. Check the email and app password." : {
       "comment" : "v1.7 IMAP test-connection failure: bad credentials.",
       "localizations" : {
@@ -434,7 +398,6 @@
         }
       }
     },
-
     "Connection timed out. Check the host and port." : {
       "comment" : "v1.7 IMAP test-connection failure: server unreachable.",
       "localizations" : {
@@ -446,7 +409,6 @@
         }
       }
     },
-
     "Edit" : {
       "comment" : "v1.7 IMAP account row — edit button.",
       "localizations" : {
@@ -458,7 +420,6 @@
         }
       }
     },
-
     "Remove account and delete password from Keychain" : {
       "comment" : "v1.7 IMAP account row — trash button tooltip.",
       "localizations" : {
@@ -470,7 +431,6 @@
         }
       }
     },
-
     "Alert me about" : {
       "comment" : "Settings Autopilot group 2 header.",
       "localizations" : {
@@ -482,7 +442,6 @@
         }
       }
     },
-
     "Watch Apple Mail" : {
       "comment" : "Master toggle in Settings → Autopilot.",
       "localizations" : {
@@ -494,7 +453,6 @@
         }
       }
     },
-
     "Reads billing receipts (renewals, invoices, trials) once a day. Nothing is stored except amounts and dates." : {
       "comment" : "Settings Autopilot watch-toggle helper text.",
       "localizations" : {
@@ -506,7 +464,6 @@
         }
       }
     },
-
     "Scan now" : {
       "comment" : "Settings Autopilot manual scan button.",
       "localizations" : {
@@ -518,7 +475,6 @@
         }
       }
     },
-
     "Price changes" : {
       "comment" : "Settings Autopilot alert toggle label.",
       "localizations" : {
@@ -530,7 +486,6 @@
         }
       }
     },
-
     "e.g. Netflix raised from $15.99 to $22.99" : {
       "comment" : "Settings Autopilot price-change toggle sublabel.",
       "localizations" : {
@@ -542,7 +497,6 @@
         }
       }
     },
-
     "New subscriptions" : {
       "comment" : "Settings Autopilot alert toggle label.",
       "localizations" : {
@@ -554,7 +508,6 @@
         }
       }
     },
-
     "When a receipt matches a service you don't already track" : {
       "comment" : "Settings Autopilot new-subs toggle sublabel.",
       "localizations" : {
@@ -566,7 +519,6 @@
         }
       }
     },
-
     "Duplicate charges" : {
       "comment" : "Settings Autopilot alert toggle label.",
       "localizations" : {
@@ -578,7 +530,6 @@
         }
       }
     },
-
     "When the same service charges twice in one day. Can be noisy — leave off unless you've seen duplicates." : {
       "comment" : "Settings Autopilot duplicates toggle sublabel (design review D6 default-off rationale).",
       "localizations" : {
@@ -590,7 +541,6 @@
         }
       }
     },
-
     "Suber can't access Mail." : {
       "comment" : "Settings Autopilot permission-denied banner title.",
       "localizations" : {
@@ -602,7 +552,6 @@
         }
       }
     },
-
     "Open System Settings → Privacy & Security → Automation and allow Suber to control Mail." : {
       "comment" : "Settings Autopilot permission-denied banner body.",
       "localizations" : {
@@ -614,7 +563,6 @@
         }
       }
     },
-
     "Open System Settings →" : {
       "comment" : "Settings Autopilot permission-denied banner button.",
       "localizations" : {
@@ -626,7 +574,6 @@
         }
       }
     },
-
     "Never scanned yet" : {
       "comment" : "Settings Autopilot last-scan state when enabled but no scan has run.",
       "localizations" : {
@@ -638,7 +585,6 @@
         }
       }
     },
-
     "Off" : {
       "comment" : "Settings Autopilot last-scan placeholder when feature disabled.",
       "localizations" : {
@@ -650,7 +596,6 @@
         }
       }
     },
-
     "Waiting for permission…" : {
       "comment" : "Settings Autopilot last-scan state during TCC prompt.",
       "localizations" : {
@@ -662,7 +607,6 @@
         }
       }
     },
-
     "Review" : {
       "comment" : "SinceYouWereAwayBanner primary button.",
       "localizations" : {
@@ -674,7 +618,6 @@
         }
       }
     },
-
     "Suber caught your first change." : {
       "comment" : "FirstCatchBanner title (D8 once-forever).",
       "localizations" : {
@@ -686,7 +629,6 @@
         }
       }
     },
-
     "Tap a row to review." : {
       "comment" : "FirstCatchBanner subtitle.",
       "localizations" : {
@@ -698,7 +640,6 @@
         }
       }
     },
-
     "Dismiss banner" : {
       "comment" : "Accessibility label for the ✕ button on all Autopilot banners.",
       "localizations" : {
@@ -710,7 +651,6 @@
         }
       }
     },
-
     "Autopilot is on watch." : {
       "comment" : "Changes Window first-run empty-state title (D7).",
       "localizations" : {
@@ -722,7 +662,6 @@
         }
       }
     },
-
     "Suber is scanning Apple Mail for billing receipts. You'll see price changes, new subscriptions, and duplicate charges here as they're detected." : {
       "comment" : "Changes Window first-run empty-state body.",
       "localizations" : {
@@ -734,7 +673,6 @@
         }
       }
     },
-
     "You're all caught up." : {
       "comment" : "Changes Window returning-user empty-state title (D7).",
       "localizations" : {
@@ -746,7 +684,6 @@
         }
       }
     },
-
     "Last scan found nothing new. Suber will check again tomorrow." : {
       "comment" : "Changes Window returning-user empty-state body.",
       "localizations" : {
@@ -758,7 +695,6 @@
         }
       }
     },
-
     "No changes to review" : {
       "comment" : "ChangesListView placeholder empty state.",
       "localizations" : {
@@ -770,7 +706,6 @@
         }
       }
     },
-
     "Show full history" : {
       "comment" : "ChangesListView filter toggle.",
       "localizations" : {
@@ -782,7 +717,6 @@
         }
       }
     },
-
     "Done" : {
       "comment" : "Changes Window toolbar primary action.",
       "localizations" : {
@@ -794,7 +728,6 @@
         }
       }
     },
-
     "Ignore" : {
       "comment" : "ChangeRowView dismiss action.",
       "localizations" : {
@@ -806,7 +739,6 @@
         }
       }
     },
-
     "Accept" : {
       "comment" : "ChangeRowView accept-new-price action.",
       "localizations" : {
@@ -818,7 +750,6 @@
         }
       }
     },
-
     "Add subscription" : {
       "comment" : "ChangeRowView newCharge primary action.",
       "localizations" : {
@@ -830,7 +761,6 @@
         }
       }
     },
-
     "Dismiss" : {
       "comment" : "ChangeRowView duplicate row action.",
       "localizations" : {
@@ -842,7 +772,6 @@
         }
       }
     },
-
     "Keep" : {
       "comment" : "ChangeRowView trialExpiring secondary action.",
       "localizations" : {
@@ -854,7 +783,6 @@
         }
       }
     },
-
     "Try again" : {
       "comment" : "ChangeRowView cancellationFailed primary action.",
       "localizations" : {
@@ -866,7 +794,6 @@
         }
       }
     },
-
     "Mark cancelled manually" : {
       "comment" : "ChangeRowView cancellationFailed secondary action.",
       "localizations" : {
@@ -878,7 +805,6 @@
         }
       }
     },
-
     "Possible duplicate charge" : {
       "comment" : "ChangeRowView duplicate row title.",
       "localizations" : {
@@ -890,7 +816,6 @@
         }
       }
     },
-
     "Pending cancel" : {
       "comment" : "PendingCancellationIndicator label.",
       "localizations" : {
@@ -902,7 +827,6 @@
         }
       }
     },
-
     "Pending cancellation" : {
       "comment" : "PendingCancellationIndicator detail-tier title.",
       "localizations" : {
@@ -914,7 +838,6 @@
         }
       }
     },
-
     "Suber is watching for the next charge." : {
       "comment" : "PendingCancellationIndicator detail-tier body when due-date unknown.",
       "localizations" : {
@@ -926,7 +849,6 @@
         }
       }
     },
-
     "Made by %@ · github.com/createpjf/suber-macos" : {
       "comment" : "Consent modal developer attribution. %@ = developer name (never translated).",
       "localizations" : {
@@ -938,7 +860,6 @@
         }
       }
     },
-
     "Open %@'s cancel page" : {
       "comment" : "CancelConfirmationSheet title. %@ = service name (Netflix, Spotify, etc.).",
       "localizations" : {
@@ -950,7 +871,6 @@
         }
       }
     },
-
     "Suber will open %@'s cancellation page in your browser. You'll cancel there. Suber will check next month and confirm when the charges stop." : {
       "comment" : "CancelConfirmationSheet body with data source. %@ = service name.",
       "localizations" : {
@@ -962,7 +882,6 @@
         }
       }
     },
-
     "Suber will open %@'s cancellation page in your browser. You'll cancel there. Suber can't verify automatically — tap Mark as cancelled below when you're done." : {
       "comment" : "CancelConfirmationSheet body A4 no-data-source variant. %@ = service name.",
       "localizations" : {
@@ -974,7 +893,6 @@
         }
       }
     },
-
     "Already cancelled on %@?" : {
       "comment" : "CancelConfirmationSheet tertiary prompt. %@ = service name.",
       "localizations" : {
@@ -986,7 +904,6 @@
         }
       }
     },
-
     "Mark %@ as cancelled?" : {
       "comment" : "CancelConfirmationSheet two-step manual-mark confirm alert. %@ = service name.",
       "localizations" : {
@@ -998,7 +915,6 @@
         }
       }
     },
-
     "Suber will stop tracking charges for %@. If you haven't actually cancelled, you'll see the next bill on your card and can undo this." : {
       "comment" : "CancelConfirmationSheet manual-mark alert body. %@ = service name.",
       "localizations" : {
@@ -1010,7 +926,6 @@
         }
       }
     },
-
     "Language" : {
       "comment" : "Settings section header for in-app language override.",
       "localizations" : {
@@ -1022,7 +937,6 @@
         }
       }
     },
-
     "App language" : {
       "comment" : "Language picker label.",
       "localizations" : {
@@ -1034,7 +948,6 @@
         }
       }
     },
-
     "System default" : {
       "comment" : "Language picker option — follow macOS Preferred Languages.",
       "localizations" : {
@@ -1046,7 +959,6 @@
         }
       }
     },
-
     "Suber follows your macOS language by default. Override here to force English or 简体中文." : {
       "comment" : "Language picker helper text.",
       "localizations" : {
@@ -1058,7 +970,6 @@
         }
       }
     },
-
     "Restart Suber to switch language?" : {
       "comment" : "Language change confirm-restart alert title.",
       "localizations" : {
@@ -1070,7 +981,6 @@
         }
       }
     },
-
     "Already-rendered text won't change until Suber restarts. The new language takes effect across the whole app on the next launch." : {
       "comment" : "Language change confirm-restart alert body.",
       "localizations" : {
@@ -1082,7 +992,6 @@
         }
       }
     },
-
     "Restart now" : {
       "comment" : "Language change confirm-restart alert primary button.",
       "localizations" : {
@@ -1094,7 +1003,6 @@
         }
       }
     },
-
     "Later" : {
       "comment" : "Language change confirm-restart alert dismiss button.",
       "localizations" : {
@@ -1106,7 +1014,6 @@
         }
       }
     },
-
     "Look for the macOS permission dialog and click OK." : {
       "comment" : "Settings → Autopilot status while TCC prompt is up. Replaces the previous opaque 'Waiting for permission…' copy that left users staring at a blank label while macOS blocked osascript.",
       "localizations" : {
@@ -1118,7 +1025,6 @@
         }
       }
     },
-
     "Connection timed out. Make sure Mail.app is open and try again." : {
       "comment" : "Watchdog state error after probe times out (TCC prompt sat unattended too long, or Mail not responding).",
       "localizations" : {
@@ -1130,7 +1036,6 @@
         }
       }
     },
-
     "Mail not running — open Mail.app once, then tap Scan now." : {
       "comment" : "Watchdog state error when Mail.app isn't reachable.",
       "localizations" : {
@@ -1142,7 +1047,6 @@
         }
       }
     },
-
     "Suber — no unread changes" : {
       "comment" : "Menu-bar icon VoiceOver label when unreadChangeCount == 0.",
       "localizations" : {
@@ -1154,7 +1058,6 @@
         }
       }
     },
-
     "Suber — 1 unread change" : {
       "comment" : "Menu-bar icon VoiceOver label — singular.",
       "localizations" : {
@@ -1166,7 +1069,6 @@
         }
       }
     },
-
     "Suber — %lld unread changes" : {
       "comment" : "Menu-bar icon VoiceOver label — plural. %lld is the unread count.",
       "localizations" : {
@@ -1178,7 +1080,6 @@
         }
       }
     },
-
     "Learn what Suber reads and how to revoke access →" : {
       "comment" : "Settings Autopilot footer link.",
       "localizations" : {
@@ -1186,6 +1087,3504 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "了解 Suber 会读取什么,以及如何撤销访问 →"
+          }
+        }
+      }
+    },
+    "Show calendar" : {
+      "comment" : "TopBarView icon-only toggle (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示日历"
+          }
+        }
+      }
+    },
+    "Show list" : {
+      "comment" : "TopBarView icon-only toggle (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示列表"
+          }
+        }
+      }
+    },
+    "Dashboard" : {
+      "comment" : "TopBarView dashboard button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "统计"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "comment" : "TopBarView settings button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
+    "All" : {
+      "comment" : "FilterBarView status chip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
+    "Active" : {
+      "comment" : "Status name — filter chip, Dashboard badge, form Status menu.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活跃"
+          }
+        }
+      }
+    },
+    "Paused" : {
+      "comment" : "Status name — filter chip, Dashboard badge, form Status menu.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已暂停"
+          }
+        }
+      }
+    },
+    "Trial" : {
+      "comment" : "Status name — filter chip, Dashboard badge, form Status menu.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试用"
+          }
+        }
+      }
+    },
+    "Cancelled" : {
+      "comment" : "Status name — filter chip, form Status menu.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已取消"
+          }
+        }
+      }
+    },
+    "iCloud Sync" : {
+      "comment" : "Settings section title (v1.9.0 top slot).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 同步"
+          }
+        }
+      }
+    },
+    "Currency" : {
+      "comment" : "Settings section title + form field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "货币"
+          }
+        }
+      }
+    },
+    "Notifications" : {
+      "comment" : "Settings section title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
+    "General" : {
+      "comment" : "Settings section title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通用"
+          }
+        }
+      }
+    },
+    "Data" : {
+      "comment" : "Settings section title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据"
+          }
+        }
+      }
+    },
+    "Update" : {
+      "comment" : "Settings section title (Sparkle).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新"
+          }
+        }
+      }
+    },
+    "Primary currency" : {
+      "comment" : "Settings currency row label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主货币"
+          }
+        }
+      }
+    },
+    "Rates updated %@" : {
+      "comment" : "Settings currency row — %@ is a relative timestamp (U-11).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "汇率更新于%@"
+          }
+        }
+      }
+    },
+    "Using built-in approximate rates — multi-currency totals may be off." : {
+      "comment" : "Settings currency row warning when live rates never fetched (U-11).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在使用内置近似汇率 —— 多货币合计可能不准确。"
+          }
+        }
+      }
+    },
+    "Enable notifications" : {
+      "comment" : "Settings notifications toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用通知"
+          }
+        }
+      }
+    },
+    "Remind before" : {
+      "comment" : "Settings reminder-days label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提前提醒"
+          }
+        }
+      }
+    },
+    "%lldd" : {
+      "comment" : "Compact day chip: reminder-day buttons + pending-cancel tile badge. %lld = days.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 天"
+          }
+        }
+      }
+    },
+    "Launch at login" : {
+      "comment" : "Settings general toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录时启动"
+          }
+        }
+      }
+    },
+    "iCloud sync" : {
+      "comment" : "Settings iCloud toggle row label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 同步"
+          }
+        }
+      }
+    },
+    "On — subscriptions sync to your iCloud account." : {
+      "comment" : "Settings iCloud status line (on).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已开启 —— 订阅会同步到你的 iCloud 账户。"
+          }
+        }
+      }
+    },
+    "Off — subscriptions stay on this Mac only." : {
+      "comment" : "Settings iCloud status line (off).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已关闭 —— 订阅只保存在这台 Mac 上。"
+          }
+        }
+      }
+    },
+    "Export JSON" : {
+      "comment" : "Settings data action button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出 JSON"
+          }
+        }
+      }
+    },
+    "Import JSON" : {
+      "comment" : "Settings data action button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入 JSON"
+          }
+        }
+      }
+    },
+    "Import from bank statement…" : {
+      "comment" : "Settings data action button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从银行账单导入…"
+          }
+        }
+      }
+    },
+    "Restore from backup…" : {
+      "comment" : "Settings data action button (v1.9.0 restore flow).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从备份恢复…"
+          }
+        }
+      }
+    },
+    "Clear all data" : {
+      "comment" : "Settings destructive action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除所有数据"
+          }
+        }
+      }
+    },
+    "Clear All Data?" : {
+      "comment" : "Clear-all confirmation dialog title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除所有数据?"
+          }
+        }
+      }
+    },
+    "This will permanently delete all subscriptions and reset settings." : {
+      "comment" : "Clear-all confirmation body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这将永久删除所有订阅并重置设置。"
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "comment" : "Clear-all confirm button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除"
+          }
+        }
+      }
+    },
+    "Import Error" : {
+      "comment" : "JSON import error alert title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入出错"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Generic OK button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
+      }
+    },
+    "Unknown error" : {
+      "comment" : "Import error fallback message.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知错误"
+          }
+        }
+      }
+    },
+    "Export failed: %@" : {
+      "comment" : "Export write failure (C-37). %@ = system error description.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出失败:%@"
+          }
+        }
+      }
+    },
+    "Replace all subscriptions?" : {
+      "comment" : "JSON import confirm title (v1.9.2).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "替换所有订阅?"
+          }
+        }
+      }
+    },
+    "Replace" : {
+      "comment" : "JSON import confirm destructive button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "替换"
+          }
+        }
+      }
+    },
+    "This will replace your current %lld subscriptions with %lld from the file. Your current data is backed up automatically first." : {
+      "comment" : "JSON import confirm body. Args: current count, file count.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这将用文件中的 %2$lld 个订阅替换你当前的 %1$lld 个订阅。当前数据会先自动备份。"
+          }
+        }
+      }
+    },
+    "About" : {
+      "comment" : "Settings footer heading.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于"
+          }
+        }
+      }
+    },
+    "Suber %@" : {
+      "comment" : "App name + version line (language-neutral, kept for catalog completeness). %@ = version.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber %@"
+          }
+        }
+      }
+    },
+    "Website" : {
+      "comment" : "GitHub link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网站"
+          }
+        }
+      }
+    },
+    "Quit Suber" : {
+      "comment" : "Quit button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出 Suber"
+          }
+        }
+      }
+    },
+    "Check for updates" : {
+      "comment" : "Sparkle update trigger button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查更新"
+          }
+        }
+      }
+    },
+    "Automatically check for updates" : {
+      "comment" : "Sparkle auto-check toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动检查更新"
+          }
+        }
+      }
+    },
+    "Last checked: %@" : {
+      "comment" : "Sparkle last-checked line. %@ = formatted date.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次检查:%@"
+          }
+        }
+      }
+    },
+    "Scanning…" : {
+      "comment" : "Autopilot last-scan line while a scan runs.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描中…"
+          }
+        }
+      }
+    },
+    "Scanning… %lld messages" : {
+      "comment" : "Autopilot last-scan line with progress. %lld = messages seen.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描中… 已读 %lld 封邮件"
+          }
+        }
+      }
+    },
+    "Last scan: %@" : {
+      "comment" : "Autopilot last-scan line. %@ = relative time.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次扫描:%@"
+          }
+        }
+      }
+    },
+    "Last scan: %@ · found 1 change" : {
+      "comment" : "Autopilot last-scan line, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次扫描:%@ · 发现 1 条变化"
+          }
+        }
+      }
+    },
+    "Last scan: %@ · found %lld changes" : {
+      "comment" : "Autopilot last-scan line, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次扫描:%1$@ · 发现 %2$lld 条变化"
+          }
+        }
+      }
+    },
+    "Remove %@?" : {
+      "comment" : "IMAP account remove confirm title (U-01). %@ = account display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除 %@?"
+          }
+        }
+      }
+    },
+    "Remove account" : {
+      "comment" : "IMAP account remove confirm destructive button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除账号"
+          }
+        }
+      }
+    },
+    "The app password will be deleted from your Keychain. Providers don't show app passwords again — you'll need to generate a new one to reconnect." : {
+      "comment" : "IMAP account remove confirm body (U-01).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 密码将从你的 Keychain 中删除。服务商不会再次显示 App 密码 —— 重新连接时需要生成一个新的。"
+          }
+        }
+      }
+    },
+    "Edit subscription" : {
+      "comment" : "Form header (edit mode).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑订阅"
+          }
+        }
+      }
+    },
+    "Parse billing email text" : {
+      "comment" : "Form header icon button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "粘贴账单邮件文本进行识别"
+          }
+        }
+      }
+    },
+    "Scan image to auto-fill" : {
+      "comment" : "Form header icon button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描图片自动填写"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "comment" : "Generic close button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "Service" : {
+      "comment" : "Form field label + email-parse result row.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务"
+          }
+        }
+      }
+    },
+    "Netflix, Spotify..." : {
+      "comment" : "Service name placeholder.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netflix、Spotify…"
+          }
+        }
+      }
+    },
+    "Domain" : {
+      "comment" : "Form field label + email-parse result row.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "域名"
+          }
+        }
+      }
+    },
+    "Price" : {
+      "comment" : "Form field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "价格"
+          }
+        }
+      }
+    },
+    "Decrease price" : {
+      "comment" : "Price stepper button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调低价格"
+          }
+        }
+      }
+    },
+    "Increase price" : {
+      "comment" : "Price stepper button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调高价格"
+          }
+        }
+      }
+    },
+    "Interval" : {
+      "comment" : "Form billing-cycle menu label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "周期"
+          }
+        }
+      }
+    },
+    "Start date" : {
+      "comment" : "Form date field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始日期"
+          }
+        }
+      }
+    },
+    "Trial end" : {
+      "comment" : "Form trial-end date field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试用截止"
+          }
+        }
+      }
+    },
+    "Billing day" : {
+      "comment" : "Form billing-day menu label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扣费日"
+          }
+        }
+      }
+    },
+    "Category" : {
+      "comment" : "Form category menu label + email-parse result row.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "comment" : "Form status menu label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "状态"
+          }
+        }
+      }
+    },
+    "Notes" : {
+      "comment" : "Form notes field label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备注"
+          }
+        }
+      }
+    },
+    "Optional notes..." : {
+      "comment" : "Notes placeholder.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备注(选填)…"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "comment" : "Form delete button + delete-confirm destructive button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除"
+          }
+        }
+      }
+    },
+    "Delete Subscription" : {
+      "comment" : "Delete confirmation overlay title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除订阅"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete this subscription?" : {
+      "comment" : "Delete confirmation body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确定要删除这个订阅吗?"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "comment" : "Days-until label + date-picker shortcut + widget.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
+          }
+        }
+      }
+    },
+    "Tomorrow" : {
+      "comment" : "Days-until label + widget.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "明天"
+          }
+        }
+      }
+    },
+    "in %lldd" : {
+      "comment" : "Compact days-until label. %lld = days.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 天后"
+          }
+        }
+      }
+    },
+    "Edit…" : {
+      "comment" : "Card context-menu edit entry (U-16).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑…"
+          }
+        }
+      }
+    },
+    "MON" : {
+      "comment" : "Calendar weekday strip, Monday-first.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一"
+          }
+        }
+      }
+    },
+    "TUE" : {
+      "comment" : "Calendar weekday strip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二"
+          }
+        }
+      }
+    },
+    "WED" : {
+      "comment" : "Calendar weekday strip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "三"
+          }
+        }
+      }
+    },
+    "THU" : {
+      "comment" : "Calendar weekday strip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "四"
+          }
+        }
+      }
+    },
+    "FRI" : {
+      "comment" : "Calendar weekday strip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "五"
+          }
+        }
+      }
+    },
+    "SAT" : {
+      "comment" : "Calendar weekday strip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "六"
+          }
+        }
+      }
+    },
+    "SUN" : {
+      "comment" : "Calendar weekday strip.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日"
+          }
+        }
+      }
+    },
+    "Monthly spend" : {
+      "comment" : "Calendar header total label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月支出"
+          }
+        }
+      }
+    },
+    "Previous month" : {
+      "comment" : "Calendar month nav (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上个月"
+          }
+        }
+      }
+    },
+    "Next month" : {
+      "comment" : "Calendar month nav (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下个月"
+          }
+        }
+      }
+    },
+    "No subscriptions yet" : {
+      "comment" : "Empty state — calendar, list, dashboard.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有订阅"
+          }
+        }
+      }
+    },
+    "or press ⌘N" : {
+      "comment" : "Calendar empty-state keyboard hint (U-15).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或按 ⌘N"
+          }
+        }
+      }
+    },
+    "Next Billing" : {
+      "comment" : "Sort menu option.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下次扣费"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "comment" : "Sort menu option + import-review name placeholder.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名称"
+          }
+        }
+      }
+    },
+    "Amount" : {
+      "comment" : "Sort menu option + email-parse result row.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金额"
+          }
+        }
+      }
+    },
+    "Date Added" : {
+      "comment" : "Sort menu option.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加时间"
+          }
+        }
+      }
+    },
+    "No matching subscriptions" : {
+      "comment" : "List search/filter empty state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有匹配的订阅"
+          }
+        }
+      }
+    },
+    "Tap + to add your first one" : {
+      "comment" : "List first-run empty-state hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击 + 添加你的第一个订阅"
+          }
+        }
+      }
+    },
+    "Search subscriptions..." : {
+      "comment" : "Search bar placeholder.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索订阅…"
+          }
+        }
+      }
+    },
+    "Clear search" : {
+      "comment" : "Search bar clear button (VoiceOver + tooltip).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除搜索"
+          }
+        }
+      }
+    },
+    "Add your first subscription to see monthly spend, trends, and category breakdown here." : {
+      "comment" : "Dashboard empty-state body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加第一个订阅后,这里会显示每月支出、趋势和分类占比。"
+          }
+        }
+      }
+    },
+    "or import a bank statement" : {
+      "comment" : "Dashboard empty-state secondary CTA.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或导入一份银行账单"
+          }
+        }
+      }
+    },
+    "per month · %@/yr" : {
+      "comment" : "Dashboard spend subline. %@ = yearly total.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月 · %@/年"
+          }
+        }
+      }
+    },
+    "Monthly trend" : {
+      "comment" : "Dashboard section title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度趋势"
+          }
+        }
+      }
+    },
+    "No spend yet" : {
+      "comment" : "Dashboard trend empty state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无支出"
+          }
+        }
+      }
+    },
+    "Categories" : {
+      "comment" : "Dashboard section title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类"
+          }
+        }
+      }
+    },
+    "No active subscriptions" : {
+      "comment" : "Dashboard category/top-5 empty state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有活跃的订阅"
+          }
+        }
+      }
+    },
+    "Top subscriptions" : {
+      "comment" : "Dashboard section title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出最高的订阅"
+          }
+        }
+      }
+    },
+    "%@/mo" : {
+      "comment" : "Per-month price suffix (dashboard top-5, medium widget).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/月"
+          }
+        }
+      }
+    },
+    "Paste billing email" : {
+      "comment" : "Email parse overlay title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "粘贴账单邮件"
+          }
+        }
+      }
+    },
+    "Paste your billing email or receipt text here..." : {
+      "comment" : "Email parse text editor placeholder.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把账单邮件或收据文本粘贴到这里…"
+          }
+        }
+      }
+    },
+    "Parse" : {
+      "comment" : "Email parse action button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "识别"
+          }
+        }
+      }
+    },
+    "Cycle" : {
+      "comment" : "Email-parse result row label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "周期"
+          }
+        }
+      }
+    },
+    "Could not extract subscription details. Try pasting more text." : {
+      "comment" : "Email parse failure hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法从文本中提取订阅信息。试试粘贴更多内容。"
+          }
+        }
+      }
+    },
+    "Back" : {
+      "comment" : "Back button (email parse + bank import).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
+    "Apply" : {
+      "comment" : "Email parse apply button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用"
+          }
+        }
+      }
+    },
+    "Scan subscription" : {
+      "comment" : "Image drop overlay title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描订阅"
+          }
+        }
+      }
+    },
+    "Drop image here or ⌘V to paste" : {
+      "comment" : "Drop zone prompt.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把图片拖到这里,或按 ⌘V 粘贴"
+          }
+        }
+      }
+    },
+    "or" : {
+      "comment" : "Divider between drop zone and file picker.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或"
+          }
+        }
+      }
+    },
+    "Choose image file" : {
+      "comment" : "Image file picker button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择图片文件"
+          }
+        }
+      }
+    },
+    "Tip: Screenshot a billing email, then ⌘V here" : {
+      "comment" : "Image drop hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "小技巧:截图账单邮件,然后在这里按 ⌘V"
+          }
+        }
+      }
+    },
+    "Recognizing text..." : {
+      "comment" : "OCR progress label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在识别文字…"
+          }
+        }
+      }
+    },
+    "No image found on clipboard.\nCopy a screenshot first (⌘⇧4)." : {
+      "comment" : "Paste-without-image error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "剪贴板里没有图片。\n请先截一张图(⌘⇧4)。"
+          }
+        }
+      }
+    },
+    "Select a subscription screenshot or receipt" : {
+      "comment" : "Image open-panel message.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一张订阅截图或收据"
+          }
+        }
+      }
+    },
+    "No text found in image.\nTry a clearer screenshot." : {
+      "comment" : "OCR empty-result error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图片中没有识别到文字。\n试试更清晰的截图。"
+          }
+        }
+      }
+    },
+    "Image quality is too low.\nTry a higher resolution screenshot." : {
+      "comment" : "OCR low-confidence error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图片清晰度太低。\n试试分辨率更高的截图。"
+          }
+        }
+      }
+    },
+    "Found %lld subscriptions" : {
+      "comment" : "OCR multi-parse summary. %lld = count.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "识别到 %lld 个订阅"
+          }
+        }
+      }
+    },
+    "Partial data recognized" : {
+      "comment" : "OCR partial-parse summary.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "识别到部分信息"
+          }
+        }
+      }
+    },
+    "Found: %@" : {
+      "comment" : "OCR single-parse summary. %@ = joined name/price parts.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "识别到:%@"
+          }
+        }
+      }
+    },
+    "Import bank statement" : {
+      "comment" : "Bank import header (format picker / error stages).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入银行账单"
+          }
+        }
+      }
+    },
+    "Scanning for subscriptions…" : {
+      "comment" : "Bank import header (processing stage).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在扫描订阅…"
+          }
+        }
+      }
+    },
+    "Review detected subscriptions" : {
+      "comment" : "Bank import header (review stage).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认检测到的订阅"
+          }
+        }
+      }
+    },
+    "Choose your statement source" : {
+      "comment" : "Format picker heading.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择账单来源"
+          }
+        }
+      }
+    },
+    "Everything runs locally. No file leaves your Mac." : {
+      "comment" : "Bank import privacy note.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部在本地处理,文件不会离开你的 Mac。"
+          }
+        }
+      }
+    },
+    "Drop your %@ CSV here" : {
+      "comment" : "CSV drop prompt. %@ = format display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把 %@ 的 CSV 拖到这里"
+          }
+        }
+      }
+    },
+    "Choose CSV file" : {
+      "comment" : "CSV file picker button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择 CSV 文件"
+          }
+        }
+      }
+    },
+    "Scanning for recurring charges…" : {
+      "comment" : "CSV processing label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在扫描周期性扣费…"
+          }
+        }
+      }
+    },
+    "Pick a different format" : {
+      "comment" : "Bank import error action.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "换一种格式"
+          }
+        }
+      }
+    },
+    "Select a CSV statement file" : {
+      "comment" : "CSV open-panel message.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一个 CSV 账单文件"
+          }
+        }
+      }
+    },
+    "Found %lld transactions but no recurring charges. Make sure the CSV covers at least 2 months." : {
+      "comment" : "CSV no-recurring error. %lld = transaction count.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取到 %lld 笔交易,但没有发现周期性扣费。请确保 CSV 至少覆盖 2 个月。"
+          }
+        }
+      }
+    },
+    "Generic CSV" : {
+      "comment" : "Statement format picker entry.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通用 CSV"
+          }
+        }
+      }
+    },
+    "Chase · Amex · Revolut · any statement with Date / Description / Amount" : {
+      "comment" : "Generic CSV format subtitle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chase · Amex · Revolut · 任何包含日期/描述/金额的账单"
+          }
+        }
+      }
+    },
+    "Couldn't find column \"%@\" in the CSV." : {
+      "comment" : "Statement parse error. %@ = column name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 CSV 中找不到列「%@」。"
+          }
+        }
+      }
+    },
+    "The CSV has no data rows." : {
+      "comment" : "Statement parse error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 中没有数据行。"
+          }
+        }
+      }
+    },
+    "Couldn't detect columns automatically. Try the format-specific option, or pick a different CSV." : {
+      "comment" : "Generic format detection error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法自动识别列。试试指定格式的选项,或换一份 CSV。"
+          }
+        }
+      }
+    },
+    "File is empty." : {
+      "comment" : "CSV parse error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件是空的。"
+          }
+        }
+      }
+    },
+    "Could not decode file as UTF-8." : {
+      "comment" : "CSV parse error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法以 UTF-8 解码文件。"
+          }
+        }
+      }
+    },
+    "Found 1 possible subscription" : {
+      "comment" : "Import review summary, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发现 1 个可能的订阅"
+          }
+        }
+      }
+    },
+    "Found %lld possible subscriptions" : {
+      "comment" : "Import review summary, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发现 %lld 个可能的订阅"
+          }
+        }
+      }
+    },
+    "Select all" : {
+      "comment" : "Import review select toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全选"
+          }
+        }
+      }
+    },
+    "Deselect all" : {
+      "comment" : "Import review select toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消全选"
+          }
+        }
+      }
+    },
+    "Hide low-confidence matches" : {
+      "comment" : "Import review low-confidence toggle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏低置信度匹配"
+          }
+        }
+      }
+    },
+    "Show 1 low-confidence match" : {
+      "comment" : "Import review low-confidence toggle, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示 1 个低置信度匹配"
+          }
+        }
+      }
+    },
+    "Show %lld low-confidence matches" : {
+      "comment" : "Import review low-confidence toggle, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示 %lld 个低置信度匹配"
+          }
+        }
+      }
+    },
+    "Add 1 subscription" : {
+      "comment" : "Import review commit button, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 1 个订阅"
+          }
+        }
+      }
+    },
+    "Add %lld subscriptions" : {
+      "comment" : "Import review commit button, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 %lld 个订阅"
+          }
+        }
+      }
+    },
+    "Add subscriptions" : {
+      "comment" : "Import review commit button, none selected.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加订阅"
+          }
+        }
+      }
+    },
+    "Already in your list" : {
+      "comment" : "Import review row subtitle for duplicates.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已在你的列表中"
+          }
+        }
+      }
+    },
+    "From screenshot · renews %@" : {
+      "comment" : "Import review row subtitle (OCR). %@ = date.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自截图 · %@ 续费"
+          }
+        }
+      }
+    },
+    "%lld charges · last %@" : {
+      "comment" : "Import review row subtitle (CSV). Args: count, date.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld 笔扣费 · 最近 %2$@"
+          }
+        }
+      }
+    },
+    "High" : {
+      "comment" : "Import review confidence badge.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高"
+          }
+        }
+      }
+    },
+    "Med" : {
+      "comment" : "Import review confidence badge.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中"
+          }
+        }
+      }
+    },
+    "Low" : {
+      "comment" : "Import review confidence badge.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低"
+          }
+        }
+      }
+    },
+    "Import Subscriptions" : {
+      "comment" : "Import window scene title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入订阅"
+          }
+        }
+      }
+    },
+    "Nothing to import right now." : {
+      "comment" : "Import window idle state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现在没有可导入的内容。"
+          }
+        }
+      }
+    },
+    "Restore from Backup" : {
+      "comment" : "Restore overlay title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从备份恢复"
+          }
+        }
+      }
+    },
+    "Available backups, newest first:" : {
+      "comment" : "Restore list heading.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可用备份,最新在前:"
+          }
+        }
+      }
+    },
+    "Restore" : {
+      "comment" : "Restore row button + confirm destructive button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复"
+          }
+        }
+      }
+    },
+    "Restore this backup?" : {
+      "comment" : "Restore confirm title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复这个备份?"
+          }
+        }
+      }
+    },
+    "This will replace your current %lld subscriptions with this backup's %lld subscriptions. Your current data will be saved as a new local backup automatically." : {
+      "comment" : "Restore confirm body. Args: current count, backup count.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这将用该备份中的 %2$lld 个订阅替换你当前的 %1$lld 个订阅。当前数据会自动另存为一份新的本地备份。"
+          }
+        }
+      }
+    },
+    "No backups found" : {
+      "comment" : "Restore empty state title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有找到备份"
+          }
+        }
+      }
+    },
+    "Local backups are created automatically when subscriptions are saved. iCloud backups require iCloud sync to be on." : {
+      "comment" : "Restore empty state body.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存订阅时会自动创建本地备份。iCloud 备份需要开启 iCloud 同步。"
+          }
+        }
+      }
+    },
+    "1 subscription" : {
+      "comment" : "Backup detail line piece, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 个订阅"
+          }
+        }
+      }
+    },
+    "%lld subscriptions" : {
+      "comment" : "Backup detail line piece / success-banner names part, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个订阅"
+          }
+        }
+      }
+    },
+    "settings included" : {
+      "comment" : "Backup detail line piece.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "包含设置"
+          }
+        }
+      }
+    },
+    "change log included" : {
+      "comment" : "Backup detail line piece.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "包含变更记录"
+          }
+        }
+      }
+    },
+    "Couldn't read this backup — try another source." : {
+      "comment" : "Restore decode-failure banner (U-08).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取这个备份 —— 试试其他来源。"
+          }
+        }
+      }
+    },
+    "Restored 1 subscription from %@." : {
+      "comment" : "Restore success banner, singular. %@ = source label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已从%@恢复 1 个订阅。"
+          }
+        }
+      }
+    },
+    "Restored %lld subscriptions from %@." : {
+      "comment" : "Restore success banner, plural. Args: count, source label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已从%2$@恢复 %1$lld 个订阅。"
+          }
+        }
+      }
+    },
+    "Local backup · %@" : {
+      "comment" : "Restore source label. %@ = relative time.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地备份 · %@"
+          }
+        }
+      }
+    },
+    "iCloud · 1 subscription" : {
+      "comment" : "Restore source label, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud · 1 个订阅"
+          }
+        }
+      }
+    },
+    "iCloud · %lld subscriptions" : {
+      "comment" : "Restore source label, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud · %lld 个订阅"
+          }
+        }
+      }
+    },
+    "Legacy data (v1.6.x) · 1 subscription" : {
+      "comment" : "Restore source label, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "旧版数据 (v1.6.x) · 1 个订阅"
+          }
+        }
+      }
+    },
+    "Legacy data (v1.6.x) · %lld subscriptions" : {
+      "comment" : "Restore source label, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "旧版数据 (v1.6.x) · %lld 个订阅"
+          }
+        }
+      }
+    },
+    "just now" : {
+      "comment" : "Relative time piece (restore source labels).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刚刚"
+          }
+        }
+      }
+    },
+    "%lld min ago" : {
+      "comment" : "Relative time piece. %lld = minutes.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 分钟前"
+          }
+        }
+      }
+    },
+    "%lld hr ago" : {
+      "comment" : "Relative time piece. %lld = hours.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 小时前"
+          }
+        }
+      }
+    },
+    "Sync your subscriptions across Macs" : {
+      "comment" : "iCloud onboarding title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在多台 Mac 之间同步你的订阅"
+          }
+        }
+      }
+    },
+    "Recommended for safety — Suber can keep a remote copy you can restore from." : {
+      "comment" : "iCloud onboarding subtitle.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为安全起见推荐开启 —— Suber 会保留一份可随时恢复的远程副本。"
+          }
+        }
+      }
+    },
+    "Stays in sync across all your Macs" : {
+      "comment" : "iCloud onboarding bullet title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你所有的 Mac 上保持同步"
+          }
+        }
+      }
+    },
+    "Add a sub on one Mac — see it on the others within seconds." : {
+      "comment" : "iCloud onboarding bullet detail.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在一台 Mac 上添加订阅,几秒内其他 Mac 就能看到。"
+          }
+        }
+      }
+    },
+    "Recovers if anything breaks" : {
+      "comment" : "iCloud onboarding bullet title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出问题也能恢复"
+          }
+        }
+      }
+    },
+    "If a future bug ever loses local data, your iCloud copy restores it." : {
+      "comment" : "iCloud onboarding bullet detail.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "万一将来某个 bug 弄丢了本地数据,iCloud 副本可以把它找回来。"
+          }
+        }
+      }
+    },
+    "Free, private, your account only" : {
+      "comment" : "iCloud onboarding bullet title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费、私密、只属于你的账户"
+          }
+        }
+      }
+    },
+    "Uses iCloud Key-Value storage. Apple syncs it; Suber's servers see nothing." : {
+      "comment" : "iCloud onboarding bullet detail.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 iCloud 键值存储。由 Apple 负责同步,Suber 的服务器看不到任何内容。"
+          }
+        }
+      }
+    },
+    "You can change this any time in Settings → iCloud Sync." : {
+      "comment" : "iCloud onboarding footnote (U-09 path).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你随时可以在「设置 → iCloud 同步」中更改。"
+          }
+        }
+      }
+    },
+    "Skip — I'll decide later" : {
+      "comment" : "iCloud onboarding skip button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过 —— 以后再说"
+          }
+        }
+      }
+    },
+    "Enable iCloud Sync" : {
+      "comment" : "iCloud onboarding primary button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启 iCloud 同步"
+          }
+        }
+      }
+    },
+    "1 change to review" : {
+      "comment" : "Changes window filter-bar summary, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 条变化待查看"
+          }
+        }
+      }
+    },
+    "%lld changes to review" : {
+      "comment" : "Changes window filter-bar summary, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 条变化待查看"
+          }
+        }
+      }
+    },
+    "%lld changes total" : {
+      "comment" : "Changes window full-history summary.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %lld 条变化"
+          }
+        }
+      }
+    },
+    "%@ price changed" : {
+      "comment" : "Price-change headline fallback. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 价格有变动"
+          }
+        }
+      }
+    },
+    "%@ raised to %@" : {
+      "comment" : "Price-rise headline. Args: service, new price.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 涨价至 %@"
+          }
+        }
+      }
+    },
+    "%@ lowered to %@" : {
+      "comment" : "Price-drop headline. Args: service, new price.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 降价至 %@"
+          }
+        }
+      }
+    },
+    "was %@ · %@ · %@" : {
+      "comment" : "Price-change support line. Args: old price, percent, annual impact.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原价 %@ · %@ · %@"
+          }
+        }
+      }
+    },
+    "+%@%lld/year" : {
+      "comment" : "Annual impact, increase. Args: currency symbol, amount.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%@%lld/年"
+          }
+        }
+      }
+    },
+    "-%@%lld/year" : {
+      "comment" : "Annual impact, decrease. Args: currency symbol, amount.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-%@%lld/年"
+          }
+        }
+      }
+    },
+    "Unknown service" : {
+      "comment" : "New-charge headline fallback name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知服务"
+          }
+        }
+      }
+    },
+    "New sub: %@" : {
+      "comment" : "New-charge headline. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新订阅:%@"
+          }
+        }
+      }
+    },
+    "%@ · detected via %@" : {
+      "comment" : "New-charge support line. Args: price, source label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · 通过%@发现"
+          }
+        }
+      }
+    },
+    "CSV import" : {
+      "comment" : "Change source label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 导入"
+          }
+        }
+      }
+    },
+    "screenshot" : {
+      "comment" : "Change source label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "截图"
+          }
+        }
+      }
+    },
+    "%@ trial ending" : {
+      "comment" : "Trial-expiring headline. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 试用即将结束"
+          }
+        }
+      }
+    },
+    "Trial ends soon" : {
+      "comment" : "Trial-expiring support fallback.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试用即将结束"
+          }
+        }
+      }
+    },
+    "✓ Cancelled: %@" : {
+      "comment" : "Cancellation-confirmed log line. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ 已取消:%@"
+          }
+        }
+      }
+    },
+    "✓ Cancelled: %@ · saved %@/year" : {
+      "comment" : "Cancellation-confirmed with savings. Args: service, amount.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ 已取消:%@ · 每年省下 %@"
+          }
+        }
+      }
+    },
+    "%@ didn't cancel — still active" : {
+      "comment" : "Cancellation-failed headline / notification. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 未取消成功 —— 仍在扣费"
+          }
+        }
+      }
+    },
+    "Charge detected after cancellation window" : {
+      "comment" : "Cancellation-failed support line.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在取消窗口期后仍检测到扣费"
+          }
+        }
+      }
+    },
+    "Due by %@ · 1 day left" : {
+      "comment" : "Pending-cancel detail banner, singular. %@ = date.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "截止 %@ · 还剩 1 天"
+          }
+        }
+      }
+    },
+    "Due by %@ · %lld days left" : {
+      "comment" : "Pending-cancel detail banner, plural. Args: date, days.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "截止 %1$@ · 还剩 %2$lld 天"
+          }
+        }
+      }
+    },
+    "%@ cancelled." : {
+      "comment" : "Success banner without savings. %@ = services phrase.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已取消。"
+          }
+        }
+      }
+    },
+    "%@ cancelled. You'll save $%lld/year." : {
+      "comment" : "Success banner with savings. Args: services phrase, amount (D11 hard-codes $).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已取消。每年将省下 $%lld。"
+          }
+        }
+      }
+    },
+    "✓ %@ and %@" : {
+      "comment" : "Two-service phrase.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ %@ 和 %@"
+          }
+        }
+      }
+    },
+    "✓ %@, %@, and %@" : {
+      "comment" : "Three-service phrase.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ %@、%@ 和 %@"
+          }
+        }
+      }
+    },
+    "✓ %lld subs" : {
+      "comment" : "4+ services phrase.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ %lld 个订阅"
+          }
+        }
+      }
+    },
+    "%@ and %@" : {
+      "comment" : "Two-item list (VoiceOver phrase + notification oxford list).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 和 %@"
+          }
+        }
+      }
+    },
+    "%@, %@, and %@" : {
+      "comment" : "Three-item list (VoiceOver phrase).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@、%@ 和 %@"
+          }
+        }
+      }
+    },
+    "%@ cancelled. Button, dismiss." : {
+      "comment" : "Success banner VoiceOver label, no savings.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已取消。按钮:关闭。"
+          }
+        }
+      }
+    },
+    "%@ cancelled. You will save %lld dollars per year. Button, dismiss." : {
+      "comment" : "Success banner VoiceOver label with savings.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已取消。每年将省下 %lld 美元。按钮:关闭。"
+          }
+        }
+      }
+    },
+    "new changes %@" : {
+      "comment" : "Away banner body. %@ = localized time suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的新变化"
+          }
+        }
+      }
+    },
+    "since yesterday" : {
+      "comment" : "Away banner time suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自昨天以来"
+          }
+        }
+      }
+    },
+    "since last week" : {
+      "comment" : "Away banner time suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自上周以来"
+          }
+        }
+      }
+    },
+    "since you last opened Suber" : {
+      "comment" : "Away banner time suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自你上次打开 Suber 以来"
+          }
+        }
+      }
+    },
+    "%lld new changes %@. Button, Review." : {
+      "comment" : "Away banner VoiceOver label. Args: count, time suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@有 %1$lld 条新变化。按钮:查看。"
+          }
+        }
+      }
+    },
+    "Suber caught your first change. Tap a row to review. Button, dismiss." : {
+      "comment" : "First-catch banner VoiceOver label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 发现了第一条变化。点击任意一条查看详情。按钮:关闭。"
+          }
+        }
+      }
+    },
+    "Connected · 1 account" : {
+      "comment" : "IMAP test success, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已连接 · 1 个账户"
+          }
+        }
+      }
+    },
+    "Connected · %lld accounts" : {
+      "comment" : "IMAP test success, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已连接 · %lld 个账户"
+          }
+        }
+      }
+    },
+    "Copy diagnostic" : {
+      "comment" : "IMAP failure block copy button (v1.8.1).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷贝诊断信息"
+          }
+        }
+      }
+    },
+    "Authentication failed. Server said: %@" : {
+      "comment" : "IMAP auth failure with raw server detail.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录失败。服务器返回:%@"
+          }
+        }
+      }
+    },
+    "Authentication failed. %@\n\nServer said: %@" : {
+      "comment" : "IMAP auth failure with friendly hint + raw server detail.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录失败。%1$@\n\n服务器返回:%2$@"
+          }
+        }
+      }
+    },
+    "Connection timed out. Check the host and port (or local proxy/VPN settings — Clash/Stash etc. often intercept imap.* domains)." : {
+      "comment" : "IMAP test timeout (v1.8.1 expanded copy).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接超时。请检查服务器地址和端口(或本机代理/VPN 设置 —— Clash/Stash 等常会拦截 imap.* 域名)。"
+          }
+        }
+      }
+    },
+    "You probably typed your account password — %@ needs an App Password (see numbered steps below the password field)." : {
+      "comment" : "IMAP friendly hint. %@ = provider name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你可能填的是账号登录密码 —— %@ 需要的是 App 密码(见密码框下方的分步说明)。"
+          }
+        }
+      }
+    },
+    "Microsoft has disabled basic authentication for this account — you must use an App Password (Outlook → Security → Advanced → App Passwords)." : {
+      "comment" : "IMAP friendly hint (Outlook basic auth).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microsoft 已为该账户禁用基本身份验证 —— 必须使用 App 密码(Outlook → 安全 → 高级 → App 密码)。"
+          }
+        }
+      }
+    },
+    "IMAP is disabled on this account. For Gmail: enable at mail.google.com → Settings → Forwarding and POP/IMAP. For Workspace: ask your admin to enable it in Admin Console." : {
+      "comment" : "IMAP friendly hint (IMAP disabled).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该账户未启用 IMAP。Gmail:在 mail.google.com → 设置 → 转发和 POP/IMAP 中启用。Workspace:请管理员在管理控制台中启用。"
+          }
+        }
+      }
+    },
+    "Gmail thinks this account needs a security check. Open mail.google.com in a browser, sign in, then try here again." : {
+      "comment" : "IMAP friendly hint (web login required).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gmail 认为该账户需要安全验证。请在浏览器中打开 mail.google.com 登录一次,然后回到这里重试。"
+          }
+        }
+      }
+    },
+    "IMAP login is disabled for this account — enable in your provider's web settings, or check with your admin." : {
+      "comment" : "IMAP friendly hint (LOGINDISABLED).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该账户的 IMAP 登录已被禁用 —— 请在服务商的网页设置中启用,或联系管理员。"
+          }
+        }
+      }
+    },
+    "Other (IMAP)" : {
+      "comment" : "Provider picker generic entry.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他(IMAP)"
+          }
+        }
+      }
+    },
+    "Enable IMAP" : {
+      "comment" : "Gmail quick link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用 IMAP"
+          }
+        }
+      }
+    },
+    "Create App Password" : {
+      "comment" : "Gmail quick link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建 App 密码"
+          }
+        }
+      }
+    },
+    "Apple ID Sign-In and Security" : {
+      "comment" : "iCloud quick link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple ID 登录与安全"
+          }
+        }
+      }
+    },
+    "Microsoft Account Security" : {
+      "comment" : "Outlook quick link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microsoft 账户安全"
+          }
+        }
+      }
+    },
+    "Yahoo Account Security" : {
+      "comment" : "Yahoo quick link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yahoo 账户安全"
+          }
+        }
+      }
+    },
+    "Fastmail App Passwords" : {
+      "comment" : "Fastmail quick link button.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fastmail App 密码"
+          }
+        }
+      }
+    },
+    "Gmail (@gmail.com / Google Workspace) requires:\n1. Enable IMAP at mail.google.com → Settings ⚙ → See all settings → Forwarding and POP/IMAP → IMAP access: Enable\n2. Enable 2-Step Verification at myaccount.google.com → Security\n3. Create App Password at myaccount.google.com/apppasswords (select 'Mail')\n4. Paste the 16-char App Password here, NOT your Gmail login password\n\nGoogle Workspace: your admin may have disabled IMAP org-wide. Ask them to enable it in Admin Console." : {
+      "comment" : "Gmail multi-step setup hint (v1.8.1).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gmail(@gmail.com / Google Workspace)需要:\n1. 在 mail.google.com → 设置 ⚙ → 查看所有设置 → 转发和 POP/IMAP → 启用 IMAP\n2. 在 myaccount.google.com → 安全 中开启两步验证\n3. 在 myaccount.google.com/apppasswords 创建 App 密码(选择「邮件」)\n4. 把 16 位 App 密码粘贴到这里,不要填 Gmail 登录密码\n\nGoogle Workspace:管理员可能在全组织范围内禁用了 IMAP,请让他们在管理控制台中启用。"
+          }
+        }
+      }
+    },
+    "iCloud (@icloud.com / @me.com / @mac.com) requires:\n1. Enable 2-Factor Authentication at appleid.apple.com → Sign-In and Security\n2. Generate App-Specific Password under Sign-In and Security → App-Specific Passwords\n3. Use the app-specific password here, NOT your Apple ID password" : {
+      "comment" : "iCloud multi-step setup hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud(@icloud.com / @me.com / @mac.com)需要:\n1. 在 appleid.apple.com → 登录与安全 中开启双重认证\n2. 在 登录与安全 → App 专用密码 中生成 App 专用密码\n3. 在这里填 App 专用密码,不要填 Apple ID 密码"
+          }
+        }
+      }
+    },
+    "Outlook personal accounts (@outlook.com / @hotmail.com / @live.com):\n1. Enable 2-Step Verification at account.live.com → Security\n2. Create App Password under Security → Advanced security options\n3. Use the 16-char App Password here, NOT your account password\n\nSome legacy accounts have IMAP disabled by default — enable in Outlook.com Settings." : {
+      "comment" : "Outlook multi-step setup hint (v1.8.0).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outlook 个人账户(@outlook.com / @hotmail.com / @live.com):\n1. 在 account.live.com → 安全 中开启两步验证\n2. 在 安全 → 高级安全选项 中创建 App 密码\n3. 在这里填 16 位 App 密码,不要填账号登录密码\n\n部分老账户默认关闭 IMAP —— 请在 Outlook.com 设置中启用。"
+          }
+        }
+      }
+    },
+    "Yahoo:\n1. Sign in at login.yahoo.com → Account Security\n2. Generate App Password (Mail) — distinct from your account password\n3. Use the generated App Password here, NOT your Yahoo login password\n\nYahoo aggressively expires App Passwords — regenerate if auth fails after a long gap." : {
+      "comment" : "Yahoo multi-step setup hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yahoo:\n1. 登录 login.yahoo.com → 账户安全\n2. 生成 App 密码(邮件)—— 与账号登录密码不同\n3. 在这里填生成的 App 密码,不要填 Yahoo 登录密码\n\nYahoo 会较快让 App 密码过期 —— 长时间未用后登录失败请重新生成。"
+          }
+        }
+      }
+    },
+    "Fastmail:\n1. Settings → Privacy & Security → App passwords → New app password\n2. Give it 'Mail (IMAP)' access\n3. Use the generated app password here, NOT your account password" : {
+      "comment" : "Fastmail multi-step setup hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fastmail:\n1. 设置 → 隐私与安全 → App 密码 → 新建 App 密码\n2. 赋予它「Mail (IMAP)」访问权限\n3. 在这里填生成的 App 密码,不要填账号登录密码"
+          }
+        }
+      }
+    },
+    "Use your IMAP server's host (e.g. mail.example.com) and an app password if your provider supports them." : {
+      "comment" : "Generic IMAP setup hint.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填写你的 IMAP 服务器地址(例如 mail.example.com);如果服务商支持,请使用 App 密码。"
+          }
+        }
+      }
+    },
+    "Scan timed out — will retry in the background." : {
+      "comment" : "Watchdog scan timeout state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描超时 —— 会在后台自动重试。"
+          }
+        }
+      }
+    },
+    "Suber can't access Mail. Open System Settings to allow it." : {
+      "comment" : "Watchdog permission error copy.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 无法访问 Mail。请打开系统设置进行授权。"
+          }
+        }
+      }
+    },
+    "No Mail accounts configured." : {
+      "comment" : "Watchdog no-accounts error.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mail 中没有配置任何账户。"
+          }
+        }
+      }
+    },
+    "Synced %lld subscriptions" : {
+      "comment" : "Settings iCloud row sync event.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已同步 %lld 个订阅"
+          }
+        }
+      }
+    },
+    "Sync conflict: another Mac has %lld subscriptions, this Mac has %lld. Kept local — use Restore to inspect." : {
+      "comment" : "Settings iCloud row conflict event (merge rejected as stale).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同步冲突:另一台 Mac 有 %1$lld 个订阅,这台 Mac 有 %2$lld 个。已保留本机数据 —— 可用「恢复」检查。"
+          }
+        }
+      }
+    },
+    "Suber found 1 change" : {
+      "comment" : "Grouped notification title, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 发现 1 条变化"
+          }
+        }
+      }
+    },
+    "Suber found %lld changes" : {
+      "comment" : "Grouped notification title, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suber 发现 %lld 条变化"
+          }
+        }
+      }
+    },
+    "1 price change" : {
+      "comment" : "Notification summary piece, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 次涨价变动"
+          }
+        }
+      }
+    },
+    "%lld price changes" : {
+      "comment" : "Notification summary piece, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 次涨价变动"
+          }
+        }
+      }
+    },
+    "1 new sub" : {
+      "comment" : "Notification summary piece, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 个新订阅"
+          }
+        }
+      }
+    },
+    "%lld new subs" : {
+      "comment" : "Notification summary piece, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个新订阅"
+          }
+        }
+      }
+    },
+    "1 duplicate" : {
+      "comment" : "Notification summary piece, singular.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 笔重复扣款"
+          }
+        }
+      }
+    },
+    "%lld duplicates" : {
+      "comment" : "Notification summary piece, plural.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 笔重复扣款"
+          }
+        }
+      }
+    },
+    "%lld duplicate" : {
+      "comment" : "Notification fragment (2-5 changes path, legacy copy).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 笔重复扣款"
+          }
+        }
+      }
+    },
+    "%lld trial ending" : {
+      "comment" : "Notification summary piece.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个试用即将结束"
+          }
+        }
+      }
+    },
+    "%@ raised prices" : {
+      "comment" : "Notification fragment. %@ = service name(s).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 涨价了"
+          }
+        }
+      }
+    },
+    "%@, and %@" : {
+      "comment" : "Oxford list tail (3+ items). Args: joined head, last item.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 和 %@"
+          }
+        }
+      }
+    },
+    "%@ raised to %@ (%@)" : {
+      "comment" : "Single-change notification body. Args: service, price, percent.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 涨价至 %@(%@)"
+          }
+        }
+      }
+    },
+    "Price changed to %@ (%@)" : {
+      "comment" : "Single-change body fallback. Args: price, percent.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "价格变为 %@(%@)"
+          }
+        }
+      }
+    },
+    "%@ — new subscription detected" : {
+      "comment" : "Single-change body. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ —— 检测到新订阅"
+          }
+        }
+      }
+    },
+    "New subscription detected" : {
+      "comment" : "Single-change body fallback.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检测到新订阅"
+          }
+        }
+      }
+    },
+    "Duplicate charge detected" : {
+      "comment" : "Single-change body fallback.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检测到重复扣款"
+          }
+        }
+      }
+    },
+    "%@ trial ends soon" : {
+      "comment" : "Single-change body. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 试用即将到期"
+          }
+        }
+      }
+    },
+    "Trial ending soon" : {
+      "comment" : "Single-change body fallback.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试用即将到期"
+          }
+        }
+      }
+    },
+    "%@ cancelled — confirmed by Suber" : {
+      "comment" : "Single-change body. %@ = service.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已取消 —— Suber 已确认"
+          }
+        }
+      }
+    },
+    "Cancellation confirmed" : {
+      "comment" : "Single-change body fallback.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消已确认"
+          }
+        }
+      }
+    },
+    "A cancellation didn't take effect" : {
+      "comment" : "Single-change body fallback.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有一笔取消未生效"
+          }
+        }
+      }
+    },
+    "A subscription" : {
+      "comment" : "Service-name fallback in notification fragments.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "某个订阅"
+          }
+        }
+      }
+    },
+    "Subscription Reminder" : {
+      "comment" : "Billing reminder notification title.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "订阅提醒"
+          }
+        }
+      }
+    },
+    "%@ is billing today - %@" : {
+      "comment" : "Reminder body. Args: service, amount.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 今天扣费 - %@"
+          }
+        }
+      }
+    },
+    "%@ is billing tomorrow - %@" : {
+      "comment" : "Reminder body. Args: service, amount.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 明天扣费 - %@"
+          }
+        }
+      }
+    },
+    "%@ is billing in %lld days - %@" : {
+      "comment" : "Reminder body. Args: service, days, amount.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 将在 %2$lld 天后扣费 - %3$@"
+          }
+        }
+      }
+    },
+    "Monthly" : {
+      "comment" : "Billing cycle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月"
+          }
+        }
+      }
+    },
+    "Yearly" : {
+      "comment" : "Billing cycle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每年"
+          }
+        }
+      }
+    },
+    "Weekly" : {
+      "comment" : "Billing cycle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每周"
+          }
+        }
+      }
+    },
+    "Quarterly" : {
+      "comment" : "Billing cycle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每季度"
+          }
+        }
+      }
+    },
+    "One-time" : {
+      "comment" : "Billing cycle label.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次性"
+          }
+        }
+      }
+    },
+    "/mo" : {
+      "comment" : "Billing cycle short suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/月"
+          }
+        }
+      }
+    },
+    "/yr" : {
+      "comment" : "Billing cycle short suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/年"
+          }
+        }
+      }
+    },
+    "/wk" : {
+      "comment" : "Billing cycle short suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/周"
+          }
+        }
+      }
+    },
+    "/qtr" : {
+      "comment" : "Billing cycle short suffix.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/季"
+          }
+        }
+      }
+    },
+    "Streaming" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流媒体"
+          }
+        }
+      }
+    },
+    "Music" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音乐"
+          }
+        }
+      }
+    },
+    "Software" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "软件"
+          }
+        }
+      }
+    },
+    "Cloud Storage" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "云存储"
+          }
+        }
+      }
+    },
+    "Productivity" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "效率"
+          }
+        }
+      }
+    },
+    "AI" : {
+      "comment" : "Preset category display name (kept as-is in zh).",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI"
+          }
+        }
+      }
+    },
+    "Education" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "教育"
+          }
+        }
+      }
+    },
+    "News" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新闻"
+          }
+        }
+      }
+    },
+    "Gaming" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "游戏"
+          }
+        }
+      }
+    },
+    "Fitness" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "健身"
+          }
+        }
+      }
+    },
+    "Finance" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金融"
+          }
+        }
+      }
+    },
+    "Other" : {
+      "comment" : "Preset category display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他"
+          }
+        }
+      }
+    },
+    "Monthly Spend" : {
+      "comment" : "Small widget header + widget gallery display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月支出"
+          }
+        }
+      }
+    },
+    "Upcoming Bills" : {
+      "comment" : "Medium widget header + widget gallery display name.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将扣费"
+          }
+        }
+      }
+    },
+    "No upcoming bills this week" : {
+      "comment" : "Medium widget empty state.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本周没有即将到来的扣费"
+          }
+        }
+      }
+    },
+    "%lld active" : {
+      "comment" : "Small widget footer. %lld = active count.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个活跃"
+          }
+        }
+      }
+    },
+    "See your total monthly subscription spend." : {
+      "comment" : "Widget gallery description.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看你每月的订阅总支出。"
+          }
+        }
+      }
+    },
+    "See subscriptions billing in the next 7 days." : {
+      "comment" : "Widget gallery description.",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看未来 7 天内将扣费的订阅。"
           }
         }
       }

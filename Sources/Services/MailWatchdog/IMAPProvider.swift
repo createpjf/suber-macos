@@ -37,7 +37,7 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
         case .outlook:  return "Outlook"
         case .yahoo:    return "Yahoo"
         case .fastmail: return "Fastmail"
-        case .generic:  return "Other (IMAP)"
+        case .generic:  return String(localized: "Other (IMAP)")  // U-02: only non-brand name
         }
     }
 
@@ -79,7 +79,7 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
             // v1.8.1: 4 steps. The IMAP-enable step (1) is the one users
             // skip most — Gmail defaults IMAP to OFF. Without it, even a
             // valid App Password fails LOGIN with cryptic responses.
-            return """
+            return String(localized: """
                 Gmail (@gmail.com / Google Workspace) requires:
                 1. Enable IMAP at mail.google.com → Settings ⚙ → See all settings → Forwarding and POP/IMAP → IMAP access: Enable
                 2. Enable 2-Step Verification at myaccount.google.com → Security
@@ -87,46 +87,46 @@ enum IMAPProvider: String, Codable, CaseIterable, Identifiable {
                 4. Paste the 16-char App Password here, NOT your Gmail login password
 
                 Google Workspace: your admin may have disabled IMAP org-wide. Ask them to enable it in Admin Console.
-                """
+                """)
         case .icloud:
-            return """
+            return String(localized: """
                 iCloud (@icloud.com / @me.com / @mac.com) requires:
                 1. Enable 2-Factor Authentication at appleid.apple.com → Sign-In and Security
                 2. Generate App-Specific Password under Sign-In and Security → App-Specific Passwords
                 3. Use the app-specific password here, NOT your Apple ID password
-                """
+                """)
         case .outlook:
             // v1.8.0: 细化提示。Microsoft 个人账号（@outlook.com / @hotmail.com /
             // @live.com）2024-2025 起逐步禁用 Basic Auth，必须走 App Password
             // 而且要求账号开启两步验证。当用户填错 App Password 时，IMAP
             // 服务器返回的是 `[AUTHENTICATIONFAILED] basic auth disabled`
             // 这种具体消息 — IMAPAccountSheet.runTest() 会原样展示给用户。
-            return """
+            return String(localized: """
                 Outlook personal accounts (@outlook.com / @hotmail.com / @live.com):
                 1. Enable 2-Step Verification at account.live.com → Security
                 2. Create App Password under Security → Advanced security options
                 3. Use the 16-char App Password here, NOT your account password
 
                 Some legacy accounts have IMAP disabled by default — enable in Outlook.com Settings.
-                """
+                """)
         case .yahoo:
-            return """
+            return String(localized: """
                 Yahoo:
                 1. Sign in at login.yahoo.com → Account Security
                 2. Generate App Password (Mail) — distinct from your account password
                 3. Use the generated App Password here, NOT your Yahoo login password
 
                 Yahoo aggressively expires App Passwords — regenerate if auth fails after a long gap.
-                """
+                """)
         case .fastmail:
-            return """
+            return String(localized: """
                 Fastmail:
                 1. Settings → Privacy & Security → App passwords → New app password
                 2. Give it 'Mail (IMAP)' access
                 3. Use the generated app password here, NOT your account password
-                """
+                """)
         case .generic:
-            return "Use your IMAP server's host (e.g. mail.example.com) and an app password if your provider supports them."
+            return String(localized: "Use your IMAP server's host (e.g. mail.example.com) and an app password if your provider supports them.")
         }
     }
 }
@@ -160,12 +160,12 @@ extension IMAPProvider {
         case .gmail:
             return [
                 QuickLink(
-                    label: "Enable IMAP",
+                    label: String(localized: "Enable IMAP"),
                     url: URL(string: "https://mail.google.com/mail/u/0/#settings/fwdandpop")!,
                     symbol: "envelope.badge"
                 ),
                 QuickLink(
-                    label: "Create App Password",
+                    label: String(localized: "Create App Password"),
                     url: URL(string: "https://myaccount.google.com/apppasswords")!,
                     symbol: "key.fill"
                 ),
@@ -173,7 +173,7 @@ extension IMAPProvider {
         case .icloud:
             return [
                 QuickLink(
-                    label: "Apple ID Sign-In and Security",
+                    label: String(localized: "Apple ID Sign-In and Security"),
                     url: URL(string: "https://appleid.apple.com/account/manage")!,
                     symbol: "key.fill"
                 ),
@@ -181,7 +181,7 @@ extension IMAPProvider {
         case .outlook:
             return [
                 QuickLink(
-                    label: "Microsoft Account Security",
+                    label: String(localized: "Microsoft Account Security"),
                     url: URL(string: "https://account.microsoft.com/security")!,
                     symbol: "key.fill"
                 ),
@@ -189,7 +189,7 @@ extension IMAPProvider {
         case .yahoo:
             return [
                 QuickLink(
-                    label: "Yahoo Account Security",
+                    label: String(localized: "Yahoo Account Security"),
                     url: URL(string: "https://login.yahoo.com/account/security")!,
                     symbol: "key.fill"
                 ),
@@ -197,7 +197,7 @@ extension IMAPProvider {
         case .fastmail:
             return [
                 QuickLink(
-                    label: "Fastmail App Passwords",
+                    label: String(localized: "Fastmail App Passwords"),
                     url: URL(string: "https://app.fastmail.com/settings/security/integrations")!,
                     symbol: "key.fill"
                 ),

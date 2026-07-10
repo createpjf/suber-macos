@@ -141,7 +141,8 @@ struct EmailParseView: View {
     }
 
     @ViewBuilder
-    private func resultRow(_ label: String, value: String?) -> some View {
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — literal labels.
+    private func resultRow(_ label: LocalizedStringKey, value: String?) -> some View {
         HStack(spacing: 8) {
             Image(systemName: value != nil ? "checkmark.circle.fill" : "xmark.circle")
                 .font(.system(size: 12))

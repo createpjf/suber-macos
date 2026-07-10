@@ -259,7 +259,10 @@ struct IMAPAccountSheet: View {
                 if case .success(let count) = testResult {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                        Text("Connected · \(count) account\(count == 1 ? "" : "s")")
+                        // U-03: full literal per plural branch (translatable).
+                        Text(count == 1
+                             ? "Connected · 1 account"
+                             : "Connected · \(count) accounts")
                             .font(AppFont.regular(11))
                             .foregroundColor(Theme.textSecondary)
                     }
@@ -374,18 +377,19 @@ struct IMAPAccountSheet: View {
             // actionable than generic "check email and app password".
             // v1.8.1: prepend a plain-English friendly hint when we recognize
             // the server's reason (5 patterns covered, see friendlyHintFor).
-            let baseMsg = "Authentication failed."
+            // U-03: String(localized:) — these runtime Strings feed
+            // Text(message), which renders verbatim.
             if let detail = detail, !detail.isEmpty {
                 if let friendly = Self.friendlyHintFor(serverDetail: detail, provider: provider) {
-                    testResult = .failure(message: "\(baseMsg) \(friendly)\n\nServer said: \(detail)")
+                    testResult = .failure(message: String(localized: "Authentication failed. \(friendly)\n\nServer said: \(detail)"))
                 } else {
-                    testResult = .failure(message: "\(baseMsg) Server said: \(detail)")
+                    testResult = .failure(message: String(localized: "Authentication failed. Server said: \(detail)"))
                 }
             } else {
-                testResult = .failure(message: "\(baseMsg) Check the email and app password.")
+                testResult = .failure(message: String(localized: "Authentication failed. Check the email and app password."))
             }
         } catch MailBridgeError.timeout {
-            testResult = .failure(message: "Connection timed out. Check the host and port (or local proxy/VPN settings — Clash/Stash etc. often intercept imap.* domains).")
+            testResult = .failure(message: String(localized: "Connection timed out. Check the host and port (or local proxy/VPN settings — Clash/Stash etc. often intercept imap.* domains)."))
         } catch {
             testResult = .failure(message: error.localizedDescription)
         }
@@ -429,29 +433,29 @@ struct IMAPAccountSheet: View {
         if lower.contains("application-specific password required")
             || lower.contains("app password")
             || lower.contains("app-specific password") {
-            return "You probably typed your account password — \(provider.displayName) needs an App Password (see numbered steps below the password field)."
+            return String(localized: "You probably typed your account password — \(provider.displayName) needs an App Password (see numbered steps below the password field).")
         }
 
         // Outlook personal accounts after Microsoft disabled basic auth (2024+).
         if lower.contains("basic auth disabled")
             || lower.contains("basic authentication is disabled") {
-            return "Microsoft has disabled basic authentication for this account — you must use an App Password (Outlook → Security → Advanced → App Passwords)."
+            return String(localized: "Microsoft has disabled basic authentication for this account — you must use an App Password (Outlook → Security → Advanced → App Passwords).")
         }
 
         // Gmail / Workspace where IMAP itself isn't enabled.
         if lower.contains("imap access is disabled") || lower.contains("imap is disabled") {
-            return "IMAP is disabled on this account. For Gmail: enable at mail.google.com → Settings → Forwarding and POP/IMAP. For Workspace: ask your admin to enable it in Admin Console."
+            return String(localized: "IMAP is disabled on this account. For Gmail: enable at mail.google.com → Settings → Forwarding and POP/IMAP. For Workspace: ask your admin to enable it in Admin Console.")
         }
 
         // Gmail security lockout — account flagged, needs interactive web login.
         if lower.contains("webloginrequired")
             || lower.contains("please log in via your web browser") {
-            return "Gmail thinks this account needs a security check. Open mail.google.com in a browser, sign in, then try here again."
+            return String(localized: "Gmail thinks this account needs a security check. Open mail.google.com in a browser, sign in, then try here again.")
         }
 
         // Server advertises LOGINDISABLED capability.
         if lower.contains("logindisabled") {
-            return "IMAP login is disabled for this account — enable in your provider's web settings, or check with your admin."
+            return String(localized: "IMAP login is disabled for this account — enable in your provider's web settings, or check with your admin.")
         }
 
         return nil

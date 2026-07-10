@@ -9,22 +9,26 @@ enum BillingCycle: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    // AUDIT-v1.9.2 U-02: labels flow into the UI as Strings (form pickers,
+    // card price rows) — String(localized:) so zh-Hans resolves. Note: the
+    // widget target compiles this file but doesn't bundle the catalog, so
+    // widget-rendered labels fall back to English (see project.yml).
     var label: String {
         switch self {
-        case .monthly: return "Monthly"
-        case .yearly: return "Yearly"
-        case .weekly: return "Weekly"
-        case .quarterly: return "Quarterly"
-        case .oneTime: return "One-time"
+        case .monthly: return String(localized: "Monthly")
+        case .yearly: return String(localized: "Yearly")
+        case .weekly: return String(localized: "Weekly")
+        case .quarterly: return String(localized: "Quarterly")
+        case .oneTime: return String(localized: "One-time")
         }
     }
 
     var shortLabel: String {
         switch self {
-        case .monthly: return "/mo"
-        case .yearly: return "/yr"
-        case .weekly: return "/wk"
-        case .quarterly: return "/qtr"
+        case .monthly: return String(localized: "/mo")
+        case .yearly: return String(localized: "/yr")
+        case .weekly: return String(localized: "/wk")
+        case .quarterly: return String(localized: "/qtr")
         case .oneTime: return ""
         }
     }
@@ -66,10 +70,15 @@ enum SubscriptionStatus: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    // AUDIT-v1.9.2 U-02: explicit switch (was rawValue.capitalized) so every
+    // status name is a static catalog key. English output is identical.
     var label: String {
         switch self {
-        case .pendingCancellation: return "Pending cancel"
-        default: return rawValue.capitalized
+        case .active: return String(localized: "Active")
+        case .paused: return String(localized: "Paused")
+        case .cancelled: return String(localized: "Cancelled")
+        case .trial: return String(localized: "Trial")
+        case .pendingCancellation: return String(localized: "Pending cancel")
         }
     }
 

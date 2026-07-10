@@ -131,8 +131,11 @@ struct AutopilotConsentSheet: View {
 /// same visual treatment without duplicating the layout.
 struct TrustBullet: View {
     let symbol: String
-    let title: String
-    let detail: String   // can't name this `body` — collides with View.body
+    // AUDIT-v1.9.2 U-03: LocalizedStringKey (was String) — both call sites
+    // (AutopilotConsentSheet, CloudSyncOnboardingSheet) pass literals, and
+    // Text(String) skipped the catalog.
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey   // can't name this `body` — collides with View.body
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {

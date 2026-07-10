@@ -252,7 +252,7 @@ struct ImageDropZoneView: View {
     private func handlePaste() {
         guard let items = NSPasteboard.general.readObjects(forClasses: [NSImage.self], options: nil),
               let image = items.first as? NSImage else {
-            errorMessage = "No image found on clipboard.\nCopy a screenshot first (⌘⇧4)."
+            errorMessage = String(localized: "No image found on clipboard.\nCopy a screenshot first (⌘⇧4).")
             return
         }
         processImage(image)
@@ -263,7 +263,7 @@ struct ImageDropZoneView: View {
         panel.allowedContentTypes = [.image, .png, .jpeg, .tiff, .heic]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.message = "Select a subscription screenshot or receipt"
+        panel.message = String(localized: "Select a subscription screenshot or receipt")
 
         // The MenuBarExtra popover is at `popUpMenu` window level, which is higher
         // than modal alerts. Temporarily drop the popover's level so the file
@@ -298,7 +298,7 @@ struct ImageDropZoneView: View {
                 if ocrResult.isEmpty {
                     await MainActor.run {
                         isProcessing = false
-                        errorMessage = "No text found in image.\nTry a clearer screenshot."
+                        errorMessage = String(localized: "No text found in image.\nTry a clearer screenshot.")
                     }
                     return
                 }
@@ -306,7 +306,7 @@ struct ImageDropZoneView: View {
                 if ocrResult.averageConfidence < 0.3 {
                     await MainActor.run {
                         isProcessing = false
-                        errorMessage = "Image quality is too low.\nTry a higher resolution screenshot."
+                        errorMessage = String(localized: "Image quality is too low.\nTry a higher resolution screenshot.")
                     }
                     return
                 }
@@ -323,9 +323,11 @@ struct ImageDropZoneView: View {
                 }
 
                 // Build summary
+                // U-03: runtime-built summary Strings go through
+                // String(localized:) so the catalog resolves them.
                 let summary: String
                 if parsedList.count > 1 {
-                    summary = "Found \(parsedList.count) subscriptions"
+                    summary = String(localized: "Found \(parsedList.count) subscriptions")
                 } else {
                     let parsed = parsedList[0]
                     var parts: [String] = []
@@ -335,7 +337,9 @@ struct ImageDropZoneView: View {
                         let cycleStr = parsed.cycle?.shortLabel ?? ""
                         parts.append("\(symbol)\(amount)\(cycleStr)")
                     }
-                    summary = parts.isEmpty ? "Partial data recognized" : "Found: " + parts.joined(separator: ", ")
+                    summary = parts.isEmpty
+                        ? String(localized: "Partial data recognized")
+                        : String(localized: "Found: \(parts.joined(separator: ", "))")
                 }
 
                 await MainActor.run {
