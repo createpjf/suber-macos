@@ -27,6 +27,7 @@ enum LanguageOverride {
     enum Choice: String, CaseIterable, Identifiable {
         case system   = "system"
         case english  = "en"
+        case spanish  = "es"
         case chinese  = "zh-Hans"
 
         var id: String { rawValue }
@@ -37,10 +38,11 @@ enum LanguageOverride {
         var displayName: String {
             switch self {
             // U-03: "System default" is a translated catalog key; the computed
-            // String channel needs an explicit lookup. The two language names
+            // String channel needs an explicit lookup. The language names
             // stay hard-coded IN THE TARGET LANGUAGE by design (see above).
             case .system:  return String(localized: "System default")
             case .english: return "English"
+            case .spanish: return "Español"
             case .chinese: return "简体中文"
             }
         }
@@ -54,7 +56,7 @@ enum LanguageOverride {
             // Remove the override so Foundation falls back to the system
             // Preferred Languages order (default macOS behavior).
             defaults.removeObject(forKey: "AppleLanguages")
-        case .english, .chinese:
+        case .english, .spanish, .chinese:
             // Force this locale across all bundle lookups at next launch.
             defaults.set([choice.rawValue], forKey: "AppleLanguages")
         }
@@ -66,9 +68,10 @@ enum LanguageOverride {
         guard let raw = defaults.array(forKey: "AppleLanguages") as? [String],
               let first = raw.first
         else { return .system }
-        // Coerce "zh-Hans-CN" → "zh-Hans" etc.
+        // Coerce "zh-Hans-CN" → "zh-Hans", "es-MX" → "es" etc.
         if first.hasPrefix("zh-Hans") { return .chinese }
         if first.hasPrefix("en") { return .english }
+        if first.hasPrefix("es") { return .spanish }
         return .system
     }
 

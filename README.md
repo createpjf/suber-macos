@@ -23,7 +23,7 @@
 
 ## About
 
-Suber lives in your macOS menu bar and tracks every subscription you pay for — Netflix, iCloud, ChatGPT, that forgotten gym app — so renewal dates and total monthly spend are always one click away. Works across all your Macs with iCloud sync, speaks 20+ currencies, speaks English + 简体中文, and doesn't send your data anywhere.
+Suber lives in your macOS menu bar and tracks every subscription you pay for — Netflix, iCloud, ChatGPT, that forgotten gym app — so renewal dates and total monthly spend are always one click away. Works across all your Macs with iCloud sync, speaks 20+ currencies, speaks English, Español and 简体中文, and doesn't send your data anywhere.
 
 **v1.6.0 — Autopilot** — Suber now works in the background. Watch reads billing receipts from Apple Mail, Sense flags price rises and new subs you forgot about, Act opens the cancel page in one tap and confirms the cancellation actually went through. See the [Autopilot section](#autopilot-watch--sense--act) below.
 
@@ -54,7 +54,7 @@ Suber lives in your macOS menu bar and tracks every subscription you pay for —
 - **Multi-currency** — 20+ currencies with automatic exchange-rate conversion
 - **Image auto-fill** — drop a receipt or email screenshot into the add form; Vision-based OCR extracts the name and price
 - **Bank-CSV import** — Alipay / WeChat Pay / generic CSV → recurring-charge detection
-- **Bilingual** — English + 简体中文 (auto-selects from your macOS Preferred Languages)
+- **Multilingual** — English, Español, 简体中文 (auto-selects from your macOS Preferred Languages)
 - **Siri / App Intents** — "Add a Netflix subscription", "What's my monthly spend"
 - **Notifications** — local reminders 1 / 2 / 3 / 5 / 7 days before each bill, configurable
 - **JSON export / import** — local backup and restore; also imports from the Suber Chrome extension

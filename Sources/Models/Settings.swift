@@ -7,7 +7,7 @@ struct AppSettings: Codable, Equatable {
     var launchAtLogin: Bool = false
     var enableCloudSync: Bool = false
     /// v1.6: in-app language override. "system" = follow macOS Preferred
-    /// Languages (default behavior). "en" / "zh-Hans" = force that locale
+    /// Languages (default behavior). "en" / "es" / "zh-Hans" = force that locale
     /// via `AppleLanguages` UserDefaults override. Requires a restart of
     /// Suber to fully take effect (NSLocalizedString-cached strings only
     /// re-resolve at process launch).

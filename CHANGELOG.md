@@ -2,6 +2,12 @@
 
 All notable changes to Suber. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); semver per release.
 
+## [Unreleased]
+
+### Added
+
+- **Spanish localization (es + es-419)**: all 417 catalog keys translated into Spanish, plus a Latin American variant (`es-419`) that differs only where macOS terminology does (`Configuración`, `Agregar`, `esta Mac`). Both are registered in `CFBundleLocalizations` / `knownRegions`, and "Español" is added to Settings → Language. `LocalizationCatalogTests` now requires full `es` and `es-419` coverage alongside `zh-Hans`, and DESIGN.md §14.5 records the Spanish style rules.
+
 ## [1.10.0] — 2026-07-10 — 第二轮独立审计：删除墓碑、IMAP 崩溃面、本地化补全
 
 v1.9.2 自称"audit hardening"，但一次新的独立复审（6 个领域并行深读 + 每条 finding 对抗验证，完整报告见 `docs/AUDIT-v1.9.2.md`）又挖出 58 个问题，其中最讽刺的一个是审计本身教会我们的：**跑测试套件会删除开发机上的真实订阅数据**——测试的 setUp/tearDown 直接读写真实 App Group 容器，而发布流程恰恰要求每次发版前跑测试。没有任何"零缺陷"的审计，只有下一双眼睛还没看过的代码；这次的结论是把"对抗验证"做成常态，而不是信任第一遍通过。

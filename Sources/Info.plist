@@ -10,6 +10,8 @@
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
+		<string>es</string>
+		<string>es-419</string>
 		<string>zh-Hans</string>
 	</array>
 	<key>CFBundleExecutable</key>

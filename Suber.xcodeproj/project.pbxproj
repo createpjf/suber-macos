@@ -699,6 +699,8 @@
 			knownRegions = (
 				Base,
 				en,
+				es,
+				"es-419",
 				"zh-Hans",
 			);
 			mainGroup = A3C13149D97C854BF21072FF;

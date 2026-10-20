@@ -113,7 +113,7 @@ struct SettingsView: View {
                         .frame(width: 140)
                     }
 
-                    Text("Suber follows your macOS language by default. Override here to force English or 简体中文.")
+                    Text("Suber follows your macOS language by default. Override here to force English, Español, or 简体中文.")
                         .font(AppFont.regular(11))
                         .foregroundColor(Theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
