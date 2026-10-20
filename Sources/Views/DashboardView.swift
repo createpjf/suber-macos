@@ -294,8 +294,10 @@ struct DashboardView: View {
                             Spacer()
 
                             // U-03: interpolation (not `+` concat) so the
-                            // "%@/mo" catalog key resolves.
-                            Text("\(CurrencyFormatter.formatShort(item.monthlyEquivalent, currency: item.subscription.currency))/mo")
+                            // "%@/mo" catalog key resolves. monthlyEquivalent is
+                            // already converted to the primary currency, so format
+                            // it in that currency, not the subscription's own.
+                            Text("\(CurrencyFormatter.formatShort(item.monthlyEquivalent, currency: settingsStore.settings.primaryCurrency))/mo")
                                 .font(AppFont.medium(11))
                                 .foregroundColor(Theme.textSecondary)
                         }
